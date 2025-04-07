@@ -70,7 +70,6 @@ html, body {
   height: 30px;
 }
 
-/* Footer */
 .footer-container {
   position: fixed;
   bottom: 0;
@@ -83,7 +82,11 @@ html, body {
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
   overflow: hidden;
+  height: 80px; /* Ajustez la hauteur selon vos besoins */
+  
 }
+
+
 
 .footer-text {
   color: #55d7ff;
