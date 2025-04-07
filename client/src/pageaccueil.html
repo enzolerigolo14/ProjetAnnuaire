@@ -20,22 +20,23 @@
           <img src="/client/src/assets/images/logo-lisieux.png" alt="Logo de la ville de Lisieux" class="logo">
         </a>
       </div>
-      <div class="search">
-        <div class="search-container">
-          <img src="/client/src/assets/images/search-icon.png" alt="Search Icon" class="search-icon">
-          <input type="text" id="site-search" placeholder="Nom, prénom, téléphone ou service" maxlength="32" oninput="validerRecherche(this)" />
-          <button class="bouton-search" type="button" onclick="window.location.reload(false)" value="Rafraichir">Rechercher</button>
-        </div>
+      
+      <div class="search-container">
+        <img src="/client/src/assets/images/search-icon.png" alt="Search Icon" class="search-icon">
+        <input type="text" id="site-search" placeholder="Nom, prénom, téléphone ou service" maxlength="32" oninput="validerRecherche(this)" />
+        <button class="bouton-search" type="button" onclick="window.location.reload(false)" value="Rafraichir">Rechercher</button>
       </div>
-      <div class="header-buttons">
+      
+      <div class="header-profile">
         <a href="/client/src/connexion.html" id="connexion" class="header-button">Connexion</a>
         <button id="deconnexion-button" class="header-button" style="display: none;">Déconnexion</button>
-        <div id="user-profile" class="header-profile" style="display: none;">
+        <div id="user-profile" style="display: none;">
           <span id="username-display"></span>
           <img src="/client/src/assets/images/profile-icon.png" alt="Profil" class="profile-icon">
         </div>
       </div>
-  </header>
+    </div>
+</header>
 
   <nav class="navbar">
     <ul class="nav-list">

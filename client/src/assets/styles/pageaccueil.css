@@ -1,35 +1,46 @@
+/* Général */
 html, body {
   margin: 0;
   padding: 0;
   height: 100%;
   overflow-y: auto; /* Active le défilement vertical si nécessaire */
 }
+
 .header-container {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between; /* Répartit l'espace entre les éléments */
   height: 100px;
   padding: 0 20px;
   position: relative;
   border-radius: 16px;
 }
 
-
 .header-logo {
-  position: absolute;
-  left: 20px;
+  /* Plus besoin de position absolute */
+  display: flex;
+  align-items: center;
 }
 
 .logo {
   height: 100px;
 }
 
-
+/* Barre de recherche */
 .search-container {
   display: flex;
   align-items: center;
   gap: 10px;
   position: relative;
+  margin: 0 auto; /* Centre le conteneur */
+}
+
+/* Profil utilisateur */
+.header-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Plus besoin de position absolute */
 }
 
 .search-container input {
@@ -44,7 +55,6 @@ html, body {
   left: 8px;
   width: 16px;
   height: 16px;
-  /*pointer-events: none;*/
   top: 50%;
   transform: translateY(-50%);
 }
@@ -60,23 +70,7 @@ html, body {
   height: 30px;
 }
 
-#logo-clickable {
-  cursor: pointer;
-  float: left;
-  width: 250px;
-  display: block;
-}
-
-
-.footer-text {
-  color: #55d7ff;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  position: relative;
-}
-
-
+/* Footer */
 .footer-container {
   position: fixed;
   bottom: 0;
@@ -85,21 +79,26 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 5px 10px; /* Réduit l'espace intérieur */
+  padding: 5px 10px;
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
   overflow: hidden;
 }
 
+.footer-text {
+  color: #55d7ff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+}
+
 .footer-text a img {
-  height: 20px; /* Réduit la taille des icônes */
+  height: 20px;
   max-width: 100%;
 }
 
-.footer-text {
-  font-size: 0.8rem; /* Réduit la taille du texte */
-}
-
+/* Actualités */
 .actualite {
   display: flex;
   flex-direction: column;
@@ -113,7 +112,7 @@ html, body {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 20px; /* Espacement entre les éléments */
+  gap: 20px;
   max-width: 1200px;
 }
 
@@ -122,14 +121,14 @@ html, body {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  width: 300px; /* Largeur uniforme pour tous les éléments */
+  width: 300px;
 }
 
 .actualite-image {
   width: 100%;
   height: auto;
-  max-height: 200px; /* Limite la hauteur des images */
-  object-fit: cover; /* Ajuste l'image pour qu'elle reste proportionnelle */
+  max-height: 200px;
+  object-fit: cover;
   border-radius: 8px;
 }
 
@@ -141,9 +140,10 @@ html, body {
 .actualite-text {
   font-size: 0.9rem;
   color: #333;
-  min-height: 60px; /* Définit une hauteur minimale pour aligner les textes */
+  min-height: 60px;
 }
 
+/* Navbar */
 .navbar {
   background-color: #333;
   padding: 10px 20px;
@@ -176,7 +176,7 @@ html, body {
 .dropdown {
   display: none;
   position: absolute;
-  top: 100%; /* Place le sous-menu en dessous du lien parent */
+  top: 100%;
   left: 0;
   background-color: #444;
   list-style: none;
@@ -200,16 +200,16 @@ html, body {
 }
 
 .nav-list > li:hover .dropdown {
-  display: block; /* Affiche le sous-menu au survol */
+  display: block;
 }
 
-
+/* Profil utilisateur */
 .header-profile {
   display: flex;
-  flex-direction: column; /* Place les éléments verticalement */
+  flex-direction: column;
   align-items: center;
   position: absolute;
-  right: 20px; /* Positionne le profil complètement à droite */
+  right: 20px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -222,7 +222,7 @@ html, body {
 }
 
 #deconnexion-button {
-  margin-top: 10px; /* Ajoute un espace entre le logo et le bouton */
+  margin-top: 10px;
   background-color: #ff5555;
   border: none;
   color: white;
@@ -230,5 +230,17 @@ html, body {
   font-size: 14px;
   cursor: pointer;
   border-radius: 5px;
-  display: none; /* Par défaut, le bouton est masqué */
+  display: none;
+}
+
+#connexion {
+  margin-top: 10px;
+  background-color: #55d7ff;
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 5px;
+  text-decoration: none;
 }
