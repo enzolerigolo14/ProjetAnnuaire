@@ -1,0 +1,5 @@
+{
+    "require": {
+        "adldap2/adldap2": "^4.0"
+    }
+}
