@@ -3,24 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion</title>
+    <title>Connexion | Nom de votre application</title>
     <link rel="stylesheet" href="/client/src/assets/styles/connexion.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="/client/script/connexion.js" defer></script>
 </head>
 <body>
     <div id="connexion-modal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
-            <h2>Connexion</h2>
+            <div class="login-header">
+                <h2>Connexion</h2>
+                <p>Accédez à votre espace personnel</p>
+            </div>
+            
             <form id="login-form">
-                <label for="username">Nom d'utilisateur:</label>
-                <input type="text" id="username" name="username" required oninput="validerNomUtilisateur(this)">
+                <div class="form-group">
+                    <label for="username">Nom d'utilisateur ou email</label>
+                    <input type="text" id="username" name="username" required 
+                           placeholder="exemple@ville-lisieux.fr ou jdupont" oninput="validerNomUtilisateur(this)">
+                </div>
               
-                <label for="password">Mot de passe:</label>
-                <input type="password" id="password" name="password" required >
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password">
+                    <a href="#" class="forgot-password">Mot de passe oublié ?</a>
+                </div>
               
-                <button type="submit">Se connecter</button>
-              </form>
+                <button type="submit" class="submit-btn">Se connecter</button>
+                
+                <div class="signup-link">
+                    Pas encore de compte ? <a href="#">S'inscrire</a>
+                </div>
+            </form>
         </div>
     </div>
 </body>
