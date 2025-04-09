@@ -1,5 +1,14 @@
 {
-    "require": {
-        "adldap2/adldap2": "^4.0"
-    }
+    "name": "ecaillet/src",
+    "autoload": {
+        "psr-4": {
+            "Ecaillet\\Src\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "enzo",
+            "email": "enzo@gmail.com"
+        }
+    ]
 }
