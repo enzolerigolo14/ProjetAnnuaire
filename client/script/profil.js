@@ -25,4 +25,6 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.removeItem("username");
         window.location.href = "/client/src/pageaccueil.html";
     });
+
+    
 });
