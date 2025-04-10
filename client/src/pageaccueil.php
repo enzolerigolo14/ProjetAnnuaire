@@ -3,7 +3,7 @@ session_start();
 
 // Redirection si l'utilisateur n'est pas connecté
 if (!isset($_SESSION['username'])) {
-  header("Location: /ProjetAnnuaire/client/src/connexion.php");
+  header("Location: /projetannuaire/client/src/connexion.php");
     exit;
 }
 ?>
