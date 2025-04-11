@@ -1,25 +1,73 @@
 <?php
 session_start();
+require_once __DIR__ . '/config/database.php';
 
-if (!isset($_SESSION['username'])) {
-    header('Location: /ProjetAnnuaire/client/src/connexion.php');
+// Vérification de la connexion
+if (!isset($_SESSION['user'])) {
+    header('Location: /projetannuaire/client/src/connexion.php');
     exit;
 }
+
+// Récupération des données utilisateur
+$userId = $_SESSION['user']['id'];
+try {
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+    $stmt->execute([$userId]);
+    $user = $stmt->fetch();
+
+    $stmt = $pdo->prepare("SELECT * FROM services WHERE id = ?");
+    $stmt->execute([$user['service_id']]);
+    $services = $stmt->fetch();
+
+    
+    
+    if (!$user) {
+        die("Utilisateur non trouvé");
+    }
+} catch (PDOException $e) {
+    die("Erreur de base de données: " . $e->getMessage());
+}
 ?>
+
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <title>Mon Profil</title>
-  <link rel="stylesheet" href="/client/src/assets/styles/profil.css">
-  <script src="/client/script/profil.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Profil | Trombinoscope Ville de Lisieux</title>
+    <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/profile.css">
+    <script src="/projetannuaire/client/script/profile.js" defer></script>
 </head>
 <body>
-  <div class="profile-container">
-    <h1>Mon Profil</h1>
-    <div id="profile-info">
-      <p>Nom d'utilisateur: <span id="profile-username"><?php echo htmlspecialchars($_SESSION['username']); ?></span></p>
+    <div class="profile-container">
+        <div class="profile-header">
+            <h1>Profil de <?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></h1>
+            <a href="/projetannuaire/client/src/pageaccueil.php" class="back-button">← Retour</a>
+        </div>
+
+        <div class="profile-content">
+            <div class="profile-info">
+                <div class="profile-avatar">
+                    <img src="/projetannuaire/client/src/assets/images/default-avatar.png" alt="Photo de profil">
+                    <button class="change-avatar">Changer la photo</button>
+                </div>
+                
+                <div class="profile-details">
+                    <h2>Informations personnelles</h2>
+                    <p><strong>Nom complet:</strong> <?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></p>
+                    <p><strong>Email professionnel:</strong> <?= htmlspecialchars($user['email_professionnel']) ?></p>
+                    <p><strong>Téléphone:</strong> <?= htmlspecialchars($user['telephone'] ?? 'Non renseigné') ?></p>
+                    <p><strong>Service:</strong> <?= htmlspecialchars($services['nom'] ?? 'Non spécifié') ?></p>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <!--<h3>Actions</h3>-->
+                <!--<a href="/projetannuaire/client/src/modifier-profil.php" class="action-button">Modifier le profil</a>-->
+                <a href="/projetannuaire/client/src/changer-motdepasse.php" class="action-button">Changer le mot de passe</a>
+                <a href="/projetannuaire/client/src/deconnexion.php" class="action-button logout">Déconnexion</a>
+            </div>
+        </div>
     </div>
-    <a href="logout.php" id="deconnexion-button">Déconnexion</a>
-  </div>
 </body>
 </html>

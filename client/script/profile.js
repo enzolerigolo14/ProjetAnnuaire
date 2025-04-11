@@ -8,14 +8,14 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("profile-username").textContent = username; 
     } else {
         // Redirige si non connecté
-        window.location.href = "/client/src/pageaccueil.html";
+        window.location.href = "/projetannuaire/client/src/pageaccueil.php";
     }
 
     if (isLoggedIn === "true" && username) {
         document.getElementById("profile-username").textContent = username; 
     } else {
         // Redirige si non connecté
-        window.location.href = "/client/src/pageaccueil.html";
+        window.location.href = "/projetannuaire/client/src/pageaccueil.php";
     }
 
 
@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("deconnexion-button").addEventListener("click", function () {
         localStorage.removeItem("isLoggedIn");
         localStorage.removeItem("username");
-        window.location.href = "/client/src/pageaccueil.html";
+        window.location.href = "/projetannuaire/client/src/pageaccueil.php";
     });
 
     
