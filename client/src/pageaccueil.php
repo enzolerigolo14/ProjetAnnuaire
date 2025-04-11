@@ -2,8 +2,11 @@
 session_start();
 require_once __DIR__ . '/config/database.php';
 
-
-
+$stmt = $pdo->prepare("SELECT * FROM services");
+$stmt->execute();
+$services = $stmt->fetchAll();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 ?>
 
@@ -60,10 +63,10 @@ require_once __DIR__ . '/config/database.php';
       <li>
         <a href="#services">Services</a>
         <ul class="dropdown">
-          <li><a href="#service1">Service 1</a></li>
-          <li><a href="#service2">Service 2</a></li>
-          <li><a href="#service3">Service 3</a></li>
-        </ul>
+    <?php foreach ($services as $service): ?>
+        <li><a href="membresservices.php?id=<?= $service['id'] ?>"><?= htmlspecialchars($service['nom']) ?></a></li>
+    <?php endforeach; ?>
+</ul>
       </li>
       <li>
         <a href="#services">Services</a>

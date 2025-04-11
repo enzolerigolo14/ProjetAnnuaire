@@ -1,0 +1,57 @@
+/* Reset de base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  /* Corps de page */
+  body {
+    background-color: #f7f9fb;
+    color: #333;
+    padding: 2rem;
+  }
+  
+  /* Titre principal */
+  h2 {
+    text-align: center;
+    font-size: 2rem;
+    color: #005aaa;
+    margin-bottom: 2rem;
+  }
+  
+  /* Conteneur des membres */
+  .membre-container {
+    max-width: 800px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  /* Carte individuelle d’un membre */
+  .membre-card {
+    background-color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 90, 170, 0.1);
+    transition: transform 0.2s ease;
+  }
+  
+  .membre-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .membre-nom {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #003b75;
+  }
+  
+  .membre-role {
+    margin-top: 0.3rem;
+    font-size: 0.95rem;
+    color: #666;
+  }
+  
