@@ -28,3 +28,45 @@ document.addEventListener("DOMContentLoaded", function () {
 
     
 });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarUpload = document.getElementById('avatar-upload');
+    const avatarPreview = document.getElementById('avatar-preview');
+    const fileName = document.getElementById('file-name');
+
+    // Charger l'avatar sauvegardé au chargement de la page
+    const savedAvatar = localStorage.getItem('userAvatar');
+    if (savedAvatar) {
+        avatarPreview.src = savedAvatar;
+    }
+
+    if (avatarUpload && avatarPreview && fileName) {
+        avatarUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (!file.type.match('image.*')) {
+                    alert('Veuillez sélectionner une image (JPEG, PNG)');
+                    return;
+                }
+
+                fileName.textContent = file.name;
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    // Sauvegarder dans le localStorage
+                    localStorage.setItem('userAvatar', event.target.result);
+                    
+                    // Mettre à jour l'aperçu
+                    avatarPreview.src = event.target.result;
+                    avatarPreview.style.display = 'block';
+                };
+                
+                reader.readAsDataURL(file);
+            } else {
+                fileName.textContent = 'Aucun fichier sélectionné';
+            }
+        });
+    }
+});

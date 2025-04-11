@@ -47,15 +47,26 @@ try {
 
         <div class="profile-content">
             <div class="profile-info">
-                <div class="profile-avatar">
-                    <img src="/projetannuaire/client/src/assets/images/default-avatar.png" alt="Photo de profil">
-                    <button class="change-avatar">Changer la photo</button>
-                </div>
+                <div class="profile-avatar">   
+    <!-- Cadre pour la photo -->
+    <div class="avatar-preview">
+        <img src="/projetannuaire/client/src/assets/images/default-avatar.png" alt="Photo de profil" id="avatar-preview">
+    </div>
+    
+    <!-- Sélecteur de fichier stylisé -->
+    <div class="avatar-upload">
+        <label for="avatar-upload" class="upload-label">
+            <span class="upload-text">Sélectionner une photo</span><br>
+            <input type="file" id="avatar-upload" name="avatar-upload" accept="image/*" style="display: none;">
+        </label>
+        <span id="file-name">Aucun fichier sélectionné</span>
+    </div>
+</div>
                 
                 <div class="profile-details">
                     <h2>Informations personnelles</h2>
                     <p><strong>Nom complet:</strong> <?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></p>
-                    <p><strong>Email professionnel:</strong> <?= htmlspecialchars($user['email_professionnel']) ?></p>
+                    <p><strong>Email professionnel:</strong> <?= htmlspecialchars($user['email_professionnel']) ?? 'Non renseigné' ?></p>
                     <p><strong>Téléphone:</strong> <?= htmlspecialchars($user['telephone'] ?? 'Non renseigné') ?></p>
                     <p><strong>Service:</strong> <?= htmlspecialchars($services['nom'] ?? 'Non spécifié') ?></p>
                 </div>
@@ -64,7 +75,7 @@ try {
             <div class="profile-actions">
                 <!--<h3>Actions</h3>-->
                 <!--<a href="/projetannuaire/client/src/modifier-profil.php" class="action-button">Modifier le profil</a>-->
-                <a href="/projetannuaire/client/src/changer-motdepasse.php" class="action-button">Changer le mot de passe</a>
+                <a href="/projetannuaire/client/src/changemdp.php" class="action-button">Changer le mot de passe</a>
                 <a href="/projetannuaire/client/src/deconnexion.php" class="action-button logout">Déconnexion</a>
             </div>
         </div>
