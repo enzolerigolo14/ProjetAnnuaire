@@ -1,25 +1,48 @@
 <?php
 require_once __DIR__ . '/config/database.php';
 session_start();
-$default_return = '/projetannuaire/client/src/membreglobal.php';
-$return_url = $_SESSION['origin_page']['url'] ?? $default_return;
+$default_return = '/projetannuaire/client/src/pageaccueil.php';
+if (isset($_GET['from'])) {
+    switch ($_GET['from']) {
+        case 'services':
+            $service_id = $_GET['service_id'] ?? $user['service_id'] ?? null;
+            $return_url = $service_id ? "membresservices.php?id=".$service_id : $default_return;
+            break;
+            
+        case 'global':
+            $return_url = "membreglobal.php";
+            break;
+        case 'search':
+            $return_url = "pageaccueil.php";
+            break;
+            
+        default:
+            $return_url = $default_return;
+    }
+} 
+elseif (isset($_SESSION['origin_page']['url'])) {
+    $return_url = $_SESSION['origin_page']['url'];
+    if (strpos($return_url, 'membresservices.php') !== false && !strpos($return_url, 'id=')) {
+        $service_id = $_SESSION['origin_page']['service_id'] ?? $user['service_id'] ?? null;
+        if ($service_id) {
+            $return_url = "membresservices.php?id=".$service_id;
+        }
+    }
+} 
 
-// Nettoyage pour éviter les boucles
+else {
+    $return_url = $default_return;
+}
 if (basename($return_url) === 'profilutilisateur.php') {
     $return_url = $default_return;
 }
-
-
-
 if (!isset($_GET['id'])) {
-    header('Location: membreglobal.php');
+    header('Location: ' . $default_return);
     exit;
 }
-
-$userId = $_GET['id'];
+$userId = intval($_GET['id']);
 
 try {
-
     $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
     $stmt->execute([$userId]);
     $user = $stmt->fetch();
@@ -27,14 +50,21 @@ try {
     if (!$user) {
         die("Utilisateur non trouvé");
     }
-    $stmt = $pdo->prepare("SELECT * FROM services WHERE id = ?");
-    $stmt->execute([$user['service_id']]);
-    $service = $stmt->fetch();
-
+        if (!isset($service) && isset($user['service_id'])) {
+        $stmt = $pdo->prepare("SELECT * FROM services WHERE id = ?");
+        $stmt->execute([$user['service_id']]);
+        $service = $stmt->fetch();
+    }
 } catch (PDOException $e) {
     die("Erreur de base de données: " . $e->getMessage());
 }
 
+if (!isset($_GET['from'])) {
+    $_SESSION['origin_page'] = [
+        'url' => $return_url,
+        'service_id' => $user['service_id'] ?? null
+    ];
+}
 ?>
 
 <!DOCTYPE html>

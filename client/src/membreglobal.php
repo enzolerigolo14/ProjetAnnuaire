@@ -1,10 +1,9 @@
 <?php
 require_once __DIR__ . '/config/database.php';
-// Au tout début du fichier
 session_start();
 $_SESSION['origin_page'] = [
     'url' => $_SERVER['REQUEST_URI'],
-    'service_id' => $_GET['service_id'] ?? null // si vous avez un filtre
+    'service_id' => $_GET['service_id'] ?? null 
 ];
 
 $stmt = $pdo->prepare("SELECT * FROM users");
@@ -14,7 +13,8 @@ $membres = $stmt->fetchAll();
 echo "<div class='membre-container'>";
 foreach ($membres as $membre) {
     //echo "<a href='profilutilisateur.php?id=" . htmlspecialchars($membre['id']) . "' class='membre-link'>";
-    echo "<a href='profilutilisateur.php?id=" . $membre['id'] . "&from=global' class='membre-link'>";
+    //echo "<a href='profilutilisateur.php?id=" . $membre['id'] . "&from=global' class='membre-link'>";
+    echo "<a href='profilutilisateur.php?id=".$membre['id']."&from=global'  class='membre-link'>"; ;
     echo "<div class='membre-card'>";
     echo "<div class='membre-nom'>" . htmlspecialchars($membre['nom']) . " " . htmlspecialchars($membre['prenom']) . "</div>";
     echo "<div class='membre-role'>" . htmlspecialchars($membre['role']) . "</div>";
