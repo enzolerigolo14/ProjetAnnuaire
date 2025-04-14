@@ -1,12 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialisation des éléments avec des noms plus spécifiques
     const profileAvatarInput = document.querySelector('.profile-avatar-input');
     const profileAvatarImg = document.querySelector('.profile-avatar-img');
     const profileFileName = document.querySelector('.profile-file-name');
     
     const userId = profileAvatarImg.dataset.userId;
-
-    // Charger l'avatar sauvegardé au chargement de la page
     const loadSavedProfileAvatar = function() {
         const savedAvatar = localStorage.getItem('profileAvatar_' + userId );
         if (savedAvatar) {
@@ -14,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Gestion du changement d'avatar
+ 
     const handleProfileAvatarChange = function(e) {
         const file = e.target.files[0];
         if (file) {
@@ -22,16 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Veuillez sélectionner une image valide (JPEG, PNG)');
                 return;
             }
-
             profileFileName.textContent = file.name;
-            
-            const reader = new FileReader();
-            
+            const reader = new FileReader()
             reader.onload = function(event) {
-                // Sauvegarder dans le localStorage avec un ID utilisateur spécifique
                 localStorage.setItem('profileAvatar_' + userId , event.target.result);
-                
-                // Mettre à jour l'aperçu
                 profileAvatarImg.src = event.target.result;
                 profileAvatarImg.style.display = 'block';
             };
@@ -42,7 +33,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Initialisation
     loadSavedProfileAvatar();
 
     if (profileAvatarInput && profileAvatarImg && profileFileName) {

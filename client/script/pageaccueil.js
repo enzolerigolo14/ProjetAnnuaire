@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const userProfile = document.getElementById("user-profile");
   const usernameDisplay = document.getElementById("username-display");
 
+
   if (isLoggedIn) {
     // Afficher le profil et masquer le bouton "Connexion"
     connexionButton.style.display = "none";
@@ -20,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.removeItem("username");
     window.location.reload();
   });
+
 });
 
 function validerRecherche(input) {

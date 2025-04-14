@@ -1,57 +1,80 @@
 /* Reset de base */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  }
-  
-  /* Corps de page */
-  body {
-    background-color: #f7f9fb;
-    color: #333;
-    padding: 2rem;
-  }
-  
-  /* Titre principal */
-  h2 {
-    text-align: center;
-    font-size: 2rem;
-    color: #005aaa;
-    margin-bottom: 2rem;
-  }
-  
-  /* Conteneur des membres */
-  .membre-container {
-    max-width: 800px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
-  }
-  
-  /* Carte individuelle d’un membre */
-  .membre-card {
-    background-color: white;
-    padding: 1rem 1.5rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 90, 170, 0.1);
-    transition: transform 0.2s ease;
-  }
-  
-  .membre-card:hover {
-    transform: translateY(-5px);
-  }
-  
-  .membre-nom {
-    font-weight: bold;
-    font-size: 1.1rem;
-    color: #003b75;
-  }
-  
-  .membre-role {
-    margin-top: 0.3rem;
-    font-size: 0.95rem;
-    color: #666;
-  }
-  
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Corps de page */
+body {
+  background-color: #f7f9fb;
+  color: #333;
+  padding: 2rem;
+  line-height: 1.6;
+}
+
+/* Titre principal */
+h2.service-nom {
+  text-align: center;
+  font-size: 2.2rem;
+  color: #005aaa;
+  margin-bottom: 2.5rem;
+}
+
+/* Conteneur des membres */
+.membre-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  padding: 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Carte de membre */
+.membre-card {
+  background-color: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0, 90, 170, 0.1);
+  padding: 1.5rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+}
+
+.membre-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0, 90, 170, 0.15);
+}
+
+/* Nom du membre */
+.membre-nom {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #003b75;
+  margin-bottom: 0.5rem;
+}
+
+/* Rôle du membre */
+.membre-role {
+  font-size: 1rem;
+  color: #666;
+}
+
+/* Lien autour de la carte */
+.membre-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.membre-link:hover,
+.membre-link:focus,
+.membre-link:active {
+  text-decoration: none;
+  color: inherit;
+}

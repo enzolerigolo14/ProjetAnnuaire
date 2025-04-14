@@ -64,13 +64,13 @@ ini_set('display_errors', 1);
         </ul>
       </li>
       <li>
-        <a href="#services">Services</a>
-        <ul class="dropdown">
-    <?php foreach ($services as $service): ?>
+    <a href="#services">Services</a>
+    <ul class="dropdown services-dropdown">
+        <?php foreach ($services as $service): ?>
         <li><a href="membresservices.php?id=<?= $service['id'] ?>"><?= htmlspecialchars($service['nom']) ?></a></li>
-    <?php endforeach; ?>
-</ul>
-      </li>
+        <?php endforeach; ?>
+    </ul>
+</li>
       <li>
         <a href="#services">Services</a>
         <ul class="dropdown">

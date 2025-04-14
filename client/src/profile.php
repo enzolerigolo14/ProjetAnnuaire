@@ -2,13 +2,11 @@
 session_start();
 require_once __DIR__ . '/config/database.php';
 
-// Vérification de la connexion
+
 if (!isset($_SESSION['user'])) {
     header('Location: /projetannuaire/client/src/connexion.php');
     exit;
 }
-
-// Récupération des données utilisateur
 $userId = $_SESSION['user']['id'];
 try {
     $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
@@ -18,8 +16,6 @@ try {
     $stmt = $pdo->prepare("SELECT * FROM services WHERE id = ?");
     $stmt->execute([$user['service_id']]);
     $services = $stmt->fetch();
-
-    
     
     if (!$user) {
         die("Utilisateur non trouvé");
@@ -48,25 +44,22 @@ try {
         <div class="profile-content">
             <div class="profile-info">
                 <div class="profile-avatar">   
-    <!-- Cadre pour la photo -->
-    <div class="avatar-preview">
-        <img src="/projetannuaire/client/src/assets/images/default-avatar.png" alt="Photo de profil" id="avatar-preview">
-    </div>
-    
-    <!-- Sélecteur de fichier stylisé -->
-    <div class="avatar-upload">
-        <label for="avatar-upload" class="upload-label">
-            <span class="upload-text">Sélectionner une photo</span><br>
-            <input type="file" id="avatar-upload" name="avatar-upload" accept="image/*" style="display: none;">
-        </label>
-        <span id="file-name">Aucun fichier sélectionné</span>
-    </div>
-</div>
+                    <div class="avatar-preview">
+                        <img src="/projetannuaire/client/src/assets/images/default-avatar.png" alt="Photo de profil" id="avatar-preview">
+                    </div>
+                    <div class="avatar-upload">
+                        <label for="avatar-upload" class="upload-label">
+                            <span class="upload-text">Sélectionner une photo</span><br>
+                            <input type="file" id="avatar-upload" name="avatar-upload" accept="image/*" style="display: none;">
+                        </label>
+                        <span id="file-name">Aucun fichier sélectionné</span>
+                    </div>
+                </div>
                 
                 <div class="profile-details">
                     <h2>Informations personnelles</h2>
                     <p><strong>Nom complet:</strong> <?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></p>
-                    <p><strong>Email professionnel:</strong> <?= htmlspecialchars($user['email_professionnel']) ?? 'Non renseigné' ?></p>
+                    <p><strong>Email professionnel:</strong> <?= htmlspecialchars($user['email_professionnel']?? 'Non renseigné')  ?></p>
                     <p><strong>Téléphone:</strong> <?= htmlspecialchars($user['telephone'] ?? 'Non renseigné') ?></p>
                     <p><strong>Service:</strong> <?= htmlspecialchars($services['nom'] ?? 'Non spécifié') ?></p>
                 </div>

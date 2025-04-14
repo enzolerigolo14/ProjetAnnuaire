@@ -1,8 +1,16 @@
 <?php
 require_once __DIR__ . '/config/database.php';
 session_start();
+$default_return = '/projetannuaire/client/src/membreglobal.php';
+$return_url = $_SESSION['origin_page']['url'] ?? $default_return;
 
-// Vérifier si l'ID est présent dans l'URL
+// Nettoyage pour éviter les boucles
+if (basename($return_url) === 'profilutilisateur.php') {
+    $return_url = $default_return;
+}
+
+
+
 if (!isset($_GET['id'])) {
     header('Location: membreglobal.php');
     exit;
@@ -11,7 +19,7 @@ if (!isset($_GET['id'])) {
 $userId = $_GET['id'];
 
 try {
-    // Récupération des données de l'utilisateur cible
+
     $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
     $stmt->execute([$userId]);
     $user = $stmt->fetch();
@@ -19,8 +27,6 @@ try {
     if (!$user) {
         die("Utilisateur non trouvé");
     }
-
-    // Récupération du service
     $stmt = $pdo->prepare("SELECT * FROM services WHERE id = ?");
     $stmt->execute([$user['service_id']]);
     $service = $stmt->fetch();
@@ -28,6 +34,7 @@ try {
 } catch (PDOException $e) {
     die("Erreur de base de données: " . $e->getMessage());
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -44,18 +51,17 @@ try {
     <div class="profile-container">
         <div class="profile-header">
             <h1>Profil de <?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></h1>
-            <a href="/projetannuaire/client/src/membreglobal.php" class="back-button">← Retour</a>
+            <a href="<?= htmlspecialchars($return_url) ?>" class="back-button">← Retour</a>
+            
         </div>
 
         <div class="profile-content">
             <div class="profile-info">
                 <div class="profile-avatar">   
                     <div class="avatar-preview">
-                    <img src="/projetannuaire/client/src/assets/images/default-avatar.png" 
-     alt="Photo de profil" 
-     class="profile-avatar-img"
-     data-user-id="<?= htmlspecialchars($userId) ?>">                    </div>
-                    <!-- Sélecteur de fichier stylisé -->
+                    <img src="/projetannuaire/client/src/assets/images/default-avatar.png" class="profile-avatar-img"
+                    data-user-id="<?= htmlspecialchars($userId) ?>"></div>
+            
                     <div class="avatar-upload">
                         <label for="profile-avatar-input" class="upload-label">
                             <span class="upload-text">Sélectionner une photo</span><br>

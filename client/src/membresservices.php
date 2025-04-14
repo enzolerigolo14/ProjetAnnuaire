@@ -1,6 +1,12 @@
 <?php
 
 require_once __DIR__ . '/config/database.php';
+// Au tout début du fichier
+session_start();
+$_SESSION['origin_page'] = [
+    'url' => $_SERVER['REQUEST_URI'],
+    'service_id' => $_GET['service_id'] ?? null // si vous avez un filtre
+];
 
 if (!isset($_GET['id'])) {
     die("Aucun service sélectionné.");
@@ -28,15 +34,18 @@ if (empty($membres)) {
 } else {
     echo "<h2 class='service-nom'>Membres du service  " . htmlspecialchars($service['nom'] ?? 'Inconnu') . " : " . "</h2>";
     echo "<div class='membre-container'>";
-    foreach ($membres as $membre) {
-        echo "<div class='membre-card'>";
-        echo "<div class='membre-nom'>" . htmlspecialchars($membre['nom']) . " " . htmlspecialchars($membre['prenom']) . "</div>";
-        echo "<div class='membre-role'>" . htmlspecialchars($membre['role']) . "</div>";
-        echo "</div>";
-    }
+foreach ($membres as $membre) {
+    //echo "<a href='profilutilisateur.php?id=" . htmlspecialchars($membre['id']) . "' class='membre-link'>";
+    echo "<a href='profilutilisateur.php?id=" . $membre['id'] . "&from=services' class='membre-link'>";
+    echo "<div class='membre-card'>";
+    echo "<div class='membre-nom'>" . htmlspecialchars($membre['nom']) . " " . htmlspecialchars($membre['prenom']) . "</div>";
+    echo "<div class='membre-role'>" . htmlspecialchars($membre['role']) . "</div>";
     echo "</div>";
+    echo "</a>";
 }
+echo "</div>";
 
+}
 
 
 ?>
