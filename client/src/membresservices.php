@@ -18,10 +18,15 @@ $stmt = $pdo->prepare("
 $stmt->execute([$service_id]);
 $membres = $stmt->fetchAll();
 
+$stmt = $pdo->prepare("SELECT * FROM services WHERE id = ?");
+$stmt->execute([$service_id]);
+$service = $stmt->fetch();
+
+
 if (empty($membres)) {
     echo "<p style='text-align:center;'>Aucun membre dans ce service.</p>";
 } else {
-    echo "<h2>Membres du service :</h2>";
+    echo "<h2 class='service-nom'>Membres du service  " . htmlspecialchars($service['nom'] ?? 'Inconnu') . " : " . "</h2>";
     echo "<div class='membre-container'>";
     foreach ($membres as $membre) {
         echo "<div class='membre-card'>";
@@ -31,6 +36,7 @@ if (empty($membres)) {
     }
     echo "</div>";
 }
+
 
 
 ?>
@@ -45,5 +51,4 @@ if (empty($membres)) {
     
 
     </head>
-    
 </html>

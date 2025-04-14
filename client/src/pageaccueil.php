@@ -8,6 +8,7 @@ $services = $stmt->fetchAll();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+
 ?>
 
 <!DOCTYPE html>
@@ -18,8 +19,10 @@ ini_set('display_errors', 1);
     <title>Trombinoscope ville de Lisieux</title>
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/pageaccueil.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/connexion.css">
+
     <script src="/projetannuaire/client/script/pageaccueil.js" defer></script>
     <script src="/projetannuaire/client/script/connexion.js"></script>
+    <script src="/projetannuaire/client/script/membresservices.js"></script>
 </head>
 
 <body>
@@ -32,10 +35,10 @@ ini_set('display_errors', 1);
       </div>
       
       <div class="search-container">
-        <img src="/projetannuaire/client/src/assets/images/search-icon.png" alt="Search Icon" class="search-icon">
-        <input type="text" id="site-search" placeholder="Nom, prénom, téléphone ou service" maxlength="32" oninput="validerRecherche(this)" />
-        <button class="bouton-search" type="button" onclick="window.location.reload(false)" value="Rafraichir">Rechercher</button>
-      </div>
+    <img src="/projetannuaire/client/src/assets/images/search-icon.png" alt="Search Icon" class="search-icon">
+    <input type="text" id="site-search" placeholder="Nom, prénom, téléphone ou service" maxlength="32" />
+    <button class="bouton-search" type="button" onclick="rechercher()">Rechercher</button>
+</div>
       
       <div class="header-profile">
         <div id="user-profile">
@@ -54,10 +57,10 @@ ini_set('display_errors', 1);
       <li>
         <a href="#services">Services</a>
         <ul class="dropdown">
-          <li><a href="#service1">Nom</a></li>
-          <li><a href="#service2">Prenom</a></li>
+          <li><a href="membreglobal.php">Nom , Prenom , role</a></li>
+          <!--<li><a href="#service2">Prenom</a></li>
           <li><a href="#service3">Numero de téléphone</a></li>
-          <li><a href="#service3">Service associé</a></li>
+          <li><a href="#service3">Service associé</a></li>-->
         </ul>
       </li>
       <li>

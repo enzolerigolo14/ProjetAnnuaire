@@ -258,3 +258,22 @@ html, body {
   align-items: center; /* Centre verticalement les éléments */
   gap: 10px; /* Ajoute un espacement entre les éléments */
 }
+
+
+#autocomplete-results {
+  display: none;
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  width: calc(100% - 40px);
+  z-index: 1000;
+}
+
+#autocomplete-results div {
+  padding: 8px;
+  cursor: pointer;
+}
+
+#autocomplete-results div:hover {
+  background-color: #f0f0f0;
+}

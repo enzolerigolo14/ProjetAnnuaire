@@ -1,0 +1,101 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f6fa;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+.profile-container {
+    max-width: 900px;
+    margin: 40px auto;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+}
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #e1e4ea;
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+}
+
+.profile-header h1 {
+    font-size: 2rem;
+    color: #2a4d69;
+    margin: 0;
+}
+
+.back-button {
+    text-decoration: none;
+    color: #2a4d69;
+    font-weight: 500;
+    background-color: #e7ecf3;
+    padding: 8px 14px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.back-button:hover {
+    background-color: #d2dae5;
+}
+
+.profile-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.profile-info {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.profile-avatar {
+    flex: 1;
+    min-width: 180px;
+}
+
+.avatar-preview {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #d3dce6;
+    background-color: #fff;
+}
+
+.avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-details {
+    flex: 2;
+    min-width: 250px;
+}
+
+.profile-details h2 {
+    margin-top: 0;
+    font-size: 1.5rem;
+    color: #2a4d69;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.profile-details p {
+    font-size: 1rem;
+    margin: 10px 0;
+}
+
+.profile-details strong {
+    color: #1c3d5a;
+}
