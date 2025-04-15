@@ -74,6 +74,7 @@ if (!isset($_GET['from'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil de <?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></title>
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/profilutilisateur.css">
+    <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
     <script src="/projetannuaire/client/script/profilutilisateur.js" defer></script>
 </head> 
 
@@ -112,5 +113,9 @@ if (!isset($_GET['from'])) {
             </div>
         </div>
     </div>
+
+    <footer>
+    <?php require_once __DIR__ . '/includes/footer.php'; ?>
+</footer>
 </body>
 </html>

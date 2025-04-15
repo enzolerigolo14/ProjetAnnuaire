@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Changer Mot de Passe | Trombinoscope Ville de Lisieux</title>
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/changemdp.css">
+    <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/header.css">
+    <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
     <script src="/projetannuaire/client/script/changemdp.js" defer></script>
 </head>
 <body>
@@ -34,5 +36,8 @@
         <div id="error-message" class="error-message" style="display: none;"></div>
         <div id="success-message" class="success-message" style="display: none;"></div>
     </div>
+    <footer>
+    <?php require_once __DIR__ . '/includes/footer.php'; ?>
+</footer>
 </body>
 </html>

@@ -1,0 +1,166 @@
+/* Base globale */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
+  margin: 0;
+  padding: 0;
+  color: #2c3e50;
+}
+
+h1 {
+  font-size: 32px;
+  text-align: center;
+  margin-bottom: 40px;
+  color: #2c3e50;
+}
+
+/* Container principal */
+.faq-container {
+  max-width: 900px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+}
+
+/* Formulaire question */
+.question-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+.question-form textarea {
+  width: 100%;
+  padding: 15px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  resize: vertical;
+  transition: border-color 0.3s;
+}
+
+.question-form textarea:focus {
+  border-color: #4CAF50;
+  outline: none;
+}
+
+.question-form button {
+  align-self: flex-end;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.question-form button:hover {
+  background-color: #43a047;
+}
+
+/* Liste des questions */
+#questions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* Carte question */
+.question-item {
+  background-color: #fefefe;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px 25px;
+  transition: box-shadow 0.2s ease;
+}
+
+.question-item:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+/* En-tête question */
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.question {
+  font-weight: 600;
+  font-size: 18px;
+  max-width: 80%;
+  color: #34495e;
+}
+
+.date {
+  font-size: 14px;
+  color: #888;
+  white-space: nowrap;
+}
+
+/* Réponse */
+.reponse-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reponse {
+  padding: 12px 16px;
+  background-color: #f8f9fa;
+  border-left: 5px solid #4CAF50;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #2c3e50;
+}
+
+/* Boutons */
+.btn-repondre,
+.btn-envoyer-reponse {
+  background-color: #2196F3;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  width: fit-content;
+  transition: background-color 0.2s ease;
+}
+
+.btn-repondre:hover,
+.btn-envoyer-reponse:hover {
+  background-color: red;
+}
+
+/* Bouton désactivé */
+.btn-repondu {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+/* Formulaire de réponse */
+.reponse-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reponse-form textarea {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  resize: vertical;
+  min-height: 80px;
+}

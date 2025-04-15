@@ -32,6 +32,8 @@ echo "</div>";
     <title>Membres Global</title>
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/membreglobal.css">
     
+    <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
+    
 </head>
 
 <body>
@@ -39,5 +41,8 @@ echo "</div>";
         
     <button class="top-button" onclick="window.location.href='pageaccueil.php'"> ← Retour</button>
     </div>
+    <footer>
+    <?php require_once __DIR__ . '/includes/footer.php'; ?>
+</footer>
 </body>
 </html>

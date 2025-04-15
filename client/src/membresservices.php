@@ -56,6 +56,8 @@ echo "</div>";
     <title>Membres du service</title>
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/membresservices.css">
     
+    <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
+    
 
     </head>
 
@@ -63,4 +65,7 @@ echo "</div>";
     <div class="top-button-container">
         <button class="top-button" onclick="window.location.href='pageaccueil.php'"> ← Retour</button>
     </div>
+    <footer>
+    <?php require_once __DIR__ . '/includes/footer.php'; ?>
+</footer>
 </html>

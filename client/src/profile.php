@@ -32,6 +32,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Profil | Trombinoscope Ville de Lisieux</title>
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/profile.css">
+    <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
     <script src="/projetannuaire/client/script/profile.js" defer></script>
 </head>
 <body>
@@ -73,5 +74,8 @@ try {
             </div>
         </div>
     </div>
+    <footer>
+    <?php require_once __DIR__ . '/includes/footer.php'; ?>
+</footer>
 </body>
 </html>
