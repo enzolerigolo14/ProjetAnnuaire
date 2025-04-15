@@ -2,8 +2,13 @@
 session_start();
 require_once __DIR__ . '/config/database.php';
 
-// Récupérer les questions existantes
-$questions = $pdo->query("SELECT * FROM faq ORDER BY date_creation DESC")->fetchAll();
+// Récupérer les questions avec les noms des utilisateurs
+$questions = $pdo->query("
+    SELECT f.*, u.nom, u.prenom 
+    FROM faq f
+    LEFT JOIN users u ON f.user_id = u.id
+    ORDER BY f.date_creation DESC
+")->fetchAll();
 ?>
 
 <!DOCTYPE html>
@@ -13,16 +18,14 @@ $questions = $pdo->query("SELECT * FROM faq ORDER BY date_creation DESC")->fetch
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FAQ - Ville de Lisieux</title>
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/faq.css">
-    <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/header.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/projetannuaire/client/script/faq.js" defer></script>
 </head>
 <body>
-    <header>
-        <?php include __DIR__ . '/includes/header.php'; ?>
-    </header>
-    
+    <div class="profile-header">
+        <a href="/projetannuaire/client/src/pageaccueil.php" class="back-button">← Retour</a>
+    </div>
 
     <div class="faq-container">
         <h1>Foire aux questions</h1>
@@ -39,7 +42,14 @@ $questions = $pdo->query("SELECT * FROM faq ORDER BY date_creation DESC")->fetch
                 <div class="question-item" data-id="<?= $q['id'] ?>">
                     <div class="question-header">
                         <div class="question"><?= htmlspecialchars($q['question']) ?></div>
-                        <div class="date"><?= date('d/m/Y H:i', strtotime($q['date_creation'])) ?></div>
+                        <div class="question-meta">
+                            <?php if (!empty($q['user_id'])): ?>
+                                <span class="question-author">Posée par : <?= htmlspecialchars($q['prenom'] . ' ' . $q['nom']) ?></span>
+                            <?php else: ?>
+                                <span class="question-author">Posée par : Anonyme</span>
+                            <?php endif; ?>
+                            <span class="date"><?= date('d/m/Y H:i', strtotime($q['date_creation'])) ?></span>
+                        </div>
                     </div>
                     
                     <div class="reponse-container">
@@ -47,10 +57,8 @@ $questions = $pdo->query("SELECT * FROM faq ORDER BY date_creation DESC")->fetch
                         
                         <?php if (isset($_SESSION['user'])): ?>
                             <?php if (!empty($q['reponse'])): ?>
-                                <!-- Bouton désactivé si réponse existe -->
                                 <button class="btn-repondre btn-repondu" disabled>Répondu</button>
                             <?php else: ?>
-                                <!-- Bouton actif si pas de réponse -->
                                 <button class="btn-repondre">Répondre</button>
                                 <div class="reponse-form" style="display:none;">
                                     <textarea class="reponse-input" placeholder="Votre réponse..."></textarea>
@@ -62,10 +70,10 @@ $questions = $pdo->query("SELECT * FROM faq ORDER BY date_creation DESC")->fetch
                 </div>
             <?php endforeach; ?>
         </div>
-    </div>
+    </div> <!-- Fermeture de faq-container -->
+
     <footer>
         <?php include __DIR__ . '/includes/footer.php'; ?>
     </footer>
-    
 </body>
 </html>
