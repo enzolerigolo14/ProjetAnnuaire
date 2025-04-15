@@ -1,3 +1,4 @@
+/* Global */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
@@ -6,6 +7,39 @@ body {
     color: #333;
 }
 
+.top-button-container {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    z-index: 1000; /* au cas où il serait caché par autre chose */
+}
+
+
+.top-button {
+    background-color: white;
+    color: #2a4d69;
+    font-weight: 600;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.top-button:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.top-button:active {
+    transform: scale(0.98);
+}
+
+
+/* Titre */
 h2 {
     text-align: center;
     font-size: 2rem;
@@ -16,6 +50,7 @@ h2 {
     padding-bottom: 10px;
 }
 
+/* Conteneur des cartes membres */
 .membre-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -23,55 +58,54 @@ h2 {
     padding: 40px;
     max-width: 1000px;
     margin: 0 auto;
+    margin-top: 80px;
 }
 
+/* Lien désactivé visuellement */
 .membre-link {
-    text-decoration: none !important; /* Désactive tout soulignement */
+    text-decoration: none !important;
     color: inherit;
     display: block;
 }
 
+/* Carte membre */
 .membre-card {
     background-color: white;
     border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     display: flex;
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    border: 1px solid rgba(0, 0, 0, 0.05); /* Bordure subtile */
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .membre-card:hover {
     transform: scale(1.03);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-    border-color: rgba(0, 0, 0, 0.1); /* Bordure plus visible au hover */
+    border-color: rgba(0, 0, 0, 0.1);
 }
 
+.membre-card:active {
+    transform: scale(0.98);
+}
+
+/* Nom membre */
 .membre-nom {
     font-size: 1.2rem;
-    font-weight: 600; /* Semi-gras au lieu de bold */
+    font-weight: 600;
     color: #1c3d5a;
     margin-bottom: 8px;
     text-align: center;
 }
 
+/* Rôle membre */
 .membre-role {
     font-size: 1rem;
     color: #666;
     text-align: center;
-    font-weight: 400; /* Poids normal */
+    font-weight: 400;
     margin-top: 5px;
-}
-
-/* Animation plus douce */
-.membre-card {
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-/* Effet au clic */
-.membre-card:active {
-    transform: scale(0.98);
 }

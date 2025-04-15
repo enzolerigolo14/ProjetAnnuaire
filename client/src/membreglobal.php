@@ -31,4 +31,13 @@ echo "</div>";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Membres Global</title>
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/membreglobal.css">
+    
+</head>
+
+<body>
+    <div class="top-button-container">
+        
+    <button class="top-button" onclick="window.location.href='pageaccueil.php'"> ← Retour</button>
+    </div>
+</body>
 </html>

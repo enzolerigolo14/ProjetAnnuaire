@@ -58,4 +58,9 @@ echo "</div>";
     
 
     </head>
+
+<body>
+    <div class="top-button-container">
+        <button class="top-button" onclick="window.location.href='pageaccueil.php'"> ← Retour</button>
+    </div>
 </html>
