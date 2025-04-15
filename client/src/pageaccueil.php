@@ -18,7 +18,7 @@ ini_set('display_errors', 1);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trombinoscope ville de Lisieux</title>
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/pageaccueil.css">
-    <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/connexion.css">
+    
 
     <script src="/projetannuaire/client/script/pageaccueil.js" defer></script>
     <script src="/projetannuaire/client/script/connexion.js"></script>
@@ -46,7 +46,7 @@ ini_set('display_errors', 1);
           <a href="/projetannuaire/client/src/profile.php" id="profil-link" class="header-button">
             <img src="/projetannuaire/client/src/assets/images/profile-icon.png" alt="Profil" class="profile-icon">
           </a>
-          <a href="logout.php" id="deconnexion-button" class="header-button">Déconnexion</a>
+          <!--<a href="logout.php" id="deconnexion-button" class="header-button">Déconnexion</a>-->
         </div>
       </div>
     </div>
@@ -86,7 +86,7 @@ ini_set('display_errors', 1);
     <h1>Actualités</h1>
     <div class="actualite-container">
       <div class="actualite-item">
-        <img src="/projetannuaire/client/src/assets/images/Avis-denquete-publique.jpg" alt="Actualité 1" class="actualite-image">
+        <img  src="/projetannuaire/client/src/assets/images/Avis-denquete-publique.jpg" alt="Actualité 1" class="actualite-image">
         <h3 class="actualite-title">AVIS D'ENQUÊTE PUBLIQUE - Route d'Orbec</h3>
         <p class="actualite-text">Du 7 avril au 7 mai, participez à l'enquete publique sur l'operation d'aménagement de la Route d'Orbec à Lisieux</p>
       </div>

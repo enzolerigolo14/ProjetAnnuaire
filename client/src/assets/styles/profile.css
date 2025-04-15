@@ -32,12 +32,12 @@
     height: 150px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #0056b3;
+    border: 3px solid #337ab7;
 }
 
 .profile-details h2 {
     margin-top: 0;
-    color: #0056b3;
+    color: #337ab7;
 }
 
 .profile-actions {
@@ -59,7 +59,7 @@
 .profile-actions a {
     display: block;
     padding: 10px;
-    background: #0056b3;
+    background: #337ab7;
     color: white;
     text-decoration: none;
     border-radius: 4px;
@@ -67,7 +67,7 @@
 }
 
 .profile-actions a:hover {
-    background: #003d7a;
+    background: #0088ff;
 }
 
 .back-button {

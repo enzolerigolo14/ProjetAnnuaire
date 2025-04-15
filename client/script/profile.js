@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Sauvegarder dans le localStorage
                     localStorage.setItem('userAvatar', event.target.result);
                     
-                    
+                    // Mettre à jour l'aperçu
                     avatarPreview.src = event.target.result;
                     avatarPreview.style.display = 'block';
                 };
