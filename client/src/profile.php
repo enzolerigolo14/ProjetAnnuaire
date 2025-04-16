@@ -63,6 +63,7 @@ try {
                     <p><strong>Email professionnel:</strong> <?= htmlspecialchars($user['email_professionnel']?? 'Non renseigné')  ?></p>
                     <p><strong>Téléphone:</strong> <?= htmlspecialchars($user['telephone'] ?? 'Non renseigné') ?></p>
                     <p><strong>Service:</strong> <?= htmlspecialchars($services['nom'] ?? 'Non spécifié') ?></p>
+                    <p><strong>Role:</strong> <?= htmlspecialchars($user['role'] ?? 'Non spécifié') ?></p>
                 </div>
             </div>
 

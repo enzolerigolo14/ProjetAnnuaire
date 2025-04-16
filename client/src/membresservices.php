@@ -47,6 +47,30 @@ echo "</div>";
 
 }
 
+
+$service_id = intval($_GET['id']); 
+$uploadDir = __DIR__ . '/uploads/service_' . $service_id . '/';
+
+
+if (is_dir($uploadDir)) {
+    $files = scandir($uploadDir); 
+    $files = array_filter($files, function($file) use ($uploadDir) {
+        return is_file($uploadDir . $file);
+    });
+    
+    if (!empty($files)) {
+        echo "<h3>Fichiers uploadés :</h3><ul>";
+        foreach ($files as $file) {
+            echo "<li>" . htmlspecialchars($file) . "</li>";
+        }
+        echo "</ul>";
+    } else {
+        echo "<p>Aucun fichier uploadé pour le moment.</p>";
+    }
+} else {
+    echo "<p>Le dossier d'upload n'existe pas.</p>";
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -58,10 +82,33 @@ echo "</div>";
     
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
     
+    <script src="/projetannuaire/client/script/membresservices.js" defer></script>
 
     </head>
 
 <body>
+
+<?php if ($_SESSION['user']['role'] === 'admin'): ?>
+    <div class="admin-actions">
+        <button class="upload-label" id="open-modal">Déposer un document</button>
+    </div>
+
+    <div class="modal" id="upload-modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Importer des documents</h2>
+            <form id="upload-form" method="post" enctype="multipart/form-data" action="upload.php">
+                <input type="hidden" name="service_id" value="<?= htmlspecialchars($service_id) ?>">
+                <input type="file" name="documents[]" id="documents" multiple>
+                <small style="display:block; margin-top: 5px; color: #555;">Maintenez <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) pour sélectionner plusieurs fichiers.</small>
+                <div id="file-list"></div>
+                <button type="submit" class="btn-upload">Envoyer les fichiers</button>
+            </form>
+        </div>
+    </div>
+<?php endif; ?>
+
+
     <div class="top-button-container">
         <button class="top-button" onclick="window.location.href='pageaccueil.php'"> ← Retour</button>
     </div>

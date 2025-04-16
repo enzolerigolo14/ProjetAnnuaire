@@ -31,7 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'email_professionel' => $user['email_professionel'],
                         'role' => $user['role']
                     ];
-                    
+
+
                     header('Location: /projetannuaire/client/src/pageaccueil.php');
                     exit;
                 } else {
@@ -44,6 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "Erreur système. Veuillez réessayer.";
         }
     }
+
+
 }
 ?>
 

@@ -70,7 +70,7 @@ $questions = $pdo->query("
                 </div>
             <?php endforeach; ?>
         </div>
-    </div> <!-- Fermeture de faq-container -->
+    </div>
 
     <footer>
         <?php include __DIR__ . '/includes/footer.php'; ?>

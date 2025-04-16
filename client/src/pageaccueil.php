@@ -1,6 +1,14 @@
 <?php
 session_start();
+
+if (!isset($_SESSION['user'])) {
+  header('Location: connexion.php');
+  exit;
+}
+
 require_once __DIR__ . '/config/database.php';
+
+
 
 $stmt = $pdo->prepare("SELECT * FROM services");
 $stmt->execute();
@@ -8,6 +16,9 @@ $services = $stmt->fetchAll();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+
+$stmt = $pdo->prepare("SELECT * FROM users where role = ? ");
+$role = $stmt->fetchAll();
 
 ?>
 
@@ -32,10 +43,12 @@ ini_set('display_errors', 1);
   <?php require_once __DIR__ . '/includes/header.php'; ?>
   </header>
 
+
+
   <nav class="navbar">
     <ul class="nav-list">
       <li>
-        <a href="#services">Agents</a>
+        <a href="">Agents</a>
         <ul class="dropdown">
           <li><a href="membreglobal.php">Nom , Prenom , role</a></li>
           <!--<li><a href="#service2">Prenom</a></li>
@@ -44,7 +57,7 @@ ini_set('display_errors', 1);
         </ul>
       </li>
       <li>
-    <a href="#services">Services</a>
+    <a href="">Services</a>
     <ul class="dropdown services-dropdown">
         <?php foreach ($services as $service): ?>
         <li><a href="membresservices.php?id=<?= $service['id'] ?>"><?= htmlspecialchars($service['nom']) ?></a></li>
