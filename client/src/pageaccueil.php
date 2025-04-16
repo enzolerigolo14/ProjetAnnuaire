@@ -63,7 +63,15 @@ $role = $stmt->fetchAll();
         <li><a href="membresservices.php?id=<?= $service['id'] ?>"><?= htmlspecialchars($service['nom']) ?></a></li>
         <?php endforeach; ?>
     </ul>
-</li>
+  </li>
+  <li>
+    <a href="services-global.php">Documents</a>
+    <ul class="dropdown services-dropdown">
+        <?php foreach ($services as $service): ?>
+        <li><a href="membresservices.php?id=<?= $service['id'] ?>"><?= htmlspecialchars($service['nom']) ?></a></li>
+        <?php endforeach; ?>
+    </ul>
+  </li>
       <li>
         <a href="faq.php">FAQ</a>
         <!--<ul class="dropdown">

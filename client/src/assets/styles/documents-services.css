@@ -1,0 +1,152 @@
+/* Container principal */
+.document-container {
+    font-family: Arial, sans-serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Titre principal */
+.document-title {
+    font-size: 2rem;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Actions administrateur */
+.admin-actions {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Bouton "Déposer un document" */
+.upload-label {
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.upload-label:hover {
+    background-color: #0056b3;
+}
+
+/* Modale */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.close {
+    font-size: 2rem;
+    color: #333;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: red;
+}
+
+.file-list {
+    margin-top: 20px;
+    list-style: none;
+    padding: 0;
+    width: 100%;
+}
+
+.file-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    background: #f0f0f0;
+    border-radius: 4px;
+}
+
+.delete-icon {
+    cursor: pointer;
+    color: #ff4444;
+}
+
+/* Pour le fichier input (pour le rendre plus flexible) */
+.file-input {
+    padding: 10px;
+    margin-top: 10px; /* Éviter d'avoir tout collé */
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    display: block;
+    width: 100%;
+}
+
+/* Centrer et espacer le formulaire si nécessaire */
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px; /* Espacement entre les éléments */
+}
+
+
+.file-instructions {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+
+.btn-upload {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-upload:hover {
+    background-color: #218838;
+}
+
+
+.uploaded-files a {
+    color: #0066cc;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.uploaded-files a:hover {
+    color: #004499;
+    text-decoration: underline;
+}
