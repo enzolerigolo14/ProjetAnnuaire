@@ -23,6 +23,13 @@ try {
 } catch (PDOException $e) {
     die("Erreur de base de données: " . $e->getMessage());
 }
+
+// Avant le HTML
+$stmt = $pdo->prepare("SELECT id, nom FROM services");
+$stmt->execute();
+$allServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
 ?>
 
 <!DOCTYPE html>
@@ -40,10 +47,9 @@ try {
 <body>
     <div class="profile-container">
         <div class="profile-header">
-        <h1>Profil de <?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></h1>
-        <button class="top-button" onclick="window.location.href='pageaccueil.php'"> ← Retour</button>
+            <h1>Profil de <?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></h1>
+            <button class="top-button" onclick="window.location.href='pageaccueil.php'"> ← Retour</button>
         </div>
-     
 
         <div class="profile-content">
             <div class="profile-info">
@@ -59,49 +65,54 @@ try {
                         <span id="file-name">Aucun fichier sélectionné</span>
                     </div>
                 </div>
+
                 <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
-    <div class="profile-details">
-        <h2>Informations personnelles</h2>
-        <div></div>
-        <p data-field="nom_complet" data-userid="<?= $user['id'] ?>">
-            <strong>Nom complet:</strong>
-            <span class="editable-value"><?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></span>
-            <i class="fas fa-pencil-alt edit-icon"></i>
-        </p>
-        <p data-field="email_professionnel" data-userid="<?= $user['id'] ?>">
-            <strong>Email professionnel:</strong>
-            <span class="editable-value"><?= htmlspecialchars($user['email_professionnel'] ?? 'Non renseigné') ?></span>
-            <i class="fas fa-pencil-alt edit-icon"></i>
-        </p>
-        <p data-field="telephone" data-userid="<?= $user['id'] ?>">
-            <strong>Téléphone:</strong>
-            <span class="editable-value"><?= htmlspecialchars($user['telephone'] ?? 'Non renseigné') ?></span>
-            <i class="fas fa-pencil-alt edit-icon"></i>
-        </p>
-        <p data-field="service" data-userid="<?= $user['id'] ?>">
-            <strong>Service:</strong>
-            <span class="editable-value"><?= htmlspecialchars($services['nom'] ?? 'Non spécifié') ?></span>
-            <i class="fas fa-pencil-alt edit-icon"></i>
-        </p>
-        <p data-field="role" data-userid="<?= $user['id'] ?>">
-            <strong>Role:</strong>
-            <span class="editable-value"><?= htmlspecialchars($user['role'] ?? 'Non spécifié') ?></span>
-            <i class="fas fa-pencil-alt edit-icon"></i>
-        </p>
-    </div>
-</div>
-<?php endif; ?>
+                <div class="profile-details">
+                    <h2>Informations personnelles</h2>
+                    <div></div>
+                    <p data-field="nom_complet" data-userid="<?= $user['id'] ?>">
+                        <strong>Nom complet:</strong>
+                        <span class="editable-value"><?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></span>
+                        <i class="fas fa-pencil-alt edit-icon"></i>
+                    </p>
+                    <p data-field="email_professionnel" data-userid="<?= $user['id'] ?>">
+                        <strong>Email professionnel:</strong>
+                        <span class="editable-value"><?= htmlspecialchars($user['email_professionnel'] ?? 'Non renseigné') ?></span>
+                        <i class="fas fa-pencil-alt edit-icon"></i>
+                    </p>
+                    <p data-field="telephone" data-userid="<?= $user['id'] ?>">
+                        <strong>Téléphone:</strong>
+                        <span class="editable-value"><?= htmlspecialchars($user['telephone'] ?? 'Non renseigné') ?></span>
+                        <i class="fas fa-pencil-alt edit-icon"></i>
+                    </p>
+                    <p data-field="service_id" data-userid="<?= $user['id'] ?>">
+                        <strong>Service:</strong>
+                        <span class="editable-value" data-serviceid="<?= $services['id'] ?? '' ?>">
+                            <?= htmlspecialchars($services['nom'] ?? 'Non spécifié') ?>
+                        </span>
+                        <i class="fas fa-pencil-alt edit-icon"></i>
+                    </p>
+                    <p data-field="role" data-userid="<?= $user['id'] ?>">
+                        <strong>Role:</strong>
+                        <span class="editable-value"><?= htmlspecialchars($user['role'] ?? 'Non spécifié') ?></span>
+                        <i class="fas fa-pencil-alt edit-icon"></i>
+                    </p>
+                </div>
+                <?php endif; ?>
+            </div>
+
             <div class="profile-actions">
-                <!--<h3>Actions</h3>-->
-                <!--<a href="/projetannuaire/client/src/modifier-profil.php" class="action-button">Modifier le profil</a>-->
                 <a href="/projetannuaire/client/src/changemdp.php" class="action-button">Changer le mot de passe</a>
                 <a href="/projetannuaire/client/src/deconnexion.php" class="action-button logout">Déconnexion</a>
             </div>
-            
         </div>
     </div>
+
+    <!-- Ajout des données des services pour le JS -->
+    <div id="services-data" data-services='<?= json_encode($allServices) ?>'></div>
+
     <footer>
-    <?php require_once __DIR__ . '/includes/footer.php'; ?>
-</footer>
+        <?php require_once __DIR__ . '/includes/footer.php'; ?>
+    </footer>
 </body>
 </html>
