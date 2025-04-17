@@ -66,53 +66,61 @@ $allServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
 
-                <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
                 <div class="profile-details">
                     <h2>Informations personnelles</h2>
-                    <div></div>
                     <p data-field="nom_complet" data-userid="<?= $user['id'] ?>">
                         <strong>Nom complet:</strong>
                         <span class="editable-value"><?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></span>
-                        <i class="fas fa-pencil-alt edit-icon"></i>
+                        <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                        <?php endif; ?>
                     </p>
+
                     <p data-field="email_professionnel" data-userid="<?= $user['id'] ?>">
                         <strong>Email professionnel:</strong>
                         <span class="editable-value"><?= htmlspecialchars($user['email_professionnel'] ?? 'Non renseigné') ?></span>
-                        <i class="fas fa-pencil-alt edit-icon"></i>
+                        <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                        <?php endif; ?>
                     </p>
+
                     <p data-field="telephone" data-userid="<?= $user['id'] ?>">
                         <strong>Téléphone:</strong>
                         <span class="editable-value"><?= htmlspecialchars($user['telephone'] ?? 'Non renseigné') ?></span>
-                        <i class="fas fa-pencil-alt edit-icon"></i>
+                        <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                        <?php endif; ?>
                     </p>
+
                     <p data-field="service_id" data-userid="<?= $user['id'] ?>">
                         <strong>Service:</strong>
                         <span class="editable-value" data-serviceid="<?= $services['id'] ?? '' ?>">
-                            <?= htmlspecialchars($services['nom'] ?? 'Non spécifié') ?>
-                        </span>
-                        <i class="fas fa-pencil-alt edit-icon"></i>
+                        <?= htmlspecialchars($services['nom'] ?? 'Non spécifié') ?></span>
+                        <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                        <?php endif; ?>
                     </p>
+
                     <p data-field="role" data-userid="<?= $user['id'] ?>">
                         <strong>Role:</strong>
                         <span class="editable-value"><?= htmlspecialchars($user['role'] ?? 'Non spécifié') ?></span>
-                        <i class="fas fa-pencil-alt edit-icon"></i>
+                        <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                        <?php endif; ?>
                     </p>
                 </div>
-                <?php endif; ?>
-            </div>
 
-            <div class="profile-actions">
-                <a href="/projetannuaire/client/src/changemdp.php" class="action-button">Changer le mot de passe</a>
-                <a href="/projetannuaire/client/src/deconnexion.php" class="action-button logout">Déconnexion</a>
+                <div class="profile-actions">
+                    <a href="/projetannuaire/client/src/changemdp.php" class="action-button">Changer le mot de passe</a>
+                    <a href="/projetannuaire/client/src/deconnexion.php" class="action-button logout">Déconnexion</a>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Ajout des données des services pour le JS -->
     <div id="services-data" data-services='<?= json_encode($allServices) ?>'></div>
-
     <footer>
         <?php require_once __DIR__ . '/includes/footer.php'; ?>
     </footer>
+    
 </body>
 </html>
