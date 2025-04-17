@@ -71,7 +71,7 @@ $allServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <p data-field="nom_complet" data-userid="<?= $user['id'] ?>">
                         <strong>Nom complet:</strong>
                         <span class="editable-value"><?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></span>
-                        <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
+                        <?php if ($_SESSION['user']['role'] === 'super_admin' || $_SESSION['user']['role'] === 'admin2'): ?>
                             <i class="fas fa-pencil-alt edit-icon"></i>
                         <?php endif; ?>
                     </p>
@@ -79,7 +79,7 @@ $allServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <p data-field="email_professionnel" data-userid="<?= $user['id'] ?>">
                         <strong>Email professionnel:</strong>
                         <span class="editable-value"><?= htmlspecialchars($user['email_professionnel'] ?? 'Non renseigné') ?></span>
-                        <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
+                        <?php if ($_SESSION['user']['role'] === 'super_admin' || $_SESSION['user']['role'] === 'admin2'): ?>
                             <i class="fas fa-pencil-alt edit-icon"></i>
                         <?php endif; ?>
                     </p>
@@ -87,7 +87,7 @@ $allServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <p data-field="telephone" data-userid="<?= $user['id'] ?>">
                         <strong>Téléphone:</strong>
                         <span class="editable-value"><?= htmlspecialchars($user['telephone'] ?? 'Non renseigné') ?></span>
-                        <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
+                        <?php if ($_SESSION['user']['role'] === 'super_admin' || $_SESSION['user']['role'] === 'admin2'): ?>
                             <i class="fas fa-pencil-alt edit-icon"></i>
                         <?php endif; ?>
                     </p>
@@ -96,7 +96,7 @@ $allServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <strong>Service:</strong>
                         <span class="editable-value" data-serviceid="<?= $services['id'] ?? '' ?>">
                         <?= htmlspecialchars($services['nom'] ?? 'Non spécifié') ?></span>
-                        <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
+                        <?php if ($_SESSION['user']['role'] === 'super_admin' || $_SESSION['user']['role'] === 'admin2'): ?>
                             <i class="fas fa-pencil-alt edit-icon"></i>
                         <?php endif; ?>
                     </p>
@@ -104,7 +104,7 @@ $allServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <p data-field="role" data-userid="<?= $user['id'] ?>">
                         <strong>Role:</strong>
                         <span class="editable-value"><?= htmlspecialchars($user['role'] ?? 'Non spécifié') ?></span>
-                        <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
+                        <?php if ($_SESSION['user']['role'] === 'super_admin' || $_SESSION['user']['role'] === 'admin2'): ?>
                             <i class="fas fa-pencil-alt edit-icon"></i>
                         <?php endif; ?>
                     </p>

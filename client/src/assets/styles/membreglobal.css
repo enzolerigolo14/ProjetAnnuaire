@@ -109,3 +109,21 @@ h2 {
     font-weight: 400;
     margin-top: 5px;
 }
+
+
+.membre-global-header {
+    max-width: 600px;
+    margin: 40px auto 20px auto;
+    padding: 10px 0;
+    text-align: center;
+    
+  }
+  
+  .membre-global-header h1 {
+    font-size: 32px;
+    color: #337ab7;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 1px;
+  }
+  

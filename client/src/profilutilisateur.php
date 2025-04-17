@@ -65,6 +65,11 @@ if (!isset($_GET['from'])) {
         'service_id' => $user['service_id'] ?? null
     ];
 }
+
+// Avant le HTML
+$stmt = $pdo->prepare("SELECT id, nom FROM services");
+$stmt->execute();
+$allServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -75,6 +80,7 @@ if (!isset($_GET['from'])) {
     <title>Profil de <?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></title>
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/profilutilisateur.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="/projetannuaire/client/script/profilutilisateur.js" defer></script>
 </head> 
 
@@ -104,16 +110,51 @@ if (!isset($_GET['from'])) {
 
                 <div class="profile-details">
                     <h2>Informations personnelles</h2>
-                    <p><strong>Nom complet:</strong> <?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></p>
-                    <p><strong>Email professionnel:</strong> <?= htmlspecialchars($user['email_professionnel'] ?? 'Non renseigné') ?></p>
-                    <p><strong>Téléphone:</strong> <?= htmlspecialchars($user['telephone'] ?? 'Non renseigné') ?></p>
-                    <p><strong>Service:</strong> <?= htmlspecialchars($service['nom'] ?? 'Non spécifié') ?></p>
-                    <p><strong>Rôle:</strong> <?= htmlspecialchars($user['role'] ?? 'Non spécifié') ?></p>
+                    <p data-field="nom_complet" data-userid="<?= $user['id'] ?>">
+                        <strong>Nom complet:</strong>
+                        <span class="editable-value"><?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></span>
+                        <?php if ($_SESSION['user']['role'] === 'super_admin' || $_SESSION['user']['role'] === 'admin2'): ?>
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                        <?php endif; ?>
+                    </p>
+
+                    <p data-field="email_professionnel" data-userid="<?= $user['id'] ?>">
+                        <strong>Email professionnel:</strong>
+                        <span class="editable-value"><?= htmlspecialchars($user['email_professionnel'] ?? 'Non renseigné') ?></span>
+                        <?php if ($_SESSION['user']['role'] === 'super_admin' || $_SESSION['user']['role'] === 'admin2'): ?>
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                        <?php endif; ?>
+                    </p>
+
+                    <p data-field="telephone" data-userid="<?= $user['id'] ?>">
+                        <strong>Téléphone:</strong>
+                        <span class="editable-value"><?= htmlspecialchars($user['telephone'] ?? 'Non renseigné') ?></span>
+                        <?php if ($_SESSION['user']['role'] === 'super_admin' || $_SESSION['user']['role'] === 'admin2'): ?>
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                        <?php endif; ?>
+                    </p>
+
+                    <p data-field="service_id" data-userid="<?= $user['id'] ?>">
+                        <strong>Service:</strong>
+                        <span class="editable-value" data-serviceid="<?= $services['id'] ?? '' ?>">
+                        <?= htmlspecialchars($services['nom'] ?? 'Non spécifié') ?></span>
+                        <?php if ($_SESSION['user']['role'] === 'super_admin' || $_SESSION['user']['role'] === 'admin2'): ?>
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                        <?php endif; ?>
+                    </p>
+
+                    <p data-field="role" data-userid="<?= $user['id'] ?>">
+                        <strong>Role:</strong>
+                        <span class="editable-value"><?= htmlspecialchars($user['role'] ?? 'Non spécifié') ?></span>
+                        <?php if ($_SESSION['user']['role'] === 'super_admin' || $_SESSION['user']['role'] === 'admin2'): ?>
+                            <i class="fas fa-pencil-alt edit-icon"></i>
+                        <?php endif; ?>
+                    </p>
                 </div>
             </div>
         </div>
     </div>
-
+    <div id="services-data" data-services='<?= json_encode($allServices) ?>'></div>
     <footer>
     <?php require_once __DIR__ . '/includes/footer.php'; ?>
 </footer>

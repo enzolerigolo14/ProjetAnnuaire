@@ -76,35 +76,33 @@ body {
   background-color: #f1f1f1;
 }
 
-/* ========== ACTUALITÉS ========== */
+/* === ACTUALITÉS === */
 .actualite {
   padding: 40px 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 1000px;
+  margin: auto;
 }
 
 .actualite h1 {
-  font-size: 2em;
-  margin-bottom: 30px;
   text-align: center;
+  margin-bottom: 30px;
+  color: #333;
 }
 
 .actualite-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
 }
 
 .actualite-item {
-  background-color: #fff;
-  border-radius: 10px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  width: 300px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s;
-}
-
-.actualite-item:hover {
-  transform: translateY(-5px);
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.05);
 }
 
 .actualite-image {
@@ -114,16 +112,93 @@ body {
 }
 
 .actualite-title {
+  padding: 10px;
+  font-weight: bold;
+  color: #2e6da4;
   font-size: 1.2em;
-  margin: 15px;
-  color: #337ab7;
 }
 
 .actualite-text {
-  padding: 0 15px 20px;
+  padding: 0 10px 10px;
   font-size: 0.95em;
+  color: #444;
 }
 
+.delete-actualite {
+  display: block;
+  padding: 10px;
+  color: #c00;
+  text-decoration: none;
+  font-size: 0.9em;
+}
+
+.delete-actualite:hover {
+  text-decoration: underline;
+}
+
+/* === BOUTON AJOUT ACTUALITÉ === */
+.actualite-modification {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.modifier-actualite {
+  background-color: #2e6da4;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.modifier-actualite:hover {
+  background-color: #204d74;
+}
+
+/* === POPUP FORM === */
+.actualite-form {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  z-index: 1000;
+  width: 90%;
+  max-width: 400px;
+}
+
+.actualite-form label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.actualite-form input,
+.actualite-form textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.actualite-form button[type="submit"] {
+  margin-top: 15px;
+  background-color: #2e6da4;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.actualite-form button[type="submit"]:hover {
+  background-color: #204d74;
+}
 
 
 /* ========== RESPONSIVE DESIGN ========== */

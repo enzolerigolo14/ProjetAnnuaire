@@ -162,3 +162,20 @@ document.addEventListener('DOMContentLoaded', function () {
         icon.addEventListener('click', handleEditClick);
     });
 });
+
+
+const btn = document.getElementById('modifier-actualite');
+  const form = document.getElementById('actualite-form');
+  const overlay = document.getElementById('overlay');
+
+  btn.addEventListener('click', () => {
+    form.style.display = 'block';
+    if (overlay) overlay.style.display = 'block';
+  });
+
+  if (overlay) {
+    overlay.addEventListener('click', () => {
+      form.style.display = 'none';
+      overlay.style.display = 'none';
+    });
+  }

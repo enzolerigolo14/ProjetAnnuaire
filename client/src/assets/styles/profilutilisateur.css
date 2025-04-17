@@ -100,3 +100,41 @@ body {
     color: #1c3d5a;
 }
 
+.edit-icon {
+    margin-left: 8px;
+    color: #666;
+    cursor: pointer;
+    font-size: 14px;
+    transition: color 0.3s;
+    pointer-events: auto; /* S'assurer que les événements de souris sont activés */
+    z-index: 10; /* Placer au-dessus des autres éléments */
+    position: relative; /* Nécessaire pour z-index */
+}
+
+.edit-icon:hover {
+    color: #007bff;
+    transform: scale(1.1); /* Petit effet au survol */
+}
+
+/* Style pour le mode édition */
+.edit-input {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 5px;
+}
+
+.save-btn, .cancel-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 5px;
+    font-size: 14px;
+}
+
+.save-btn { color: #28a745; }
+.cancel-btn { color: #dc3545; }
+
+.save-btn:hover, .cancel-btn:hover {
+    opacity: 0.8;
+}
