@@ -50,7 +50,13 @@ if (is_dir($uploadDir)) {
 </head>
 
 <body>
+
+
 <div class="document-container">
+    
+    <div class="top-button-container">
+        <button class="top-button" onclick="window.location.href='services-global.php'"> ← Retour</button>
+    </div>
     <h1 class="document-title">
         Document du service associé : <?= htmlspecialchars($service['nom'] ?? 'Inconnu') ?>
     </h1>

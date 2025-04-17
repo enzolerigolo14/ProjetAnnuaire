@@ -38,9 +38,10 @@ try {
 <body>
     <div class="profile-container">
         <div class="profile-header">
-            <h1>Profil de <?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></h1>
-            <a href="/projetannuaire/client/src/pageaccueil.php" class="back-button">← Retour</a>
+        <h1>Profil de <?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></h1>
+        <button class="top-button" onclick="window.location.href='pageaccueil.php'"> ← Retour</button>
         </div>
+     
 
         <div class="profile-content">
             <div class="profile-info">

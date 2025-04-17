@@ -28,10 +28,14 @@ ini_set('display_errors', 1);
 
 </head>
 <body>
-  <header>
-  <?php require_once __DIR__ . '/includes/header.php'; ?>
-  </header>
 
+  <!-- BOUTON RETOUR placé AVANT le header -->
+  
+
+  <header>
+    <?php require_once __DIR__ . '/includes/header.php'; ?>
+  </header>
+<button class="top-button" onclick="window.location.href='pageaccueil.php'">← Retour</button>
   <div class="services-container">
     <?php foreach ($services as $service): ?>
         <div class="service-item">
@@ -39,7 +43,13 @@ ini_set('display_errors', 1);
             <a href="documents-services.php?id=<?= $service['id'] ?>" class="service-button">Accéder au service</a>
         </div>
     <?php endforeach; ?>
-</div>
+  </div>
 
-  
+</body>
+<footer>
+    <?php require_once __DIR__ . '/includes/footer.php'; ?>
+</footer>
+
+
+    
 </html>
