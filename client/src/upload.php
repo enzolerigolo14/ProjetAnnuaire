@@ -6,7 +6,7 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 // Vérifier que l'utilisateur est admin
-if (!isset($_SESSION['user']['role']) || $_SESSION['user']['role'] !== 'admin') {
+if (!isset($_SESSION['user']['role']) || $_SESSION['user']['role'] !== 'admin' && $_SESSION['user']['role'] !== 'super_admin') {
     die('Accès refusé');
 }
 

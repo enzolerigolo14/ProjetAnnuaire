@@ -31,8 +31,10 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Profil | Trombinoscope Ville de Lisieux</title>
+    
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/profile.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="/projetannuaire/client/script/profile.js" defer></script>
 </head>
 <body>
@@ -57,23 +59,45 @@ try {
                         <span id="file-name">Aucun fichier sélectionné</span>
                     </div>
                 </div>
-                
-                <div class="profile-details">
-                    <h2>Informations personnelles</h2>
-                    <p><strong>Nom complet:</strong> <?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></p>
-                    <p><strong>Email professionnel:</strong> <?= htmlspecialchars($user['email_professionnel']?? 'Non renseigné')  ?></p>
-                    <p><strong>Téléphone:</strong> <?= htmlspecialchars($user['telephone'] ?? 'Non renseigné') ?></p>
-                    <p><strong>Service:</strong> <?= htmlspecialchars($services['nom'] ?? 'Non spécifié') ?></p>
-                    <p><strong>Role:</strong> <?= htmlspecialchars($user['role'] ?? 'Non spécifié') ?></p>
-                </div>
-            </div>
-
+                <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
+    <div class="profile-details">
+        <h2>Informations personnelles</h2>
+        <div></div>
+        <p data-field="nom_complet" data-userid="<?= $user['id'] ?>">
+            <strong>Nom complet:</strong>
+            <span class="editable-value"><?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></span>
+            <i class="fas fa-pencil-alt edit-icon"></i>
+        </p>
+        <p data-field="email_professionnel" data-userid="<?= $user['id'] ?>">
+            <strong>Email professionnel:</strong>
+            <span class="editable-value"><?= htmlspecialchars($user['email_professionnel'] ?? 'Non renseigné') ?></span>
+            <i class="fas fa-pencil-alt edit-icon"></i>
+        </p>
+        <p data-field="telephone" data-userid="<?= $user['id'] ?>">
+            <strong>Téléphone:</strong>
+            <span class="editable-value"><?= htmlspecialchars($user['telephone'] ?? 'Non renseigné') ?></span>
+            <i class="fas fa-pencil-alt edit-icon"></i>
+        </p>
+        <p data-field="service" data-userid="<?= $user['id'] ?>">
+            <strong>Service:</strong>
+            <span class="editable-value"><?= htmlspecialchars($services['nom'] ?? 'Non spécifié') ?></span>
+            <i class="fas fa-pencil-alt edit-icon"></i>
+        </p>
+        <p data-field="role" data-userid="<?= $user['id'] ?>">
+            <strong>Role:</strong>
+            <span class="editable-value"><?= htmlspecialchars($user['role'] ?? 'Non spécifié') ?></span>
+            <i class="fas fa-pencil-alt edit-icon"></i>
+        </p>
+    </div>
+</div>
+<?php endif; ?>
             <div class="profile-actions">
                 <!--<h3>Actions</h3>-->
                 <!--<a href="/projetannuaire/client/src/modifier-profil.php" class="action-button">Modifier le profil</a>-->
                 <a href="/projetannuaire/client/src/changemdp.php" class="action-button">Changer le mot de passe</a>
                 <a href="/projetannuaire/client/src/deconnexion.php" class="action-button logout">Déconnexion</a>
             </div>
+            
         </div>
     </div>
     <footer>

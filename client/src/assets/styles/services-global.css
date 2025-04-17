@@ -1,18 +1,25 @@
-.top-button {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  z-index: 9999;
-  padding: 10px 16px;
-  font-size: 16px;
-  background-color: red; /* temporairement pour bien le voir */
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
+.top-button-container {
+  position: absolute;
+  top: 20px; /* ou un peu plus */
+  right: 30px;
+  z-index: 1000;
 }
 
+
+
+
+.top-button {
+  background-color: white;
+  color: #2a4d69;
+  font-weight: 600;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
 .services-container {
     max-width: 800px;
@@ -58,6 +65,14 @@
   .service-button:hover {
     background-color: #0056b3;
   }
+
+/* Titre principal */
+.title {
+  text-align: center;
+  font-size: 2.2rem;
+  color: #005aaa;
+  margin-bottom: 2.5rem;
+}
   
 
 

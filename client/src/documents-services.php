@@ -61,7 +61,7 @@ if (is_dir($uploadDir)) {
         Document du service associé : <?= htmlspecialchars($service['nom'] ?? 'Inconnu') ?>
     </h1>
 
-    <?php if ($_SESSION['user']['role'] === 'admin'): ?>
+    <?php if ($_SESSION['user']['role'] === 'admin' || $_SESSION['user']['role'] === 'super_admin'): ?>
     <div class="admin-actions">
         <button class="upload-label" id="open-modal">Déposer un document</button>
     </div>
@@ -76,7 +76,7 @@ if (is_dir($uploadDir)) {
     }
     ?>
 
-    <?php if ($_SESSION['user']['role'] === 'admin'): ?>
+    <?php if ($_SESSION['user']['role'] === 'admin' || $_SESSION['user']['role'] === 'super_admin'): ?>
     <div class="modal" id="upload-modal">
         <div class="modal-content">
             <span class="close">&times;</span>
