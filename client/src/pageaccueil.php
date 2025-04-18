@@ -52,7 +52,7 @@ $actualites = $stmt->fetchAll();
         <a href="services-global.php">Documents</a>
       </li>
       <li>
-        <a href="actualite.php">Informations</a>
+        <a href="services-global-actualite.php">Informations</a>
       </li>
       <li>
         <a href="faq.php">FAQ</a>
