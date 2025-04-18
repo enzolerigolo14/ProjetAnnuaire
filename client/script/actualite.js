@@ -21,3 +21,15 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 });
+
+document.querySelectorAll('.news-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+        // Ne pas rediriger si on clique sur un élément avec data-no-redirect
+        if (!e.target.closest('[data-no-redirect]')) {
+            const link = this.querySelector('a[href*="actualite-detail.php"]');
+            if (link) {
+                window.location.href = link.href;
+            }
+        }
+    });
+});

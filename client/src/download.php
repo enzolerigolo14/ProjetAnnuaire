@@ -8,9 +8,42 @@ if (!isset($_SESSION['user'])) {
     die('Accès interdit');
 }
 
-$service_id = intval($_GET['service_id']);
+// Récupération des paramètres
+$type = $_GET['type'] ?? '';
 $filename = basename($_GET['file']);
-$filepath = __DIR__ . '/uploads/service_' . $service_id . '/' . $filename;
+$service_id = intval($_GET['service_id'] ?? 0);
+$actualite_id = intval($_GET['id'] ?? 0);
+
+// Détermination du chemin du fichier selon le type
+if ($type === 'service') {
+    // Ancienne logique pour les fichiers de service
+    $filepath = __DIR__ . '/uploads/service_' . $service_id . '/' . $filename;
+    
+    // Vérification des permissions
+    $stmt = $pdo->prepare("SELECT id FROM services WHERE id = ?");
+    $stmt->execute([$service_id]);
+    if (!$stmt->fetch()) {
+        header('HTTP/1.0 403 Forbidden');
+        die('Accès non autorisé');
+    }
+} elseif ($type === 'actualite') {
+    // Nouvelle logique pour les PDF d'actualités
+    $filepath = __DIR__ . '/uploads/actualites/' . $filename;
+    
+    // Vérification que l'actualité existe et que l'utilisateur a les droits
+    $stmt = $pdo->prepare("SELECT a.id 
+                          FROM actualites a
+                          JOIN services s ON a.service_id = s.id
+                          WHERE a.id = ?");
+    $stmt->execute([$actualite_id]);
+    if (!$stmt->fetch()) {
+        header('HTTP/1.0 403 Forbidden');
+        die('Accès non autorisé à cette actualité');
+    }
+} else {
+    header('HTTP/1.0 400 Bad Request');
+    die('Type de fichier non spécifié');
+}
 
 // Vérification de l'existence du fichier
 if (!file_exists($filepath)) {
@@ -18,17 +51,10 @@ if (!file_exists($filepath)) {
     die('Fichier non disponible');
 }
 
-// Vérification des permissions
-$stmt = $pdo->prepare("SELECT id FROM services WHERE id = ?");
-$stmt->execute([$service_id]);
-if (!$stmt->fetch()) {
-    header('HTTP/1.0 403 Forbidden');
-    die('Accès non autorisé');
-}
-
 // Envoi du fichier
-header('Content-Type: application/octet-stream');
+header('Content-Type: application/pdf');
 header('Content-Disposition: attachment; filename="' . basename($filepath) . '"');
 header('Content-Length: ' . filesize($filepath));
 readfile($filepath);
 exit;
+?>
