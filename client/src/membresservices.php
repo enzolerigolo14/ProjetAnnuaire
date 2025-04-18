@@ -70,6 +70,14 @@ echo "</div>";
     <div class="top-button-container">
         <button class="top-button" onclick="window.location.href='pageaccueil.php'"> ← Retour</button>
     </div>
+
+<!--Ajout d'un bouton pour aller directement au sur la page actualite service-->
+<div class="bottom-button-container">
+    <button class="bottom-button" onclick="window.location.href='actualite.php?id=<?php echo $service_id; ?>'">
+        Actualités du service
+    </button>
+</div>
+
     <footer>
     <?php require_once __DIR__ . '/includes/footer.php'; ?>
 </footer>

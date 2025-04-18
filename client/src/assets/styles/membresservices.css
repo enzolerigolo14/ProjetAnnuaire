@@ -112,3 +112,34 @@ h2.service-nom {
 }
 
 
+.bottom-button-container {
+  text-align: center;
+  margin-top: 3rem;
+  margin-bottom: 2rem;
+}
+
+.bottom-button {
+  background-color: #ffffff;
+  color: #005aaa;
+  font-weight: 600;
+  border: 2px solid #005aaa;
+  padding: 12px 24px;
+  font-size: 1rem;
+  border-radius: 30px;
+  box-shadow: 0 6px 16px rgba(0, 90, 170, 0.15);
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+}
+
+.bottom-button:hover {
+  background-color: #005aaa;
+  color: #ffffff;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 90, 170, 0.25);
+}
+
+.bottom-button:active {
+  transform: scale(0.97);
+  box-shadow: 0 4px 10px rgba(0, 90, 170, 0.15);
+}
+
