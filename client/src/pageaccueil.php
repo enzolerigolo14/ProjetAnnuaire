@@ -13,8 +13,12 @@ $stmt = $pdo->prepare("SELECT * FROM services");
 $stmt->execute();
 $services = $stmt->fetchAll();
 
-// Récupérer seulement les 3 dernières actualités
-$stmt = $pdo->prepare("SELECT * FROM actualites ORDER BY created_at DESC LIMIT 3");
+// Récupérer les 3 dernières actualités avec le nom du service
+$stmt = $pdo->prepare("SELECT a.*, s.nom as service_nom 
+                      FROM actualites a
+                      JOIN services s ON a.service_id = s.id
+                      ORDER BY a.created_at DESC 
+                      LIMIT 3");
 $stmt->execute();
 $actualites = $stmt->fetchAll();
 ?>
@@ -28,6 +32,7 @@ $actualites = $stmt->fetchAll();
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/pageaccueil.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/header.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
+    
 </head>
 
 <body>
@@ -61,15 +66,17 @@ $actualites = $stmt->fetchAll();
   </nav>
 
   <div class="actualite">
-    <h1>Actualités</h1>
+    <h1>Actualités récentes</h1>
     <div class="actualite-container">
       <?php foreach ($actualites as $actualite): ?>
       <div class="actualite-item">
+        <span class="service-badge"><?= htmlspecialchars($actualite['service_nom']) ?></span>
         <?php if (!empty($actualite['image'])): ?>
         <img src="<?= htmlspecialchars($actualite['image']) ?>" alt="<?= htmlspecialchars($actualite['titre']) ?>" class="actualite-image">
         <?php endif; ?>
         <h3 class="actualite-title"><?= htmlspecialchars($actualite['titre']) ?></h3>
         <p class="actualite-text"><?= htmlspecialchars($actualite['description']) ?></p>
+        <a href="actualite-detail.php?id=<?= $actualite['id'] ?>&service_id=<?= $actualite['service_id'] ?>" class="actualite-link"></a>
       </div>
       <?php endforeach; ?>
     </div>
