@@ -52,8 +52,10 @@ if (!file_exists($filepath)) {
 }
 
 // Envoi du fichier
+$as_attachment = isset($_GET['download']) && $_GET['download'] === '1';
 header('Content-Type: application/pdf');
-header('Content-Disposition: attachment; filename="' . basename($filepath) . '"');
+header('Content-Disposition: ' . ($as_attachment ? 'attachment' : 'inline') . '; filename="' . basename($filepath) . '"');
+
 header('Content-Length: ' . filesize($filepath));
 readfile($filepath);
 exit;
