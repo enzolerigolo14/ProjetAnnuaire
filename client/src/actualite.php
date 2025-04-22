@@ -105,59 +105,68 @@ $derniere_actualite = array_shift($actualites);
         <?php endif; ?>
 
         <div class="main-container">
-            <!-- Actualité principale -->
-            <div class="featured-news">
-                <?php if ($derniere_actualite): ?>
-                    <?php if (!empty($derniere_actualite['image'])): ?>
-                        <img src="<?= htmlspecialchars($derniere_actualite['image']) ?>" alt="<?= htmlspecialchars($derniere_actualite['titre']) ?>" class="featured-image">
-                    <?php endif; ?>
-                    <h2 class="featured-title"><?= htmlspecialchars($derniere_actualite['titre']) ?></h2>
-                    <p class="featured-text"><?= htmlspecialchars($derniere_actualite['description']) ?></p>
+    <!-- Actualité principale -->
+    <div class="featured-news">
+        <?php if ($derniere_actualite): ?>
+            <?php if (!empty($derniere_actualite['image'])): ?>
+                <img src="<?= htmlspecialchars($derniere_actualite['image']) ?>" alt="<?= htmlspecialchars($derniere_actualite['titre']) ?>" class="featured-image">
+            <?php endif; ?>
+            <h2 class="featured-title"><?= htmlspecialchars($derniere_actualite['titre']) ?></h2>
+            <p class="featured-text"><?= htmlspecialchars($derniere_actualite['description']) ?></p>
 
-                    <?php if (!empty($derniere_actualite['pdf_path'])): ?>
-                        <div class="pdf-viewer-container">
-                            <object data="download.php?type=actualite&id=<?= $derniere_actualite['id'] ?>&file=<?= basename($derniere_actualite['pdf_path']) ?>" type="application/pdf" class="pdf-viewer">
-                                <p>Votre navigateur ne supporte pas l'affichage des PDF. <a href="<?= htmlspecialchars($derniere_actualite['pdf_path']) ?>">Téléchargez-le</a>.</p>
-                            </object>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if ($isAdmin): ?>
-                        <div class="actualite-actions">
-                            <a href="?id=<?= $service_id ?>&delete_actualite=<?= $derniere_actualite['id'] ?>" class="delete-actualite" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette actualité ?')">Supprimer</a>
-                        </div>
-                    <?php endif; ?>
-                <?php else: ?>
-                    <p>Aucune actualité disponible pour ce service.</p>
-                <?php endif; ?>
-            </div>
-
-            <!-- Liste des autres actualités -->
-            <div class="news-sidebar">
-    <?php foreach ($actualites as $actualite): ?>
-        <div class="news-item">
-            <div class="news-content">
-                <?php if (!empty($actualite['image'])): ?>
-                    <img src="<?= htmlspecialchars($actualite['image']) ?>" alt="<?= htmlspecialchars($actualite['titre']) ?>" class="sidebar-image">
-                <?php endif; ?>
-                <h3 class="sidebar-title"><?= htmlspecialchars($actualite['titre']) ?></h3>
-                <p class="sidebar-text"><?= htmlspecialchars($actualite['description']) ?></p>
-            </div>
-
-            <?php if (!empty($actualite['pdf_path'])): ?>
-                <div class="pdf-sidebar-container">
-                    <a href="download.php?type=actualite&id=<?= $actualite['id'] ?>&file=<?= basename($actualite['pdf_path']) ?>&download=1" 
-                       class="pdf-download-btn" 
-                       onclick="event.stopPropagation();" 
-                       download>
-                       <i class="fas fa-download"></i> Télécharger le PDF
-                    </a>
+            <?php if (!empty($derniere_actualite['pdf_path'])): ?>
+                <div class="pdf-container">
+                    <object data="download.php?type=actualite&id=<?= $derniere_actualite['id'] ?>&file=<?= basename($derniere_actualite['pdf_path']) ?>" 
+                            type="application/pdf" 
+                            class="pdf-viewer">
+                    </object>
                 </div>
             <?php endif; ?>
-        </div>
-    <?php endforeach; ?>
+
+            <?php if ($isAdmin): ?>
+                <div class="actualite-actions">
+                    <a href="?id=<?= $service_id ?>&delete_actualite=<?= $derniere_actualite['id'] ?>" class="delete-actualite" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette actualité ?')">Supprimer</a>
+                </div>
+            <?php endif; ?>
+        <?php else: ?>
+            <p>Aucune actualité disponible pour ce service.</p>
+        <?php endif; ?>
+    </div>
+
+    <!-- Liste des autres actualités -->
+    <div class="news-sidebar">
+        <?php foreach ($actualites as $actualite): ?>
+            <div class="news-item">
+                <div class="news-content">
+                    <?php if (!empty($actualite['image'])): ?>
+                        <img src="<?= htmlspecialchars($actualite['image']) ?>" alt="<?= htmlspecialchars($actualite['titre']) ?>" class="sidebar-image">
+                    <?php endif; ?>
+                    <h3 class="sidebar-title"><?= htmlspecialchars($actualite['titre']) ?></h3>
+                    <p class="sidebar-text"><?= htmlspecialchars($actualite['description']) ?></p>
+                </div>
+
+                <?php if (!empty($actualite['pdf_path'])): ?>
+                    <div class="pdf-container">
+                        <object data="download.php?type=actualite&id=<?= $actualite['id'] ?>&file=<?= basename($actualite['pdf_path']) ?>" 
+                                type="application/pdf" 
+                                class="pdf-viewer">
+                        </object>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($isAdmin): ?>
+                    <div class="actualite-actions">
+                        <a href="?id=<?= $service_id ?>&delete_actualite=<?= $actualite['id'] ?>" 
+                           class="delete-actualite" 
+                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette actualité ?')">
+                           Supprimer
+                        </a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
 </div>
-        </div>
     </div>
 
     <?php if ($isAdmin): ?>
