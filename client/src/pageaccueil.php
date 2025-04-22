@@ -68,19 +68,30 @@ $actualites = $stmt->fetchAll();
   <div class="actualite">
     <h1>Actualités récentes</h1>
     <div class="actualite-container">
-      <?php foreach ($actualites as $actualite): ?>
-      <div class="actualite-item">
-        <span class="service-badge"><?= htmlspecialchars($actualite['service_nom']) ?></span>
-        <?php if (!empty($actualite['image'])): ?>
-        <img src="<?= htmlspecialchars($actualite['image']) ?>" alt="<?= htmlspecialchars($actualite['titre']) ?>" class="actualite-image">
-        <?php endif; ?>
-        <h3 class="actualite-title"><?= htmlspecialchars($actualite['titre']) ?></h3>
-        <p class="actualite-text"><?= htmlspecialchars($actualite['description']) ?></p>
-        <a href="actualite-detail.php?id=<?= $actualite['id'] ?>&service_id=<?= $actualite['service_id'] ?>" class="actualite-link"></a>
-      </div>
-      <?php endforeach; ?>
+        <?php foreach ($actualites as $actualite): ?>
+        <div class="actualite-item">
+            <span class="service-badge"><?= htmlspecialchars($actualite['service_nom']) ?></span>
+            <?php if (!empty($actualite['image'])): ?>
+            <img src="<?= htmlspecialchars($actualite['image']) ?>" alt="<?= htmlspecialchars($actualite['titre']) ?>" class="actualite-image">
+            <?php endif; ?>
+            <h3 class="actualite-title"><?= htmlspecialchars($actualite['titre']) ?></h3>
+            <p class="actualite-text"><?= htmlspecialchars($actualite['description']) ?></p>
+            
+            <?php if (!empty($actualite['pdf_path'])): ?>
+                <div class="actualite-pdf-preview">
+                    <object data="download.php?type=actualite&id=<?= $actualite['id'] ?>&file=<?= basename($actualite['pdf_path']) ?>" 
+                            type="application/pdf" 
+                            class="pdf-preview">
+                    </object>
+                    
+                </div>
+            <?php endif; ?>
+            
+            <a href="actualite-detail.php?id=<?= $actualite['id'] ?>&service_id=<?= $actualite['service_id'] ?>" class="actualite-link"></a>
+        </div>
+        <?php endforeach; ?>
     </div>
-  </div>
+</div>
 
   <footer>
     <?php require_once __DIR__ . '/includes/footer.php'; ?>

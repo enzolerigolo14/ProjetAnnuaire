@@ -33,22 +33,30 @@ if (!$service_id && isset($actualite['service_id'])) {
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/header.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/actualite-detail.css">
+
 </head>
 <body>
 
-    <div class="actualite-detail-container">
-        <h1><?= htmlspecialchars($actualite['titre']) ?></h1>
-        
+    <div class="featured-news">
+    <span class="service-badge">Document du service : <?= htmlspecialchars($actualite['service_nom']) ?></span>
+    <div class="actualite-item">
         <?php if (!empty($actualite['image'])): ?>
-        <img src="<?= htmlspecialchars($actualite['image']) ?>" alt="<?= htmlspecialchars($actualite['titre']) ?>" class="detail-image">
+            <img src="<?= htmlspecialchars($actualite['image']) ?>" alt="<?= htmlspecialchars($actualite['titre']) ?>" class="featured-image">
         <?php endif; ?>
-        
-        <div class="actualite-content">
-            <?= nl2br(htmlspecialchars($actualite['description'])) ?>
-        </div>
-        
-        <a href="actualite.php?id=<?= $service_id ?>" class="back-button">Retour aux actualités</a>
+        <h2 class="featured-title"><?= htmlspecialchars($actualite['titre']) ?></h2>
+        <p class="featured-text"><?= htmlspecialchars($actualite['description']) ?></p>
+
+        <?php if (!empty($actualite['pdf_path'])): ?>
+            <div class="pdf-container">
+                <object data="download.php?type=actualite&id=<?= $actualite['id'] ?>&file=<?= basename($actualite['pdf_path']) ?>" 
+                        type="application/pdf" 
+                        class="pdf-viewer">
+                </object>
+            </div>
+        <?php endif; ?>
+        <a href="pageaccueil.php?id=<?= $service_id ?>" class="back-button">Retour a l'accueil</a>
     </div>
+</div> <!-- Fermeture de featured-news -->
 
     <footer>
         <?php require_once __DIR__ . '/includes/footer.php'; ?>
