@@ -136,8 +136,8 @@ $allServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     <p data-field="service_id" data-userid="<?= $user['id'] ?>">
                         <strong>Service:</strong>
-                        <span class="editable-value" data-serviceid="<?= $services['id'] ?? '' ?>">
-                        <?= htmlspecialchars($services['nom'] ?? 'Non spécifié') ?></span>
+                        <span class="editable-value" data-serviceid="<?= $service['id'] ?? '' ?>">
+                        <?= htmlspecialchars($service['nom'] ?? 'Non spécifié') ?></span>
                         <?php if ($_SESSION['user']['role'] === 'super_admin' || $_SESSION['user']['role'] === 'admin2'): ?>
                             <i class="fas fa-pencil-alt edit-icon"></i>
                         <?php endif; ?>

@@ -111,7 +111,9 @@ $allServices = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
 
                 <div class="profile-actions">
+                <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
                     <a href="/projetannuaire/client/src/changemdp.php" class="action-button">Changer le mot de passe</a>
+                        <?php endif; ?>
                     <a href="/projetannuaire/client/src/deconnexion.php" class="action-button logout">Déconnexion</a>
                 </div>
             </div>
