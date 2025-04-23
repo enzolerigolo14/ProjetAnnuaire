@@ -182,3 +182,57 @@
     transform: scale(0.98);
   }
   
+  .delete-file {
+    margin-left: 15px;
+    color: #ff0000;
+    text-decoration: none;
+    font-size: 0.8em;
+}
+
+.delete-file:hover {
+    text-decoration: underline;
+}
+
+/* Style pour l'icône de poubelle */
+.delete-file {
+    margin-left: 15px;
+    color: #ff4444;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.delete-file:hover {
+    background-color: #ffeeee;
+    color: #ff0000;
+}
+
+.trash-icon {
+    vertical-align: middle;
+}
+
+/* Style pour la liste des fichiers */
+.uploaded-files ul {
+    list-style: none;
+    padding: 0;
+}
+
+.uploaded-files li {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.uploaded-files li a:first-child {
+    flex-grow: 1;
+    color: #333;
+    text-decoration: none;
+}
+
+.uploaded-files li a:first-child:hover {
+    text-decoration: underline;
+}

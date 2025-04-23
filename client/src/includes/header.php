@@ -21,3 +21,5 @@
         </div>
       </div>
     </div>
+
+    <script src="/projetannuaire/client/script/rechercher.js" defer></script> 

@@ -33,6 +33,7 @@ $actualites = $stmt->fetchAll();
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/header.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
     
+    
 </head>
 
 <body>
