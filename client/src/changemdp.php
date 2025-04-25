@@ -36,8 +36,6 @@
         <div id="error-message" class="error-message" style="display: none;"></div>
         <div id="success-message" class="success-message" style="display: none;"></div>
     </div>
-    <footer>
-    <?php require_once __DIR__ . '/includes/footer.php'; ?>
-</footer>
+   
 </body>
 </html>

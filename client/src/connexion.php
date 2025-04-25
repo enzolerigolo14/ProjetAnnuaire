@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/config/ldap_auth.php';
 
 $error = '';
 
@@ -11,42 +11,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($username) || empty($password)) {
         $error = "Veuillez remplir tous les champs";
     } else {
-        try {
-            // Recherche par format "jdupont" (première lettre prénom + nom)
-            $sql = "SELECT * FROM users WHERE CONCAT(LOWER(LEFT(prenom, 1)), LOWER(nom)) = :identifiant";
-            
-            $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(':identifiant', $username);
-            $stmt->execute();
-            
-            $user = $stmt->fetch();
+        $ldap_data = authentifierEtRecupererInfos($username, $password);
 
-            if ($user) {
-                // Vérification SIMPLIFIÉE (à remplacer par password_verify plus tard)
-                if ($password === $user['mot_de_passe']) {
-                    $_SESSION['user'] = [
-                        'id' => $user['id'],
-                        'prenom' => $user['prenom'],
-                        'nom' => $user['nom'],
-                        'email_professionel' => $user['email_professionel'],
-                        'role' => $user['role']
-                    ];
+        if ($ldap_data) {
+            $_SESSION['user'] = [
+                'prenom' => $ldap_data['givenname'][0] ?? '',
+                'nom' => $ldap_data['sn'][0] ?? '',
+                'email' => $ldap_data['mail'][0] ?? '',
+                'telephone' => $ldap_data['telephonenumber'][0] ?? '',
+                'description' => $ldap_data['description'][0] ?? '',
+                'groupe' => is_array($ldap_data['memberof']) ? implode(', ', $ldap_data['memberof']) : 
+                ($ldap_data['memberof'] ?? ''),
+                'identifiant' => $username
+            ];
 
-
-                    header('Location: /projetannuaire/client/src/pageaccueil.php');
-                    exit;
-                } else {
-                    $error = "Mot de passe incorrect";
-                }
-            } else {
-                $error = "Identifiant non trouvé";
-            }
-        } catch (PDOException $e) {
-            $error = "Erreur système. Veuillez réessayer.";
+            header('Location: /projetannuaire/client/src/pageaccueil.php');
+            exit;
+        } else {
+            $error = "Identifiant ou mot de passe incorrect";
         }
     }
-
-
 }
 ?>
 
@@ -74,8 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-group">
                     <label for="username">Identifiant (première lettre du prénom + nom)</label>
                     <input type="text" id="username" name="username" required
-                           placeholder="ex: jdupont"
-                           value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
+                        placeholder="ex: jdupont"
+                        value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
                 </div>
 
                 <div class="form-group">

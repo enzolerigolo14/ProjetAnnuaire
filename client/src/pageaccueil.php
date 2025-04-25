@@ -47,12 +47,7 @@ $actualites = $stmt->fetchAll();
         <a href="membreglobal.php">Agents</a>
       </li>
       <li>
-        <a href="">Services</a>
-        <ul class="dropdown services-dropdown">
-            <?php foreach ($services as $service): ?>
-            <li><a href="membresservices.php?id=<?= $service['id'] ?>"><?= htmlspecialchars($service['nom']) ?></a></li>
-            <?php endforeach; ?>
-        </ul>
+        <a href="services-global-membre.php">Services</a>
       </li>
       <li>
         <a href="services-global.php">Documents</a>

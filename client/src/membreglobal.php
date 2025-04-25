@@ -1,16 +1,11 @@
 <?php
-require_once __DIR__ . '/config/database.php';
+
+require_once __DIR__ . '/config/ldap_auth.php';
 session_start();
-
-$_SESSION['origin_page'] = [
-    'url' => $_SERVER['REQUEST_URI'],
-    'service_id' => $_GET['service_id'] ?? null 
-];
-
-$stmt = $pdo->prepare("SELECT * FROM users");
-$stmt->execute();
-$membres = $stmt->fetchAll();
+// Connexion LDAP
+$user = recupererTousLesUtilisateursAD();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -34,15 +29,24 @@ $membres = $stmt->fetchAll();
 
     <!-- Cartes membres -->
     <div class="membre-container">
-        <?php foreach ($membres as $membre): ?>
-            <a href="profilutilisateur.php?id=<?= $membre['id'] ?>&from=global" class="membre-link">
-                <div class="membre-card">
-                    <div class="membre-nom"><?= htmlspecialchars($membre['nom']) ?> <?= htmlspecialchars($membre['prenom']) ?></div>
-                    <div class="membre-role"><?= htmlspecialchars($membre['role']) ?></div>
+    <?php for ($i = 0; $i < $user["count"]; $i++): 
+        $email = urlencode($user[$i]["mail"][0] ?? '');
+    ?>
+        <a href="profilutilisateur.php?email=<?= $email ?>" class="membre-link">
+            <div class="membre-card">
+                <div class="membre-nom">
+                    <?= htmlspecialchars($user[$i]["givenname"][0] ?? '') ?>
+                    <?= htmlspecialchars($user[$i]["sn"][0] ?? '') ?>
                 </div>
-            </a>
-        <?php endforeach; ?>
-    </div>
+                <div class="membre-role">
+                    <?= htmlspecialchars($user[$i]["mail"][0] ?? 'Mail non disponible') ?><br>
+                    <?= htmlspecialchars($user[$i]["description"][0] ?? 'Description non disponible') ?>
+                </div>
+            </div>
+        </a>
+    <?php endfor; ?>
+</div>
+
 
     <footer>
         <?php require_once __DIR__ . '/includes/footer.php'; ?>
