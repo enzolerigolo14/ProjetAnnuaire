@@ -67,6 +67,7 @@ error_log("Service: $nomService - Membres trouvés: " . count($membresAD));
             </ul>
         </div>
     <?php else: ?>
+        <!-- mettre le href pour acceder profil utilisateur -->
         <div class="membre-container">
             <?php foreach ($membresAD as $membre): ?>
                 <div class="membre-card">
