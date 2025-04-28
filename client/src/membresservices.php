@@ -68,21 +68,44 @@ error_log("Service: $nomService - Membres trouvés: " . count($membresAD));
         </div>
     <?php else: ?>
         <!-- mettre le href pour acceder profil utilisateur -->
-        <div class="membre-container">
-            <?php foreach ($membresAD as $membre): ?>
-                <div class="membre-card">
-                    <div class="membre-nom">
-                        <?= htmlspecialchars($membre['givenname'][0] ?? '') ?>
-                        <?= htmlspecialchars($membre['sn'][0] ?? '') ?>
-                    </div>
-                    <div class="membre-role">
-                        <?= htmlspecialchars($membre['description'][0] ?? '') ?>
-                        <?php if (!empty($membre['telephonenumber'][0])): ?>
-                            <br>📞 <?= htmlspecialchars($membre['telephonenumber'][0]) ?>
-                        <?php endif; ?>
-                    </div>
+
+        <div class="membre-container" >
+        <?php foreach ($membresAD as $membre): ?>
+    <?php 
+        $email = $membre['mail'][0] ?? null;
+    ?>
+    <?php if ($email): ?>
+        <a href="profilutilisateur.php?email=<?= urlencode($email) ?>" class="membre-link">
+            <div class="membre-card">
+                <div class="membre-nom">
+                    <?= htmlspecialchars($membre['givenname'][0] ?? '') ?>
+                    <?= htmlspecialchars($membre['sn'][0] ?? '') ?>
                 </div>
-            <?php endforeach; ?>
+                <div class="membre-role">
+                    <?= htmlspecialchars($membre['description'][0] ?? '') ?>
+                    <?php if (!empty($membre['telephonenumber'][0])): ?>
+                        <br> <?= htmlspecialchars($membre['telephonenumber'][0]) ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </a>
+    <?php else: ?>
+        <div class="membre-card membre-card-disabled">
+            <div class="membre-nom">
+                <?= htmlspecialchars($membre['givenname'][0] ?? '') ?>
+                <?= htmlspecialchars($membre['sn'][0] ?? '') ?>
+            </div>
+            <div class="membre-role">
+                <?= htmlspecialchars($membre['description'][0] ?? '') ?>
+                <br><small>(Email manquant)</small>
+                <?php if (!empty($membre['telephonenumber'][0])): ?>
+                    <br> <?= htmlspecialchars($membre['telephonenumber'][0]) ?>
+                <?php endif; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+<?php endforeach; ?>
+
         </div>
     <?php endif; ?>
 

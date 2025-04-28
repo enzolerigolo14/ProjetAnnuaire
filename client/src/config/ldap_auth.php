@@ -102,43 +102,6 @@ function recupererUtilisateurParEmail($email) {
 
 
 
-function recupererUtilisateursParGroupeAD($nomGroupe) {
-    $ldap_host = "ldap://SVR-HDV-AD.ville-lisieux.fr";
-    $ldap_port = 389;
-    $ldap_dn = "DC=ville-lisieux,DC=fr";
-    $admin_user = "svcintra@ville-lisieux.fr";
-    $admin_pass = "Lisieux14100";
-
-    $ldap_conn = ldap_connect($ldap_host, $ldap_port);
-    if (!$ldap_conn) return [];
-
-    ldap_set_option($ldap_conn, LDAP_OPT_PROTOCOL_VERSION, 3);
-    ldap_set_option($ldap_conn, LDAP_OPT_REFERRALS, 0);
-
-    if (!@ldap_bind($ldap_conn, $admin_user, $admin_pass)) return [];
-
-    // Cherche le groupe pour obtenir son DN exact
-    $filter = "(&(objectClass=group)(cn=$nomGroupe))";
-    $search = ldap_search($ldap_conn, $ldap_dn, $filter);
-    $group_entries = ldap_get_entries($ldap_conn, $search);
-    
-    if ($group_entries["count"] == 0) {
-        ldap_unbind($ldap_conn);
-        return [];
-    }
-    
-    $group_dn = $group_entries[0]["distinguishedname"][0];
-    
-    // Cherche tous les membres du groupe (directs et indirects)
-    $filter = "(memberOf:1.2.840.113556.1.4.1941:=$group_dn)";
-    $attributes = ["givenname", "sn", "mail", "description", "telephonenumber"];
-    $search = ldap_search($ldap_conn, $ldap_dn, $filter, $attributes);
-    
-    $entries = ldap_get_entries($ldap_conn, $search);
-    ldap_unbind($ldap_conn);
-    
-    return $entries;
-}
 
 
 function recupererUtilisateursParServiceAD($nomGroupe) {
@@ -179,7 +142,7 @@ function recupererUtilisateursParServiceAD($nomGroupe) {
 
     // 2. Recherche des membres
     $filter = "(memberOf:1.2.840.113556.1.4.1941:=$group_dn)";
-    $attrs = ["givenname", "sn", "description", "telephonenumber", "mail"];
+    $attrs = ["givenname", "sn", "mail", "description"];
     $search = ldap_search($ldap, $base_dn, $filter, $attrs);
     $members = ldap_get_entries($ldap, $search);
 
@@ -191,6 +154,7 @@ function recupererUtilisateursParServiceAD($nomGroupe) {
         $result[] = [
             'givenname' => [$members[$i]['givenname'][0] ?? ''],
             'sn' => [$members[$i]['sn'][0] ?? ''],
+            'mail' => [$members[$i]['mail'][0] ?? ''],
             'description' => [$members[$i]['description'][0] ?? ''],
             'telephonenumber' => [$members[$i]['telephonenumber'][0] ?? '']
         ];

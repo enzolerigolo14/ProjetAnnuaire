@@ -154,3 +154,9 @@ body {
 .bottom-button:active {
   transform: scale(0.98);
 }
+
+
+.membre-link {
+  text-decoration: none;
+  color: inherit;
+}
