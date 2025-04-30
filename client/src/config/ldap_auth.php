@@ -6,27 +6,37 @@ function authentifierEtRecupererInfos($login, $password) {
     $user_upn = $login . "@ville-lisieux.fr";
 
     $ldap_conn = ldap_connect($ldap_host, $ldap_port);
-    if (!$ldap_conn) return false;
+    if (!$ldap_conn) {
+        return false;
+    }
 
     ldap_set_option($ldap_conn, LDAP_OPT_PROTOCOL_VERSION, 3);
     ldap_set_option($ldap_conn, LDAP_OPT_REFERRALS, 0);
 
     if (@ldap_bind($ldap_conn, $user_upn, $password)) {
-        // Recherche de l'utilisateur
+        // Ajout de l'attribut department
         $filter = "(&(objectClass=user)(sAMAccountName=$login))";
-        $search = ldap_search($ldap_conn, $ldap_dn, $filter);
+        $attributes = ["givenname", "sn", "mail", "telephonenumber", "description"];
+        $search = ldap_search($ldap_conn, $ldap_dn, $filter, $attributes);
         $entries = ldap_get_entries($ldap_conn, $search);
 
         ldap_unbind($ldap_conn);
 
         if ($entries["count"] > 0) {
-            return $entries[0]; // Données utilisateur AD
+            return [
+                'givenname' => $entries[0]['givenname'][0] ?? '',
+                'sn' => $entries[0]['sn'][0] ?? '',
+                'mail' => $entries[0]['mail'][0] ?? '',
+                'telephonenumber' => $entries[0]['telephonenumber'][0] ?? '',
+                'description' => $entries[0]['description'][0] ?? 'Service non défini' // Modification ici
+            ];
         }
+        return false;
     }
-
     ldap_unbind($ldap_conn);
     return false;
 }
+
 
 
 function recupererTousLesUtilisateursAD() {
@@ -163,4 +173,54 @@ function recupererUtilisateursParServiceAD($nomGroupe) {
     return $result;
 }
 
+
+function afficherInfosUtilisateur() {
+    if (!isset($_SESSION['user']['login'])) {
+        return;
+    }
+
+    // Récupération des infos de base depuis la session
+    $user = $_SESSION['user'];
+    $nom = htmlspecialchars($user['nom'] ?? 'Non renseigné');
+    $prenom = htmlspecialchars($user['prenom'] ?? 'Non renseigné');
+    
+    // Récupération de l'email depuis LDAP (version optimisée)
+    $email = '';
+    $login = $_SESSION['user']['login'];
+    
+    if (!empty($login)) {
+        $ldap_conn = ldap_connect("ldap://SVR-HDV-AD.ville-lisieux.fr", 389);
+        if ($ldap_conn) {
+            ldap_set_option($ldap_conn, LDAP_OPT_PROTOCOL_VERSION, 3);
+            ldap_set_option($ldap_conn, LDAP_OPT_REFERRALS, 0);
+            
+            if (@ldap_bind($ldap_conn, "svcintra@ville-lisieux.fr", "Lisieux14100")) {
+                $filter = "(sAMAccountName=" . ldap_escape($login, "", LDAP_ESCAPE_FILTER) . ")";
+                $search = ldap_search($ldap_conn, "DC=ville-lisieux,DC=fr", $filter, ["mail"]);
+                $entries = ldap_get_entries($ldap_conn, $search);
+                
+                if ($entries["count"] > 0 && !empty($entries[0]["mail"][0])) {
+                    $email = htmlspecialchars($entries[0]["mail"][0]);
+                }
+            }
+            ldap_unbind($ldap_conn);
+        }
+    }
+
+    // Affichage simple et propre
+    echo '<div class="user-info-box" style="padding:15px; margin:20px 0; border:1px solid #ddd; background:#f8f9fa; border-radius:5px;">';
+    echo '<h4 style="margin-top:0;">Informations utilisateur</h4>';
+    echo '<p><strong>Nom :</strong> ' . $nom . '</p>';
+    echo '<p><strong>Prénom :</strong> ' . $prenom . '</p>';
+    echo '<p><strong>Email :</strong> ' . ($email ?: 'Non trouvé dans l\'AD') . '</p>';
+    echo '</div>';
+}
+
+// Utilisation
+afficherInfosUtilisateur();
+
+
+
+
 ?>
+

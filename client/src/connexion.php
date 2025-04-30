@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/ldap_auth.php';
 
 $error = '';
@@ -14,25 +15,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $ldap_data = authentifierEtRecupererInfos($username, $password);
 
         if ($ldap_data) {
-            $_SESSION['user'] = [
-                'prenom' => $ldap_data['givenname'][0] ?? '',
-                'nom' => $ldap_data['sn'][0] ?? '',
-                'email' => $ldap_data['mail'][0] ?? '',
-                'telephone' => $ldap_data['telephonenumber'][0] ?? '',
-                'description' => $ldap_data['description'][0] ?? '',
-                'groupe' => is_array($ldap_data['memberof']) ? implode(', ', $ldap_data['memberof']) : 
-                ($ldap_data['memberof'] ?? ''),
-                'identifiant' => $username
-            ];
+            // Récupération des données AD
+            $prenom = $ldap_data['givenname'];
+            $nom = $ldap_data['sn'];
+            $email = $ldap_data['mail'];
+            $telephone = $ldap_data['telephonenumber'];
+            $service = $ldap_data['description'] ?? 'Service non défini';
 
-            header('Location: /projetannuaire/client/src/pageaccueil.php');
-            exit;
+            try {
+                // Gestion du service
+                $stmt_service = $pdo->prepare("SELECT id FROM services WHERE nom = ?");
+                $stmt_service->execute([$service]);
+                $service_id = $stmt_service->fetchColumn();
+
+                if (!$service_id) {
+                    $stmt_insert = $pdo->prepare("INSERT INTO services (nom) VALUES (?)");
+                    $stmt_insert->execute([$service]);
+                    $service_id = $pdo->lastInsertId();
+                }
+
+                // Vérification utilisateur
+                $stmt_user = $pdo->prepare("SELECT id FROM users WHERE email_professionnel = ?");
+                $stmt_user->execute([$email]);
+                
+                $isNewUser = false;
+                if ($stmt_user->rowCount() === 0) {
+                    $insert_sql = "INSERT INTO users 
+                                  (nom, prenom, telephone, email_professionnel, service_id, role, mot_de_passe) 
+                                  VALUES (?, ?, ?, ?, ?, 'user', ?)";
+                    $stmt_insert = $pdo->prepare($insert_sql);
+                    $stmt_insert->execute([
+                        $nom,
+                        $prenom,
+                        $telephone,
+                        $email,
+                        $service_id,
+                        $password
+                    ]);
+                    $isNewUser = true;
+                }
+
+                // Création session
+                $_SESSION['user'] = [
+                    'id' => $isNewUser ? $pdo->lastInsertId() : $stmt_user->fetchColumn(),
+                    'prenom' => $prenom,
+                    'nom' => $nom,
+                    'email' => $email,
+                    'telephone' => $telephone,
+                    'service_id' => $service_id,
+                    'role' => 'user'
+                ];
+
+                if ($isNewUser) $_SESSION['new_user_registered'] = true;
+
+                header('Location: pageaccueil.php');
+                exit;
+
+            } catch (PDOException $e) {
+                $error = "Erreur système : " . $e->getMessage();
+            }
+
         } else {
-            $error = "Identifiant ou mot de passe incorrect";
+            // [...] Partie connexion base de données existante
         }
     }
 }
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="fr">

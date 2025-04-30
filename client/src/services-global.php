@@ -1,14 +1,28 @@
 <?php
 session_start();
-require_once __DIR__ . '/config/database.php';
 
 
-
-$stmt = $pdo->prepare("SELECT * FROM services");
-$stmt->execute();
-$services = $stmt->fetchAll();
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+$services = [
+  1 => 'Service Accueil',
+  2 => 'Service Administration Générale',
+  3 => 'Service Bâtiment',
+  4 => 'Service Bureau d\'études',
+  5 => 'Service Cabinet',
+  6 => 'Service Communication',
+  7 => 'Service Élections',
+  8 => 'Service État Civil',
+  9 => 'Service Événementiel',
+  10 => 'Service Fêtes & Cérémonies',
+  11 => 'Service Finances',
+  12 => 'Service Juridique',
+  13 => 'Service Marché Public',
+  14 => 'Service Pompes Funèbres',
+  15 => 'Service Ressources Humaines',
+  16 => 'Service Secrétariat Général',
+  17 => 'Service Stationnement Payant',
+  18 => 'Tous les services de la Ville',
+  19 => 'Tous les services de l\'Hôtel de Ville',
+];
 ?>
 
 
@@ -38,13 +52,13 @@ ini_set('display_errors', 1);
 
 
   <div class="services-container">
-    <?php foreach ($services as $service): ?>
+    <?php foreach ($services as $id => $name): ?>
         <div class="service-item">
-            <span class="service-name"><?= htmlspecialchars($service['nom']) ?></span>
-            <a href="documents-services.php?id=<?= $service['id'] ?>" class="service-button">Accéder au service</a>
+            <h3><?= htmlspecialchars($name) ?></h3>
+            <a href="documents-services.php?id=<?= $id ?>" class="service-button">Accéder au service</a>
         </div>
     <?php endforeach; ?>
-  </div>
+</div>
 
   <footer>
     <?php require_once __DIR__ . '/includes/footer.php'; ?>

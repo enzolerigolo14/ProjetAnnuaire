@@ -16,7 +16,7 @@ $webPath = '/uploads/service_' . intval($service_id) . '/';
 
 // Gestion de la suppression de fichier
 if (isset($_GET['delete_file'])) {
-    if ($_SESSION['user']['role'] === 'admin' || $_SESSION['user']['role'] === 'super_admin' || $_SESSION['user']['role'] === 'admin2') {
+    
         $fileToDelete = basename($_GET['delete_file']);
         $filePath = $uploadDir . $fileToDelete;
         
@@ -37,9 +37,7 @@ if (isset($_GET['delete_file'])) {
         } else {
             echo "<script>alert('Fichier introuvable');</script>";
         }
-    } else {
-        echo "<script>alert('Vous n\\'avez pas les droits pour supprimer ce fichier');</script>";
-    }
+    
 }
 
 // Récupération des fichiers
@@ -132,15 +130,13 @@ if (!$hasFiles) {
         Document du service associé : <?= htmlspecialchars($service['nom'] ?? 'Inconnu') ?>
     </h1>
 
-    <?php if ($_SESSION['user']['role'] === 'admin' || $_SESSION['user']['role'] === 'super_admin' || $_SESSION['user']['role'] === 'admin2' ): ?>
+   
     <div class="admin-actions">
         <button class="upload-label" id="open-modal">Déposer un document</button>
     </div>
-    <?php endif; ?>
-
     <?php echo $filesList; ?>
 
-    <?php if ($_SESSION['user']['role'] === 'admin' || $_SESSION['user']['role'] === 'super_admin'): ?>
+    
     <div class="modal" id="upload-modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -154,7 +150,6 @@ if (!$hasFiles) {
             </form>
         </div>
     </div>
-    <?php endif; ?>
 </div>
 </body>
 </html>

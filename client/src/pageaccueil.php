@@ -1,9 +1,22 @@
 <?php
 session_start();
+require_once __DIR__ . '/config/database.php';
+
+// Debug - À enlever en production
+error_log("Session data: " . print_r($_SESSION, true));
 
 if (!isset($_SESSION['user'])) {
-  header('Location: connexion.php');
-  exit;
+    header('Location: connexion.php');
+    exit;
+}
+
+// Vérifier si c'est une première connexion
+$showWelcomeMessage = isset($_SESSION['new_user_registered']) && $_SESSION['new_user_registered'] === true;
+if ($showWelcomeMessage) {
+    unset($_SESSION['new_user_registered']);
+    
+    // Debug - À enlever en production
+    error_log("Nouvel utilisateur: " . print_r($_SESSION['user'], true));
 }
 
 require_once __DIR__ . '/config/database.php';
@@ -13,7 +26,7 @@ $stmt = $pdo->prepare("SELECT * FROM services");
 $stmt->execute();
 $services = $stmt->fetchAll();
 
-// Récupérer les 3 dernières actualités avec le nom du service
+// Récupérer les 3 dernières actualités
 $stmt = $pdo->prepare("SELECT a.*, s.nom as service_nom 
                       FROM actualites a
                       JOIN services s ON a.service_id = s.id
@@ -32,8 +45,21 @@ $actualites = $stmt->fetchAll();
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/pageaccueil.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/header.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
-    
-    
+    <style>
+        .welcome-banner {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            margin: 0 0 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            animation: fadeIn 1.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
 </head>
 
 <body>
@@ -41,23 +67,21 @@ $actualites = $stmt->fetchAll();
     <?php require_once __DIR__ . '/includes/header.php'; ?>
   </header>
 
+  <?php if ($showWelcomeMessage): ?>
+    <div class="welcome-banner">
+        <h3>Bienvenue <?= htmlspecialchars($_SESSION['user']['prenom']) ?> dans l'annuaire !</h3>
+        <p>Votre compte a été créé avec succès.</p>
+        <p>Email: <?= htmlspecialchars($_SESSION['user']['email']) ?></p>
+    </div>
+    <?php endif; ?>
+
   <nav class="navbar">
     <ul class="nav-list">
-      <li>
-        <a href="membreglobal.php">Agents</a>
-      </li>
-      <li>
-        <a href="services-global-membre.php">Services</a>
-      </li>
-      <li>
-        <a href="services-global.php">Documents</a>
-      </li>
-      <li>
-        <a href="services-global-actualite.php">Informations</a>
-      </li>
-      <li>
-        <a href="faq.php">FAQ</a>
-      </li>
+      <li><a href="membreglobal.php">Agents</a></li>
+      <li><a href="services-global-membre.php">Services</a></li>
+      <li><a href="services-global.php">Documents</a></li>
+      <li><a href="services-global-actualite.php">Informations</a></li>
+      <li><a href="faq.php">FAQ</a></li>
     </ul>
   </nav>
 
@@ -79,7 +103,6 @@ $actualites = $stmt->fetchAll();
                             type="application/pdf" 
                             class="pdf-preview">
                     </object>
-                    
                 </div>
             <?php endif; ?>
             
@@ -87,7 +110,7 @@ $actualites = $stmt->fetchAll();
         </div>
         <?php endforeach; ?>
     </div>
-</div>
+  </div>
 
   <footer>
     <?php require_once __DIR__ . '/includes/footer.php'; ?>
