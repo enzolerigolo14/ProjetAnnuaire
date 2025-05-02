@@ -1,4 +1,7 @@
 <?php
+
+require_once 'config/database.php';
+session_start();
 function authentifierEtRecupererInfos($login, $password) {
     $ldap_host = "ldap://SVR-HDV-AD.ville-lisieux.fr";
     $ldap_port = 389;
@@ -73,6 +76,7 @@ function recupererUtilisateurParEmail($email) {
         die("L'adresse email est manquante.");
     }
 
+    // --- Recherche LDAP ---
     $ldap_host = "ldap://SVR-HDV-AD.ville-lisieux.fr";
     $ldap_port = 389;
     $ldap_dn = "DC=ville-lisieux,DC=fr";
@@ -80,35 +84,50 @@ function recupererUtilisateurParEmail($email) {
     $admin_pass = "Lisieux14100";
 
     $ldap_conn = ldap_connect($ldap_host, $ldap_port);
-    if (!$ldap_conn) {
-        die("Impossible de se connecter au serveur LDAP.");
+    if ($ldap_conn) {
+        ldap_set_option($ldap_conn, LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldap_set_option($ldap_conn, LDAP_OPT_REFERRALS, 0);
+
+        if (@ldap_bind($ldap_conn, $admin_user, $admin_pass)) {
+            $email_escaped = ldap_escape($email, "", LDAP_ESCAPE_FILTER);
+            $filter = "(&(objectClass=user)(mail=$email_escaped))";
+            $attributes = ["givenName", "sn", "mail", "telephoneNumber", "description", "memberOf"];
+
+            $search = @ldap_search($ldap_conn, $ldap_dn, $filter, $attributes);
+            if ($search) {
+                $entries = ldap_get_entries($ldap_conn, $search);
+                ldap_unbind($ldap_conn);
+
+                if ($entries["count"] > 0) {
+                    return $entries[0]; // Utilisateur trouvé dans LDAP
+                }
+            }
+        }
     }
 
-    ldap_set_option($ldap_conn, LDAP_OPT_PROTOCOL_VERSION, 3);
-    ldap_set_option($ldap_conn, LDAP_OPT_REFERRALS, 0);
+    // --- Sinon, on cherche dans la base de données ---
+    require __DIR__ . '/config/database.php'; // S'assurer que $pdo est dispo ici
 
-    if (!@ldap_bind($ldap_conn, $admin_user, $admin_pass)) {
-        die("Échec de la connexion LDAP avec l'utilisateur admin.");
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email_professionnel = :email");
+    $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+    $stmt->execute();
+    $userDB = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($userDB) {
+        // On adapte pour que ce soit "compatibles" avec ce qu’attend la page profil
+        return [
+            'givenname' => [$userDB['prenom']],
+            'sn' => [$userDB['nom']],
+            'mail' => [$userDB['email_professionnel']],
+            'telephonenumber' => [$userDB['telephone'] ?? 'Non renseigné'],
+            'description' => [$userDB['role'] ?? 'Non spécifié'],
+            'memberof' => [] // Vide par défaut
+        ];
     }
 
-    $email_escaped = ldap_escape($email, "", LDAP_ESCAPE_FILTER);
-    $filter = "(&(objectClass=user)(mail=$email_escaped))";
-    $attributes = ["givenName", "sn", "mail", "telephoneNumber", "description", "memberOf"];
-
-    $search = @ldap_search($ldap_conn, $ldap_dn, $filter, $attributes);
-    if (!$search) {
-        die("La recherche LDAP a échoué: " . ldap_error($ldap_conn));
-    }
-
-    $entries = ldap_get_entries($ldap_conn, $search);
-    ldap_unbind($ldap_conn);
-
-    if ($entries["count"] > 0) {
-        return $entries[0];
-    } else {
-        return false;
-    }
+    return false; // Rien trouvé
 }
+
 
 
 

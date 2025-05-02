@@ -1,41 +1,41 @@
 <?php
 require_once __DIR__ . '/config/ldap_auth.php';
 require_once __DIR__ . '/config/database.php';
-session_start();
 
-// Récupération des utilisateurs
+// Récupération des utilisateurs LDAP
 $usersAD = recupererTousLesUtilisateursAD();
 
+// Récupération des utilisateurs BDD
 $stmt = $pdo->prepare("SELECT * FROM users");
 $stmt->execute();
-$usersDB = $stmt->fetchAll();
+$usersDB = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Tableau pour stocker les utilisateurs finaux sans doublons (par prénom)
+// Tableau final indexé par email (clé unique)
 $finalUsers = [];
 
-// On commence par insérer ceux de l'AD
+// 1. D'abord les utilisateurs AD (prioritaires)
 for ($i = 0; $i < $usersAD["count"]; $i++) {
-    $prenom = strtolower($usersAD[$i]["givenname"][0] ?? '');
-    if ($prenom) {
-        $finalUsers[$prenom] = [
+    $email = $usersAD[$i]["mail"][0] ?? null;
+    if ($email) {
+        $finalUsers[strtolower($email)] = [
             "source" => "ad",
             "prenom" => $usersAD[$i]["givenname"][0] ?? '',
             "nom" => $usersAD[$i]["sn"][0] ?? '',
-            "email" => $usersAD[$i]["mail"][0] ?? '',
+            "email" => $email,
             "role" => $usersAD[$i]["description"][0] ?? 'Description non disponible'
         ];
     }
 }
 
-// Puis ceux de la BDD, uniquement si le prénom n'est pas déjà pris
+// 2. Ensuite les utilisateurs BDD (seulement si non déjà présents)
 foreach ($usersDB as $user) {
-    $prenom = strtolower($user["prenom"] ?? '');
-    if ($prenom && !isset($finalUsers[$prenom])) {
-        $finalUsers[$prenom] = [
+    $email = strtolower($user["email_professionnel"] ?? '');
+    if ($email && !isset($finalUsers[$email])) {
+        $finalUsers[$email] = [
             "source" => "db",
             "prenom" => $user["prenom"] ?? '',
             "nom" => $user["nom"] ?? '',
-            "email" => $user["email"] ?? '',
+            "email" => $user["email_professionnel"] ?? '',
             "role" => $user["role"] ?? 'Rôle non disponible'
         ];
     }
@@ -53,24 +53,20 @@ foreach ($usersDB as $user) {
     <script src="/projetannuaire/client/script/rechercher.js" defer></script>
 </head>
 <body>
+
 <header>
-<div class="header-container">
-  <div class="search-container">
-    <img src="/projetannuaire/client/src/assets/images/search-icon.png" alt="Search Icon" class="search-icon">
-
-    <!-- Ajoute list="suggestions" ici -->
-    <input type="text" id="site-search" list="suggestions" placeholder="Nom, prénom, téléphone ou service" maxlength="32" />
-
-    <datalist id="suggestions"></datalist> <!-- Ajoute cette balise -->
-
-    <button class="bouton-search" type="button" onclick="rechercher()">Rechercher</button>
-  </div>
-</div>
-
+    <div class="header-container">
+        <div class="search-container">
+            <img src="/projetannuaire/client/src/assets/images/search-icon.png" alt="Search Icon" class="search-icon">
+            <input type="text" id="site-search" list="suggestions" placeholder="Nom, prénom, téléphone ou service" maxlength="32" />
+            <datalist id="suggestions"></datalist>
+            <button class="bouton-search" type="button" onclick="rechercher()">Rechercher</button>
+        </div>
+    </div>
 </header>
 
 <div class="top-button-container"> 
-    <button class="top-button" onclick="window.location.href='pageaccueil.php'"> ← Retour</button>
+    <button class="top-button" onclick="window.location.href='pageaccueil.php'">← Retour</button>
 </div>
 
 <div class="membre-global-header">
@@ -81,20 +77,19 @@ foreach ($usersDB as $user) {
     <?php foreach ($finalUsers as $user): 
         $email = urlencode($user["email"]);
     ?>
-        <a href="profilutilisateur.php?email=<?= $email ?>" class="membre-link">
-            <div class="membre-card">
-                <div class="membre-nom">
-                    <?= htmlspecialchars($user["prenom"]) ?>
-                    <?= htmlspecialchars($user["nom"]) ?>
-                </div>
-                <div class="membre-role">
-                    <?= htmlspecialchars($user["email"]) ?><br>
-                    <?= htmlspecialchars($user["role"]) ?>
-                </div>
+        <div class="membre-card" onclick="window.location='profilutilisateur.php?email=<?= $email ?>&source=<?= $user['source'] ?>'">
+            <div class="membre-nom">
+                <?= htmlspecialchars($user["prenom"]) ?> <?= htmlspecialchars($user["nom"]) ?>
             </div>
-        </a>
+            <div class="membre-role">
+                <?= htmlspecialchars($user["email"]) ?><br>
+                <?= htmlspecialchars($user["role"]) ?>
+            </div>
+        </div>
     <?php endforeach; ?>
 </div>
+
+
 
 <footer>
     <?php require_once __DIR__ . '/includes/footer.php'; ?>
