@@ -49,7 +49,7 @@ error_log("Service: $nomService - Membres trouvés: " . count($membresAD));
 <body>
 
     <div class="top-button-container">
-        <button class="top-button" onclick="window.history.back()">← Retour</button>
+        <button class="top-button" onclick="window.location.href='services-global-membre.php'">← Retour aux services</button>
     </div>
 
     <div class="membre-global-header">
@@ -67,8 +67,6 @@ error_log("Service: $nomService - Membres trouvés: " . count($membresAD));
             </ul>
         </div>
     <?php else: ?>
-        <!-- mettre le href pour acceder profil utilisateur -->
-
         <div class="membre-container" >
             <?php foreach ($membresAD as $membre): ?>
                 <a href="profilutilisateur.php?email=<?= urlencode($membre['mail'][0] ?? '') ?>" class="membre-link">

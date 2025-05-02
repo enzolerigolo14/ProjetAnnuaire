@@ -2,59 +2,50 @@
 require_once __DIR__ . '/config/ldap_auth.php';
 require_once __DIR__ . '/config/database.php';
 
-function removeAccents($str) {
-    if (!class_exists('Normalizer')) return $str; 
-    return preg_replace('/[\x{0300}-\x{036f}]/u', '', normalizer_normalize($str, Normalizer::FORM_D));
+function normalizeString($str) {
+    $str = iconv('UTF-8', 'ASCII//TRANSLIT', $str);
+    return strtolower(trim(preg_replace('/[^a-z0-9]/i', ' ', $str)));
 }
-
 
 $terme = trim($_GET['q'] ?? '');
 
-if (!$terme) {
+if (empty($terme)) {
     die("Aucun terme de recherche fourni.");
 }
 
+$termeNormalise = normalizeString($terme);
 
-// Recherche dans l'Active Directory
+// 1. Recherche dans l'Active Directory
 $usersAD = recupererTousLesUtilisateursAD();
-$termeNormalise = strtolower(removeAccents($terme));
-$parts = explode(' ', $termeNormalise);
-$prenomRecherche = $parts[0] ?? '';
-$nomRecherche = $parts[1] ?? '';
-
-// Recherche dans AD
 foreach ($usersAD as $user) {
-    $prenom = strtolower(removeAccents($user["givenname"][0] ?? ''));
-    $nom = strtolower(removeAccents($user["sn"][0] ?? ''));
-
-    if (
-        ($prenom === $prenomRecherche && $nom === $nomRecherche) || 
-        strpos($prenom, $termeNormalise) !== false ||   
-        strpos($nom, $termeNormalise) !== false
-    ) {
+    $prenom = normalizeString($user["givenname"][0] ?? '');
+    $nom = normalizeString($user["sn"][0] ?? '');
+    $fullName = "$prenom $nom";
+    
+    // Recherche dans toutes les parties du nom
+    if (str_contains($fullName, $termeNormalise)) {
         $email = urlencode($user["mail"][0] ?? '');
-        header("Location: profilutilisateur.php?email=$email");
+        header("Location: profilutilisateur.php?email=$email&source=ad");
         exit;
     }
 }
 
-
-
-// Partie recherche BDD
-$stmt = $pdo->query("SELECT id, prenom, nom FROM users");
+// 2. Recherche dans la BDD
+$stmt = $pdo->prepare("SELECT id, prenom, nom, email_professionnel FROM users");
+$stmt->execute();
 $usersDB = $stmt->fetchAll();
 
 foreach ($usersDB as $user) {
-    $prenom = strtolower(removeAccents($user["prenom"]));
-    $nom = strtolower(removeAccents($user["nom"]));
-
-    if (strpos($prenom, $termeNormalise) !== false || strpos($nom, $termeNormalise) !== false) {
-        header("Location: profilutilisateur.php?id=" . $user['id']);
+    $prenom = normalizeString($user["prenom"]);
+    $nom = normalizeString($user["nom"]);
+    $fullName = "$prenom $nom";
+    
+    if (str_contains($fullName, $termeNormalise)) {
+        $email = urlencode($user["email_professionnel"]);
+        header("Location: profilutilisateur.php?email=$email&source=db");
         exit;
     }
 }
-
-
 
 // 3. Aucun résultat
 ?>
@@ -63,9 +54,12 @@ foreach ($usersDB as $user) {
 <head>
     <meta charset="UTF-8">
     <title>Aucun résultat</title>
+    <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/global.css">
 </head>
 <body>
-    <h1>Aucun résultat trouvé pour : <?= htmlspecialchars($terme) ?></h1>
-    <a href="membreglobal.php">← Retour</a>
+    <div class="error-container">
+        <h1>Aucun résultat trouvé pour : <?= htmlspecialchars($terme) ?></h1>
+        <a href="membreglobal.php" class="back-button">← Retour à la liste</a>
+    </div>
 </body>
 </html>
