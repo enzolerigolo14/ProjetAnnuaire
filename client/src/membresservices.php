@@ -1,43 +1,32 @@
 <?php
+session_start();
+require_once __DIR__ . '/config/ldap_auth.php';
+require_once __DIR__ . '/config/database.php';
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-require_once __DIR__ . '/config/ldap_auth.php';
+$service_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-// Mapping exact des noms de groupes AD
-$services = [
-    1 => 'Service Accueil',
-    2 => 'Service Administration Générale',
-    3 => 'Service Bâtiment',
-    4 => 'Service Bureau d\'études',
-    5 => 'Service Cabinet',
-    6 => 'Service Communication',
-    7 => 'Service Élections',
-    8 => 'Service État Civil',
-    9 => 'Service Événementiel',
-    10 => 'Service Fêtes & Cérémonies',
-    11 => 'Service Finances',
-    12 => 'Service Juridique',
-    13 => 'Service Marché Public',
-    14 => 'Service Pompes Funèbres',
-    15 => 'Service Ressources Humaines',
-    16 => 'Service Secrétariat Général',
-    17 => 'Service Stationnement Payant',
-    18 => 'Tous les services de la Ville',
-    19 => 'Tous les services de l\'Hôtel de Ville',
-];
-
-$service_id = (int)($_GET['id'] ?? 1);
-$nomService = $services[$service_id] ?? null;
-
-if (!$nomService) {
-    die("<div class='error'>Service ID $service_id non valide</div>");
+if ($service_id === 0) {
+    die("<div class='error'>ID de service invalide ou non spécifié</div>");
 }
 
+// Récupération du nom du service depuis la base de données
+$stmt = $pdo->prepare("SELECT * FROM services WHERE id = ?");
+$stmt->execute([$service_id]);
+$service = $stmt->fetch();
+
+if (!$service) {
+    die("<div class='error'>Service avec l'ID $service_id non trouvé dans la base de données</div>");
+}
+
+$nomService = $service['nom']; // Assurez-vous que ce champ correspond au nom dans l'AD
+
+// Récupération des membres via LDAP
 $membresAD = recupererUtilisateursParServiceAD($nomService);
 error_log("Service: $nomService - Membres trouvés: " . count($membresAD));
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -67,26 +56,26 @@ error_log("Service: $nomService - Membres trouvés: " . count($membresAD));
             </ul>
         </div>
     <?php else: ?>
-        <div class="membre-container" >
+        <div class="membre-container">
             <?php foreach ($membresAD as $membre): ?>
                 <a href="profilutilisateur.php?email=<?= urlencode($membre['mail'][0] ?? '') ?>" class="membre-link">
-
-                <div class="membre-card">
-                    <div class="membre-nom">
-                        <?= htmlspecialchars($membre['givenname'][0] ?? '') ?>
-                        <?= htmlspecialchars($membre['sn'][0] ?? '') ?>
+                    <div class="membre-card">
+                        <div class="membre-nom">
+                            <?= htmlspecialchars($membre['givenname'][0] ?? '') ?>
+                            <?= htmlspecialchars($membre['sn'][0] ?? '') ?>
+                        </div>
+                        <div class="membre-role">
+                            <?= htmlspecialchars($membre['description'][0] ?? '') ?><br>
+                            <?= htmlspecialchars($membre['mail'][0] ?? '') ?>
+                        </div>
                     </div>
-                    <div class="membre-role">
-                        <?= htmlspecialchars($membre['description'][0] ?? '') ?>
-                        <?= htmlspecialchars($membre['mail'][0] ?? '') ?>
-                    </div>
-                </div>
+                </a>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
 
     <div class="bottom-button-container">
-        <button class="bottom-button" onclick="window.location.href='services-global-actualite.php?id=<?php echo $service_id ?? 0; ?>'">
+        <button class="bottom-button" onclick="window.location.href='actualite.php?id=<?= $service_id ?>&debug=1'">
             Actualités du service
         </button>
     </div>

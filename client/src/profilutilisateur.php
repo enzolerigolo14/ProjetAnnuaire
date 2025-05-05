@@ -2,6 +2,8 @@
 require_once __DIR__ . '/config/ldap_auth.php';
 require_once __DIR__ . '/config/database.php';
 
+session_start();
+
 // Redirige vers l'accueil si personne n'est connecté
 if (!isset($_SESSION['user'])) {
     header('Location: /projetannuaire/client/src/pageaccueil.php');
@@ -33,7 +35,7 @@ $user = null;
 // Recherche dans AD ou dans la BDD selon la source
 if ($source === 'db') {
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email_professionnel = :email_pro");
-    $stmt->bindParam(':email_pro', $email);  // Correction ici
+    $stmt->bindParam(':email_pro', $email); 
     $stmt->execute();
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 } else {
@@ -101,14 +103,15 @@ $isEditable = $source === 'ad' && estDansGroupe($user, 'Utilisa. du domaine');
     <div class="profile-container">
         <div class="profile-header">
             <h1>Profil de <?= $nomComplet ?></h1>
-            <a href="<?= htmlspecialchars($return_url) ?>" class="back-button">← Retour</a>
+            <a href="membresservices.php" class="back-button">← Retour</a>
         </div>
 
         <div class="profile-content">
             <div class="profile-info">
                 <div class="profile-avatar">
                     <div class="avatar-preview">
-                        <img src="/projetannuaire/client/src/assets/images/default-avatar.png" class="profile-avatar-img">
+<!--faire en sorte que la rh puisse mettre des photos-->
+                        <img src="assets/images/search-icon.png" class="profile-avatar-img">
                     </div>
                 </div>
                 <div class="profile-details">

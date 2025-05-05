@@ -21,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = $ldap_data['mail'];
             $telephone = $ldap_data['telephonenumber'];
             $service = $ldap_data['description'] ?? 'Service non défini';
+            $description = $ldap_data['description'] ?? null;
 
             try {
                 // Gestion du service
@@ -35,14 +36,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 // Vérification utilisateur
-                $stmt_user = $pdo->prepare("SELECT id FROM users WHERE email_professionnel = ?");
+                $stmt_user = $pdo->prepare("SELECT id, description FROM users WHERE email_professionnel = ?");
                 $stmt_user->execute([$email]);
+                $user_data = $stmt_user->fetch(PDO::FETCH_ASSOC);
                 
                 $isNewUser = false;
-                if ($stmt_user->rowCount() === 0) {
+                if (!$user_data) {
+                    // Nouvel utilisateur
                     $insert_sql = "INSERT INTO users 
-                                  (nom, prenom, telephone, email_professionnel, service_id, role, mot_de_passe) 
-                                  VALUES (?, ?, ?, ?, ?, 'user', ?)";
+                                  (nom, prenom, telephone, email_professionnel, service_id, role, mot_de_passe, description) 
+                                  VALUES (?, ?, ?, ?, ?, 'user', ?, ?)";
                     $stmt_insert = $pdo->prepare($insert_sql);
                     $stmt_insert->execute([
                         $nom,
@@ -50,23 +53,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $telephone,
                         $email,
                         $service_id,
-                        $password
+                        password_hash($password, PASSWORD_DEFAULT),
+                        $description
                     ]);
+                    $user_id = $pdo->lastInsertId();
                     $isNewUser = true;
+                } else {
+                    // Utilisateur existant
+                    $user_id = $user_data['id'];
+                    
+                    // Mise à jour de la description si elle est vide
+                    if (empty($user_data['description']) && !empty($description)) {
+                        $stmt_update = $pdo->prepare("UPDATE users SET description = ? WHERE id = ?");
+                        $stmt_update->execute([$description, $user_id]);
+                    }
                 }
 
                 // Création session
                 $_SESSION['user'] = [
-                    'id' => $isNewUser ? $pdo->lastInsertId() : $stmt_user->fetchColumn(),
+                    'id' => $user_id,
                     'prenom' => $prenom,
                     'nom' => $nom,
                     'email' => $email,
                     'telephone' => $telephone,
                     'service_id' => $service_id,
-                    'role' => 'user'
+                    'role' => 'user',
+                    'description' => $description
                 ];
 
-                if ($isNewUser) $_SESSION['new_user_registered'] = true;
+                if ($isNewUser) {
+                    $_SESSION['new_user_registered'] = true;
+                }
 
                 header('Location: pageaccueil.php');
                 exit;
@@ -74,15 +91,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } catch (PDOException $e) {
                 $error = "Erreur système : " . $e->getMessage();
             }
-
         } else {
-            // [...] Partie connexion base de données existante
+            // Tentative de connexion avec la base de données locale
+            try {
+                $stmt = $pdo->prepare("SELECT * FROM users WHERE email_professionnel = ?");
+                $stmt->execute([$username]);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($user && password_verify($password, $user['mot_de_passe'])) {
+                    $_SESSION['user'] = [
+                        'id' => $user['id'],
+                        'prenom' => $user['prenom'],
+                        'nom' => $user['nom'],
+                        'email' => $user['email_professionnel'],
+                        'telephone' => $user['telephone'],
+                        'service_id' => $user['service_id'],
+                        'role' => $user['role'],
+                        'description' => $user['description']
+                    ];
+                    header('Location: pageaccueil.php');
+                    exit;
+                } else {
+                    $error = "Identifiant ou mot de passe incorrect";
+                }
+            } catch (PDOException $e) {
+                $error = "Erreur système : " . $e->getMessage();
+            }
         }
     }
 }
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="fr">

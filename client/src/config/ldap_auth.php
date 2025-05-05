@@ -1,7 +1,6 @@
 <?php
 
 require_once 'config/database.php';
-session_start();
 function authentifierEtRecupererInfos($login, $password) {
     $ldap_host = "ldap://SVR-HDV-AD.ville-lisieux.fr";
     $ldap_port = 389;

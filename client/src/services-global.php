@@ -34,10 +34,8 @@ $services = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trombinoscope ville de Lisieux</title>
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/services-global.css">
-    <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/header.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
     
-
     <script src="/projetannuaire/client/script/services-global.js" defer></script>
 
 </head>
