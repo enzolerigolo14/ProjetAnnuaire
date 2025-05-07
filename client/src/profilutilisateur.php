@@ -103,7 +103,7 @@ $isEditable = $source === 'ad' && estDansGroupe($user, 'Utilisa. du domaine');
     <div class="profile-container">
         <div class="profile-header">
             <h1>Profil de <?= $nomComplet ?></h1>
-            <a href="membresservices.php" class="back-button">← Retour</a>
+            <a href="<?= htmlspecialchars($return_url) ?>" class="back-button">← Retour</a>
         </div>
 
         <div class="profile-content">

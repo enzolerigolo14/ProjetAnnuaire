@@ -58,8 +58,8 @@ error_log("Service: $nomService - Membres trouvés: " . count($membresAD));
     <?php else: ?>
         <div class="membre-container">
             <?php foreach ($membresAD as $membre): ?>
-                <a href="profilutilisateur.php?email=<?= urlencode($membre['mail'][0] ?? '') ?>" class="membre-link">
-                    <div class="membre-card">
+                <a href="profilutilisateur.php?email=<?= urlencode($membre['mail'][0] ?? '') ?>&source=ad&from=services&service_id=<?= $service_id ?>" class="membre-link">
+                <div class="membre-card">
                         <div class="membre-nom">
                             <?= htmlspecialchars($membre['givenname'][0] ?? '') ?>
                             <?= htmlspecialchars($membre['sn'][0] ?? '') ?>

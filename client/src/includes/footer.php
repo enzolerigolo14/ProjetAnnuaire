@@ -1,15 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="votre-fichier.css"> <!-- N'oubliez pas de lier votre CSS -->
+</head>
 <body>
-
-  <footer>
-    <div class="footer-container">
+  <div class="page-container"> <!-- Conteneur principal ajouté -->
+    <main>
       <div class="footer-logo">
         <a href="https://www.ville-lisieux.fr/fr/" target="_blank">
           <img src="/projetannuaire/client/src/assets/images/logo-lisieux.png" alt="Logo de la ville de Lisieux" class="logo">
         </a>
       </div>
-      <p>
-        Tous droits réservés &copy; 2025 Ville de Lisieux<br>
-      </p>
+    </main>
+
+    <footer>
+      <p>Tous droits réservés &copy; 2025 Ville de Lisieux<br></p>
       <div class="footer-text">
         <a href="https://www.facebook.com/ville.lisieux" target="_blank">
           <img src="/projetannuaire/client/src/assets/images/icone-facebook.png" alt="Facebook" class="logo">
@@ -21,6 +28,7 @@
           <img src="/projetannuaire/client/src/assets/images/icone-youtube.png" alt="YouTube" class="logo">
         </a>
       </div>
-    </div>
-  </footer>
+    </footer>
+  </div> <!-- Fermeture du page-container -->
 </body>
+</html>

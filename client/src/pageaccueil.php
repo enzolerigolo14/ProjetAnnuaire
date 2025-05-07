@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/config/ldaptest.php';
 
 // Debug - À enlever en production
 error_log("Session data: " . print_r($_SESSION, true));
@@ -19,8 +20,11 @@ if ($showWelcomeMessage) {
     error_log("Nouvel utilisateur: " . print_r($_SESSION['user'], true));
 }
 
-require_once __DIR__ . '/config/database.php';
+$username = explode('@', $_SESSION['user']['email'])[0]; // ou bien $_SESSION['user']['email'] si c’est l'identifiant LDAP
+//$_SESSION['user']['username'] = $username;
 
+
+//return; // Commenter cette ligne pour activer la récupération des groupes depuis LDAP
 // Récupérer les services pour le menu
 $stmt = $pdo->prepare("SELECT * FROM services");
 $stmt->execute();
@@ -72,6 +76,18 @@ $actualites = $stmt->fetchAll();
         <h3>Bienvenue <?= htmlspecialchars($_SESSION['user']['prenom']) ?> dans l'annuaire !</h3>
         <p>Votre compte a été créé avec succès.</p>
         <p>Email: <?= htmlspecialchars($_SESSION['user']['email']) ?></p>
+
+        <?php if (!empty($_SESSION['user']['groups'])): ?>
+    <p>Groupes :</p>
+    <ul>
+        <?php foreach ($_SESSION['user']['groups'] as $group): ?>
+            <li><?= htmlspecialchars($group) ?></li>
+        <?php endforeach; ?>
+    </ul>
+<?php else: ?>
+    <p>Aucun groupe trouvé.</p>
+<?php endif; ?>
+
     </div>
     <?php endif; ?>
 

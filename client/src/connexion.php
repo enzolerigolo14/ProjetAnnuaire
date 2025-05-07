@@ -2,8 +2,28 @@
 session_start();
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/ldap_auth.php';
+require_once __DIR__ . '/config/ldaptest.php';
 
 $error = '';
+
+// Associer certains groupes à des rôles spécifiques
+function detecterRoleLDAP($groupes) {
+    $groupesRoles = [
+        '/SVC[-_]?INFORMATIQUE/i' => 'SVC-INFORMATIQUE',
+        '/ADMIN[-_]?INTRA/i' => 'ADMIN-INTRA',
+        //'/DOMAIN\s*ADMINS/i' => 'Admins du domaine',
+        //'/ADMINS?\s*DU\s*DOMAINE/i' => 'Admins du domaine'
+    ];
+
+    foreach ($groupes as $group) {
+        foreach ($groupesRoles as $pattern => $role) {
+            if (preg_match($pattern, $group)) {
+                return $role;
+            }
+        }
+    }
+    return 'membre';
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = strtolower(trim($_POST['username'] ?? ''));
@@ -15,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $ldap_data = authentifierEtRecupererInfos($username, $password);
 
         if ($ldap_data) {
-            // Récupération des données AD
             $prenom = $ldap_data['givenname'];
             $nom = $ldap_data['sn'];
             $email = $ldap_data['mail'];
@@ -24,6 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $description = $ldap_data['description'] ?? null;
 
             try {
+                // Récupération des groupes via ldaptest.php
+                $groupes = getUserGroupsFromLdap($username);
+$groupesStr = json_encode($groupes);
+$role = detecterRoleLDAP($groupes);
+
+
                 // Gestion du service
                 $stmt_service = $pdo->prepare("SELECT id FROM services WHERE nom = ?");
                 $stmt_service->execute([$service]);
@@ -36,40 +61,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 // Vérification utilisateur
-                $stmt_user = $pdo->prepare("SELECT id, description FROM users WHERE email_professionnel = ?");
+                $stmt_user = $pdo->prepare("SELECT id, role, ldap_groups, description FROM users WHERE email_professionnel = ?");
                 $stmt_user->execute([$email]);
                 $user_data = $stmt_user->fetch(PDO::FETCH_ASSOC);
-                
+
                 $isNewUser = false;
                 if (!$user_data) {
-                    // Nouvel utilisateur
-                    $insert_sql = "INSERT INTO users 
-                                  (nom, prenom, telephone, email_professionnel, service_id, role, mot_de_passe, description) 
-                                  VALUES (?, ?, ?, ?, ?, 'user', ?, ?)";
-                    $stmt_insert = $pdo->prepare($insert_sql);
+                    // Insertion utilisateur
+                    $stmt_insert = $pdo->prepare("INSERT INTO users 
+                        (nom, prenom, telephone, email_professionnel, service_id, role, ldap_groups, mot_de_passe, description) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
                     $stmt_insert->execute([
-                        $nom,
-                        $prenom,
-                        $telephone,
-                        $email,
-                        $service_id,
-                        password_hash($password, PASSWORD_DEFAULT),
-                        $description
+                        $nom, $prenom, $telephone, $email,
+                        $service_id, $role, $groupesStr, password_hash($password, PASSWORD_DEFAULT), $description
                     ]);
                     $user_id = $pdo->lastInsertId();
                     $isNewUser = true;
                 } else {
-                    // Utilisateur existant
                     $user_id = $user_data['id'];
-                    
-                    // Mise à jour de la description si elle est vide
+
+                    // Mise à jour si nécessaire
+                    if ($user_data['role'] !== $role) {
+                        $stmt_update = $pdo->prepare("UPDATE users SET role = ? WHERE id = ?");
+                        $stmt_update->execute([$role, $user_id]);
+                    }
+
                     if (empty($user_data['description']) && !empty($description)) {
                         $stmt_update = $pdo->prepare("UPDATE users SET description = ? WHERE id = ?");
                         $stmt_update->execute([$description, $user_id]);
                     }
+
+                    if ($user_data['ldap_groups'] !== $groupesStr) {
+                        $stmt_update = $pdo->prepare("UPDATE users SET ldap_groups = ? WHERE id = ?");
+                        $stmt_update->execute([$groupesStr, $user_id]);
+                    }
                 }
 
-                // Création session
                 $_SESSION['user'] = [
                     'id' => $user_id,
                     'prenom' => $prenom,
@@ -77,8 +104,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'email' => $email,
                     'telephone' => $telephone,
                     'service_id' => $service_id,
-                    'role' => 'user',
-                    'description' => $description
+                    'role' => $role,
+                    'description' => $description,
+                    'groups' => $groupes
                 ];
 
                 if ($isNewUser) {
@@ -88,11 +116,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: pageaccueil.php');
                 exit;
 
-            } catch (PDOException $e) {
+            } catch (Exception $e) {
                 $error = "Erreur système : " . $e->getMessage();
             }
         } else {
-            // Tentative de connexion avec la base de données locale
+            // Connexion locale
             try {
                 $stmt = $pdo->prepare("SELECT * FROM users WHERE email_professionnel = ?");
                 $stmt->execute([$username]);
@@ -121,6 +149,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
+
+
 
 <!DOCTYPE html>
 <html lang="fr">
