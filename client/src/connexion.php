@@ -26,8 +26,16 @@ function detecterRoleLDAP($groupes) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = strtolower(trim($_POST['username'] ?? ''));
-    $password = trim($_POST['password'] ?? '');
+    $usernameInput = strtolower(trim($_POST['username'] ?? ''));
+$password = trim($_POST['password'] ?? '');
+$domain = '@ville-lisieux.fr';
+
+// Ajouter le domaine si absent
+if (!str_ends_with($usernameInput, $domain)) {
+    $username = $usernameInput . $domain;
+} else {
+    $username = $usernameInput;
+}
 
     if (empty($username) || empty($password)) {
         $error = "Veuillez remplir tous les champs";
@@ -122,25 +130,49 @@ $role = detecterRoleLDAP($groupes);
         } else {
             // Connexion locale
             try {
-                $stmt = $pdo->prepare("SELECT * FROM users WHERE email_professionnel = ?");
-                $stmt->execute([$username]);
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                if ($user && password_verify($password, $user['mot_de_passe'])) {
-                    $_SESSION['user'] = [
-                        'id' => $user['id'],
-                        'prenom' => $user['prenom'],
-                        'nom' => $user['nom'],
-                        'email' => $user['email_professionnel'],
-                        'telephone' => $user['telephone'],
-                        'service_id' => $user['service_id'],
-                        'role' => $user['role'],
-                        'description' => $user['description']
-                    ];
-                    header('Location: pageaccueil.php');
-                    exit;
+                // 1. Vérification dans la table inscription
+                $stmt_inscription = $pdo->prepare("SELECT * FROM inscription WHERE email_professionnel = ?");
+                $stmt_inscription->execute([$username]);
+                $inscription_user = $stmt_inscription->fetch(PDO::FETCH_ASSOC);
+            
+                if ($inscription_user) {
+                    // Utilisateur trouvé dans inscription
+                    if (password_verify($password, $inscription_user['mot_de_passe'])) {
+                        $_SESSION['temp_user_id'] = $inscription_user['id'];
+                        $_SESSION['nom'] = $inscription_user['nom'];
+                        $_SESSION['prenom'] = $inscription_user['prenom'];
+                        $_SESSION['email'] = $inscription_user['email_professionnel'];
+                        $_SESSION['service_id'] = $inscription_user['service_id'];
+                    
+                        header('Location: change_password.php');
+                        exit;
+                    } else {
+                        $error = "Mot de passe incorrect.";
+                    }
+                    
                 } else {
-                    $error = "Identifiant ou mot de passe incorrect";
+                    // 2. Vérification normale dans users
+                    $stmt = $pdo->prepare("SELECT * FROM users WHERE email_professionnel = ?");
+                    $stmt->execute([$username]);
+                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+                    if ($user && password_verify($password, $user['mot_de_passe'])) {
+                        // Connexion standard
+                        $_SESSION['user'] = [
+                            'id' => $user['id'],
+                            'prenom' => $user['prenom'],
+                            'nom' => $user['nom'],
+                            'email' => $user['email_professionnel'],
+                            'telephone' => $user['telephone'],
+                            'service_id' => $user['service_id'],
+                            'role' => $user['role'],
+                            'description' => $user['description']
+                        ];
+                        header('Location: pageaccueil.php');
+                        exit;
+                    } else {
+                        $error = "Identifiants invalides";
+                    }
                 }
             } catch (PDOException $e) {
                 $error = "Erreur système : " . $e->getMessage();
@@ -149,9 +181,6 @@ $role = detecterRoleLDAP($groupes);
     }
 }
 ?>
-
-
-
 
 <!DOCTYPE html>
 <html lang="fr">
