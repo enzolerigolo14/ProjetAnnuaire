@@ -30,15 +30,13 @@ require_once __DIR__ . '/../config/database.php';
       </a>
 
       <?php
-      if (isset($_SESSION['user']['role'])) {
-          $role = strtoupper($_SESSION['user']['role']); // en majuscules pour éviter les erreurs de casse
-          if ($role === 'SVC-INFORMATIQUE') {
-              echo '<a href="/projetannuaire/client/src/inscription.php" class="header-button" title="Paramètres">';
-              echo '<img src="/projetannuaire/client/src/assets/images/settings-icon.png" alt="Paramètres" class="profile-icon">';
-              echo '</a>';
-          }
-      }
-      ?>
+if (isset($_SESSION['user']['role'])) {
+    $role = strtoupper($_SESSION['user']['role']);
+    if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA') {
+        echo '<a href="/projetannuaire/client/src/inscription.php" class="header-button inscription-link" title="Inscription">Inscription</a>';
+    }
+}
+?>
     </div>
   </div>
 </div>

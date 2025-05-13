@@ -238,6 +238,40 @@ function afficherInfosUtilisateur() {
 afficherInfosUtilisateur();
 
 
+function recupererGroupesUtilisateur($login) {
+    $ldap_host = "ldap://SVR-HDV-AD.ville-lisieux.fr";
+    $ldap_port = 389;
+    $ldap_dn = "DC=ville-lisieux,DC=fr";
+    $admin_user = "svcintra@ville-lisieux.fr";
+    $admin_pass = "Lisieux14100";
+
+    $ldap = ldap_connect($ldap_host, $ldap_port);
+    if (!$ldap) return [];
+
+    ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+    ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
+
+    if (!@ldap_bind($ldap, $admin_user, $admin_pass)) {
+        ldap_unbind($ldap);
+        return [];
+    }
+
+    // Recherche de l'utilisateur
+    $filter = "(sAMAccountName=" . ldap_escape($login, "", LDAP_ESCAPE_FILTER) . ")";
+    $search = ldap_search($ldap, $ldap_dn, $filter, ["memberOf"]);
+    $entries = ldap_get_entries($ldap, $search);
+
+    $groupes = [];
+    if (isset($entries[0]['memberof'])) {
+        for ($i = 0; $i < $entries[0]['memberof']['count']; $i++) {
+            $groupes[] = $entries[0]['memberof'][$i];
+        }
+    }
+
+    ldap_unbind($ldap);
+    return $groupes;
+}
+
 
 
 ?>
