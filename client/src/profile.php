@@ -20,17 +20,6 @@ function estDansGroupe($user, $nomGroupe) {
     return false;
 }
 
-if (estDansGroupe($user, 'SVC-INFORMATIQUE')) {
-    echo "Dans le groupe SVC-INFORMATIQUE<br>";
-} else {
-    echo "Pas dans le groupe SVC-INFORMATIQUE<br>";
-}
-
-if (estDansGroupe($user, 'Utilisa. du domaine')) {
-    echo "Dans le groupe Utilisa. du domaine<br>";
-} else {
-    echo "Pas dans le groupe Utilisa. du domaine<br>";
-}
 
 ?>
 
@@ -96,7 +85,7 @@ if (estDansGroupe($user, 'Utilisa. du domaine')) {
                 <div class="profile-actions">
             
 <!-- Manque la gerance du bouton pour qu'il s'affiche seulement avec les droits admins SVC-INFORMATIQUE(super admin ) ADMIN-INTRA(admin service) -->
-                        <a href="/projetannuaire/client/src/changemdp.php" class="action-button">Changer le mot de passe</a>
+                        <a href="/projetannuaire/client/src/changemdpprofil.php" class="action-button">Changer le mot de passe</a>
     
                     <a href="/projetannuaire/client/src/deconnexion.php" class="action-button logout">Déconnexion</a>
                 </div>

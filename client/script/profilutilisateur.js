@@ -108,38 +108,54 @@ document.addEventListener('DOMContentLoaded', function () {
         parentP.appendChild(cancelBtn);
         input.focus();
 
-        saveBtn.addEventListener('click', async function () {
-            const newValue = input.value.trim();
-            
-            try {
-                const response = await fetch('update-profile.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        user_id: userId, 
-                        field: field,
-                        value: field === "service" ? input.options[input.selectedIndex].value : newValue
-                    })
-                });
 
-                const result = await response.json();
-                
-                if (result.success) {
-                    // Mise à jour avec la valeur retournée par le serveur
-                    valueSpan.textContent = result.newValue;
-                    saveBtn.remove();
-                    cancelBtn.remove();
-                    parentP.appendChild(createEditIcon());
-                } else {
-                    throw new Error(result.message || 'Échec de la mise à jour');
-                }
-            } catch (error) {
-                alert('Erreur : ' + error.message);
-                input.replaceWith(createValueSpan(currentValue));
-                saveBtn.replaceWith(createEditIcon());
-                cancelBtn.remove();
-            }
+saveBtn.addEventListener('click', async function () {
+    const newValue = input.value.trim();
+    const sendValue = field === "service" ? input.options[input.selectedIndex].value : newValue;
+
+    try {
+        const response = await fetch('update-profile.php', {  // Correction du nom de fichier
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                user_id: userId, 
+                field: field,
+                value: sendValue
+            })
         });
+
+        const result = await response.json();
+        
+        if (result.success) {
+            // Mise à jour de l'affichage selon le champ modifié
+            if (field === 'service') {
+                valueSpan.textContent = result.serviceName;
+                // Si vous avez besoin de stocker l'ID quelque part
+                if (result.serviceId) {
+                    input.options[input.selectedIndex].value = result.serviceId;
+                }
+            } else {
+                valueSpan.textContent = result.newValue;
+            }
+            
+            // Nettoyage des éléments d'édition
+            saveBtn.remove();
+            cancelBtn.remove();
+            parentP.appendChild(createEditIcon());
+        } else {
+            alert('Erreur: ' + (result.message || 'Échec de la mise à jour'));
+            input.replaceWith(createValueSpan(currentValue));
+            saveBtn.replaceWith(createEditIcon());
+            cancelBtn.remove();
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la mise à jour');
+        input.replaceWith(createValueSpan(currentValue));
+        saveBtn.replaceWith(createEditIcon());
+        cancelBtn.remove();
+    }
+});
 
         cancelBtn.addEventListener('click', function () {
             input.replaceWith(createValueSpan(currentValue));

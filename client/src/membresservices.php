@@ -12,26 +12,32 @@ if ($service_id === 0) {
     die("<div class='error'>ID de service invalide ou non spécifié</div>");
 }
 
-// Récupération du nom du service depuis la base de données
+// Récupération du service
 $stmt = $pdo->prepare("SELECT * FROM services WHERE id = ?");
 $stmt->execute([$service_id]);
 $service = $stmt->fetch();
 
 if (!$service) {
-    die("<div class='error'>Service avec l'ID $service_id non trouvé dans la base de données</div>");
+    die("<div class='error'>Service avec l'ID $service_id non trouvé</div>");
 }
 
-$nomService = $service['nom']; // Assurez-vous que ce champ correspond au nom dans l'AD
+// Récupération des membres AD
+$membresAD = recupererUtilisateursParServiceAD($service['nom']);
 
-// Récupération des membres via LDAP
-$membresAD = recupererUtilisateursParServiceAD($nomService);
-error_log("Service: $nomService - Membres trouvés: " . count($membresAD));
+// Récupération des membres BDD
+$stmt = $pdo->prepare("SELECT id, nom, prenom, email_professionnel FROM users WHERE service_id = ?");
+$stmt->execute([$service_id]);
+$membresBDD = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fusion des membres AD et BDD
+$tousLesMembres = array_merge($membresAD, $membresBDD);
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Membres du <?= htmlspecialchars($nomService) ?></title>
+    <title>Membres du <?= htmlspecialchars($service['nom']) ?></title>
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/membresservices.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
 </head>
@@ -42,10 +48,10 @@ error_log("Service: $nomService - Membres trouvés: " . count($membresAD));
     </div>
 
     <div class="membre-global-header">
-        <h1>Membres du <?= htmlspecialchars($nomService) ?></h1>
+        <h1>Membres du <?= htmlspecialchars($service['nom']) ?></h1>
     </div>
 
-    <?php if (empty($membresAD)): ?>
+    <?php if (empty($tousLesMembres)): ?>
         <div class="infos-techniques">
             <h3>⚠ Aucun membre trouvé pour ce service</h3>
             <p>Vérifiez que :</p>
@@ -53,20 +59,26 @@ error_log("Service: $nomService - Membres trouvés: " . count($membresAD));
                 <li>Le groupe existe dans l'Active Directory avec ce nom exact</li>
                 <li>Le compte LDAP a les droits de lecture</li>
                 <li>Le nom du service correspond exactement au CN dans l'AD</li>
+                <li>Des utilisateurs sont associés à ce service dans la base de données</li>
             </ul>
         </div>
     <?php else: ?>
         <div class="membre-container">
-            <?php foreach ($membresAD as $membre): ?>
-                <a href="profilutilisateur.php?email=<?= urlencode($membre['mail'][0] ?? '') ?>&source=ad&from=services&service_id=<?= $service_id ?>" class="membre-link">
-                <div class="membre-card">
+            <?php foreach ($tousLesMembres as $membre): ?>
+                <?php 
+                // Détermine si c'est un membre AD ou BDD
+                $isAD = isset($membre['mail']);
+                $email = $isAD ? ($membre['mail'][0] ?? '') : ($membre['email_professionnel'] ?? '');
+                ?>
+                <a href="profilutilisateur.php?email=<?= urlencode($email) ?>&source=<?= $isAD ? 'ad' : 'bdd' ?>&from=services&service_id=<?= $service_id ?>" class="membre-link">
+                    <div class="membre-card">
                         <div class="membre-nom">
-                            <?= htmlspecialchars($membre['givenname'][0] ?? '') ?>
-                            <?= htmlspecialchars($membre['sn'][0] ?? '') ?>
+                            <?= htmlspecialchars($isAD ? ($membre['givenname'][0] ?? '') : $membre['prenom']) ?>
+                            <?= htmlspecialchars($isAD ? ($membre['sn'][0] ?? '') : $membre['nom']) ?>
                         </div>
                         <div class="membre-role">
-                            <?= htmlspecialchars($membre['description'][0] ?? '') ?><br>
-                            <?= htmlspecialchars($membre['mail'][0] ?? '') ?>
+                            <?= htmlspecialchars($isAD ? ($membre['description'][0] ?? '') : '') ?><br>
+                            <?= htmlspecialchars($email) ?>
                         </div>
                     </div>
                 </a>

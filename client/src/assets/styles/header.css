@@ -64,3 +64,7 @@ header {
     padding: 6px 10px;
     color: #337ab7;
   }
+
+  .settings-icon {
+    height: 30px;
+  }

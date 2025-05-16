@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -13,7 +12,7 @@
 <body>
     <div>
         <h1>Changer Mot de Passe</h1>
-        <form id="passwordForm" method="POST">
+        <form id="passwordForm">
             <div class="form-group">
                 <label for="old_password">Ancien Mot de Passe</label>
                 <input type="password" id="old_password" name="old_password" required>
@@ -32,10 +31,8 @@
             <button type="submit" class="submit-btn">Changer le Mot de Passe</button>
         </form>
 
-        <!-- Messages dynamiques gérés par JavaScript -->
         <div id="error-message" class="error-message" style="display: none;"></div>
         <div id="success-message" class="success-message" style="display: none;"></div>
     </div>
-   
 </body>
 </html>
