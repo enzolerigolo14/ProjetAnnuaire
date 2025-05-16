@@ -138,3 +138,7 @@ body {
 .save-btn:hover, .cancel-btn:hover {
     opacity: 0.8;
 }
+
+.hidden {
+    display: none;
+}

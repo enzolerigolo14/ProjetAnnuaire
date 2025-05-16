@@ -4,6 +4,8 @@ require_once __DIR__ . '/config/database.php';
 
 session_start();
 
+
+
 // Redirige vers l'accueil si personne n'est connecté
 if (!isset($_SESSION['user'])) {
     header('Location: /projetannuaire/client/src/pageaccueil.php');
@@ -21,6 +23,9 @@ if (!isset($_SESSION['user']['email']) && isset($_SESSION['user']['id'])) {
         $_SESSION['user']['email'] = $result['email_professionnel'];
     }
 }
+// Ajouter après la connexion PDO
+$stmtServices = $pdo->query("SELECT id, nom FROM services");
+$services = $stmtServices->fetchAll(PDO::FETCH_ASSOC);
 
 // Vérifie que l'email est passé
 if (!isset($_GET['email'])) {
@@ -34,12 +39,36 @@ $user = null;
 
 // Recherche dans AD ou dans la BDD selon la source
 if ($source === 'db') {
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email_professionnel = :email_pro");
+    // Remplacer la requête pour l'utilisateur (source 'db') :
+$stmt = $pdo->prepare("
+    SELECT users.*, services.nom as service_name 
+    FROM users 
+    LEFT JOIN services ON users.service_id = services.id 
+    WHERE email_professionnel = :email_pro
+");
     $stmt->bindParam(':email_pro', $email); 
     $stmt->execute();
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 } else {
     $user = recupererUtilisateurParEmail($email);
+}
+
+
+if ($source === 'ad') {
+$stmt = $pdo->prepare("
+    SELECT users.*, services.nom as service_name 
+    FROM users 
+    LEFT JOIN services ON users.service_id = services.id 
+    WHERE email_professionnel = :email
+");
+    $stmt->bindParam(':email', $email);
+    $stmt->execute();
+    $dbUser = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($dbUser) {
+        $source = 'db'; // Forcer la source à la BDD
+        $user = $dbUser; // Utiliser les données de la BDD
+    }
 }
 
 // Redirige si l'utilisateur n'existe pas
@@ -84,12 +113,18 @@ $telephone = $source === 'db'
     ? htmlspecialchars($user['telephone'] ?? 'Non renseigné')
     : htmlspecialchars($user['telephonenumber'][0] ?? 'Non renseigné');
 
+// Remplacer la ligne de $service par :
 $service = $source === 'db'
-    ? htmlspecialchars($user['role'] ?? 'Non spécifié')
+    ? htmlspecialchars($user['service_name'] ?? 'Non spécifié')
     : htmlspecialchars($user['description'][0] ?? 'Non spécifié');
 
-$isEditable = $source === 'ad' && estDansGroupe($user, 'Utilisa. du domaine');
+
+// Par :
+// Vérifiez que le rôle de l'utilisateur est correctement stocké en session :
+print_r($_SESSION['user']); // Debug
+$isEditable = in_array($_SESSION['user']['role'], ['SVC-INFORMATIQUE', 'ADMIN-INTRA']) && $source === 'db';
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -97,9 +132,10 @@ $isEditable = $source === 'ad' && estDansGroupe($user, 'Utilisa. du domaine');
     <title>Profil de <?= $nomComplet ?></title>
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/profilutilisateur.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="/projetannuaire/client/script/profilutilisateur.js" defer></script>
 </head>
-<body>
+<body data-user-id="<?= isset($user['id']) ? htmlspecialchars($user['id']) : '' ?>">
     <div class="profile-container">
         <div class="profile-header">
             <h1>Profil de <?= $nomComplet ?></h1>
@@ -110,30 +146,56 @@ $isEditable = $source === 'ad' && estDansGroupe($user, 'Utilisa. du domaine');
             <div class="profile-info">
                 <div class="profile-avatar">
                     <div class="avatar-preview">
-<!--faire en sorte que la rh puisse mettre des photos-->
+                        <!--faire en sorte que la rh puisse mettre des photos-->
                         <img src="assets/images/search-icon.png" class="profile-avatar-img">
                     </div>
                 </div>
                 <div class="profile-details">
-                    <h2>Informations personnelles</h2>
-                    <p>
-                        <strong>Nom complet:</strong>
-                        <span class="editable-value"><?= $nomComplet ?></span>
-                        <?php if ($isEditable): ?>
-                            <span class="edit-icon-wrapper">
-                                <i class="fas fa-pencil-alt edit-icon"></i>
-                            </span>
-                        <?php endif; ?>
-                    </p>
-                    <p><strong>Email professionnel:</strong> <span class="editable-value"><?= $emailAffiche ?></span></p>
-                    <p><strong>Téléphone:</strong> <span class="editable-value"><?= $telephone ?></span></p>
-                    <p><strong>Service:</strong> <span class="editable-value"><?= $service ?></span></p>
-                </div>
+    <h2>Informations personnelles</h2>
+    
+    <!-- Nom complet -->
+    <p data-field="nom_complet">
+    <strong>Nom complet:</strong>
+    <span class="editable-value"><?= $nomComplet ?></span>
+    <?php if ($isEditable): ?>
+        <i class="fas fa-pencil-alt edit-icon"></i>
+    <?php endif; ?>
+</p>
+
+    <!-- Email -->
+    <p data-field="email">
+    <strong>Email:</strong>
+    <span class="editable-value"><?= $emailAffiche ?></span>
+    <?php if ($isEditable): ?>
+        <i class="fas fa-pencil-alt edit-icon"></i>
+    <?php endif; ?>
+</p>
+
+    <!-- Téléphone -->
+    <p data-field="telephone">
+        <strong>Téléphone:</strong>
+        <span class="editable-value"><?= $telephone ?></span>
+        <?php if ($isEditable): ?>
+            <i class="fas fa-pencil-alt edit-icon"></i>
+        <?php endif; ?>
+    </p>
+
+    <!-- Service -->
+    <!-- Remplacer data-field="service_id" par data-field="service" -->
+<p data-field="service">
+    <strong>Service:</strong>
+    <span class="editable-value"><?= $service ?></span>
+    <?php if ($isEditable): ?>
+        <i class="fas fa-pencil-alt edit-icon"></i>
+    <?php endif; ?>
+</p>
+
+
+
+</div>
             </div>
         </div>
     </div>
-    <footer>
-        <?php require_once __DIR__ . '/includes/footer.php'; ?>
-    </footer>
+    
 </body>
 </html>

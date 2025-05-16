@@ -1,84 +1,62 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    // --- Gestion avatar utilisateur ---
     const profileAvatarInput = document.querySelector('.profile-avatar-input');
     const profileAvatarImg = document.querySelector('.profile-avatar-img');
     const profileFileName = document.querySelector('.profile-file-name');
-    
-    const userId = profileAvatarImg.dataset.userId;
-    const loadSavedProfileAvatar = function() {
+
+    if (profileAvatarImg) {
+        const userId = profileAvatarImg.dataset.userId;
         const savedAvatar = localStorage.getItem('profileAvatar_' + userId);
         if (savedAvatar) {
             profileAvatarImg.src = savedAvatar;
         }
-    };
-
-    const handleProfileAvatarChange = function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            if (!file.type.match('image.*')) {
-                alert('Veuillez sélectionner une image valide (JPEG, PNG)');
-                return;
-            }
-            profileFileName.textContent = file.name;
-            const reader = new FileReader()
-            reader.onload = function(event) {
-                localStorage.setItem('profileAvatar_' + userId, event.target.result);
-                profileAvatarImg.src = event.target.result;
-                profileAvatarImg.style.display = 'block';
-            };
-            
-            reader.readAsDataURL(file);
-        } else {
-            profileFileName.textContent = 'Aucun fichier sélectionné';
-        }
-    };
-
-    loadSavedProfileAvatar();
+    }
 
     if (profileAvatarInput && profileAvatarImg && profileFileName) {
-        profileAvatarInput.addEventListener('change', handleProfileAvatarChange);
-    }
-    const backButton = document.getElementById('backButton');
-    
-    if (backButton) {
-        backButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            handleBackNavigation(this);
+        profileAvatarInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file && file.type.match('image.*')) {
+                profileFileName.textContent = file.name;
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const dataUrl = event.target.result;
+                    localStorage.setItem('profileAvatar_' + profileAvatarImg.dataset.userId, dataUrl);
+                    profileAvatarImg.src = dataUrl;
+                    profileAvatarImg.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                profileFileName.textContent = 'Aucun fichier sélectionné';
+                alert('Veuillez sélectionner une image valide (JPEG, PNG)');
+            }
         });
     }
 
-    function handleBackNavigation(button) {
-        const from = button.dataset.from;
-        const serviceId = button.dataset.serviceId;
-        const returnUrl = button.dataset.returnUrl || 'pageaccueil.php';
+    // --- Bouton retour ---
+    const backButton = document.getElementById('backButton');
+    if (backButton) {
+        backButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            const from = this.dataset.from;
+            const serviceId = this.dataset.serviceId;
+            const returnUrl = this.dataset.returnUrl || 'pageaccueil.php';
 
-
-        if (from === 'search') {
-            window.location.href = 'pageaccueil.php';
-            return;
-        }
-
-        if (from === 'services' && serviceId) {
-            window.location.href = `membresservices.php?id=${serviceId}`;
-            return;
-        }
-
-        if (from === 'global') {
-            window.location.href = 'membreglobal.php';
-            return;
-        }
-
-        if (window.history.length > 1 && !document.referrer.includes('profilutilisateur.php')) {
-            window.history.back();
-            setTimeout(() => {
-                window.location.href = returnUrl;
-            }, 1000);
-        } else {
-            window.location.href = returnUrl;
-        }
+            if (from === 'search') {
+                location.href = 'pageaccueil.php';
+            } else if (from === 'services' && serviceId) {
+                location.href = `membresservices.php?id=${serviceId}`;
+            } else if (from === 'global') {
+                location.href = 'membreglobal.php';
+            } else if (history.length > 1 && !document.referrer.includes('profilutilisateur.php')) {
+                history.back();
+                setTimeout(() => (location.href = returnUrl), 1000);
+            } else {
+                location.href = returnUrl;
+            }
+        });
     }
-});
 
-document.addEventListener('DOMContentLoaded', function () {
+    // --- Modification en ligne des champs ---
     function createValueSpan(value) {
         const span = document.createElement('span');
         span.className = 'editable-value';
@@ -96,23 +74,18 @@ document.addEventListener('DOMContentLoaded', function () {
     async function handleEditClick() {
         const parentP = this.parentElement;
         const field = parentP.getAttribute('data-field');
-        const userId = parentP.getAttribute('data-userid');
+        const userId = document.body.getAttribute('data-user-id');
         const valueSpan = parentP.querySelector('.editable-value');
         const currentValue = valueSpan.textContent;
 
         let input;
-
-        if (field === "service_id") {
+        if (field === "service") {
             input = document.createElement('select');
-            const servicesData = JSON.parse(document.getElementById('services-data').getAttribute('data-services'));
-
-            servicesData.forEach(service => {
+            window.servicesData.forEach(service => {
                 const option = document.createElement('option');
                 option.value = service.id;
                 option.textContent = service.nom;
-                if (service.nom === currentValue) {
-                    option.selected = true;
-                }
+                if (service.nom === currentValue) option.selected = true;
                 input.appendChild(option);
             });
         } else {
@@ -133,49 +106,40 @@ document.addEventListener('DOMContentLoaded', function () {
         valueSpan.replaceWith(input);
         this.replaceWith(saveBtn);
         parentP.appendChild(cancelBtn);
-
         input.focus();
 
         saveBtn.addEventListener('click', async function () {
-            const newValue = input.value.trim(); // C'est l'ID du service si service_id
-        
-            // Si c'est le service_id, on récupère aussi le nom affiché
-            let displayValue = newValue;
-            if (field === "service_id") {
-                const selectedOption = input.options[input.selectedIndex];
-                displayValue = selectedOption.textContent;
-            }
-        
+            const newValue = input.value.trim();
+            
             try {
                 const response = await fetch('update-profile.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: userId, field: field, value: newValue })
+                    body: JSON.stringify({ 
+                        user_id: userId, 
+                        field: field,
+                        value: field === "service" ? input.options[input.selectedIndex].value : newValue
+                    })
                 });
-        
+
                 const result = await response.json();
-        
+                
                 if (result.success) {
-                    parentP.innerHTML = `
-                        <strong>${parentP.querySelector('strong').textContent}</strong>
-                        <span class="editable-value" ${field === 'service_id' ? `data-serviceid="${newValue}"` : ''}>${displayValue}</span>
-                        <i class="fas fa-pencil-alt edit-icon"></i>
-                    `;
-                    parentP.querySelector('.edit-icon').addEventListener('click', handleEditClick);
-                } else {
-                    alert('Erreur: ' + (result.message || 'Échec de la mise à jour'));
-                    input.replaceWith(createValueSpan(currentValue));
-                    saveBtn.replaceWith(createEditIcon());
+                    // Mise à jour avec la valeur retournée par le serveur
+                    valueSpan.textContent = result.newValue;
+                    saveBtn.remove();
                     cancelBtn.remove();
+                    parentP.appendChild(createEditIcon());
+                } else {
+                    throw new Error(result.message || 'Échec de la mise à jour');
                 }
             } catch (error) {
-                alert('Erreur réseau: ' + error.message);
+                alert('Erreur : ' + error.message);
                 input.replaceWith(createValueSpan(currentValue));
                 saveBtn.replaceWith(createEditIcon());
                 cancelBtn.remove();
             }
         });
-        
 
         cancelBtn.addEventListener('click', function () {
             input.replaceWith(createValueSpan(currentValue));
@@ -184,6 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Initialisation des icônes d'édition
     document.querySelectorAll('.edit-icon').forEach(icon => {
         icon.addEventListener('click', handleEditClick);
     });
