@@ -52,29 +52,40 @@ try {
     $stmt->execute([$service_id]);
     $filesFromDb = $stmt->fetchAll();
 
-    if (!empty($filesFromDb)) {
-        $hasFiles = true;
-        $filesList .= "<div class='uploaded-files'><h3>Fichiers uploadés :</h3><ul>";
-        foreach ($filesFromDb as $file) {
-            $filePath = $uploadDir . $file['file_name'];
-            if (file_exists($filePath)) {
-                // Déterminer si c'est un PDF pour l'affichage
-                $isPdf = pathinfo($file['file_name'], PATHINFO_EXTENSION) === 'pdf';
-                $downloadParam = $isPdf ? '' : '&download=1';
-                
-                $filesList .= "<li>
-                    <a href='/projetannuaire/client/src/download.php?type=service&service_id=".$service_id."&file=".rawurlencode($file['file_name']).$downloadParam."'>".htmlspecialchars($file['file_name'])."</a>
-                    <span class='uploaded-by'> (uploadé par : ".htmlspecialchars($file['prenom'])." ".htmlspecialchars($file['nom']).")</span>
-                    <a href='/projetannuaire/client/src/documents-services.php?id=".$service_id."&delete_file=".rawurlencode($file['file_name'])."' class='delete-file' onclick='return confirm(\"Êtes-vous sûr de vouloir supprimer ce fichier ?\")' title='Supprimer'>
+
+
+// Dans la partie où vous générez la liste des fichiers, modifiez comme suit :
+if (!empty($filesFromDb)) {
+    $hasFiles = true;
+    $filesList .= "<div class='uploaded-files'><h3>Fichiers uploadés :</h3><ul>";
+    foreach ($filesFromDb as $file) {
+        $filePath = $uploadDir . $file['file_name'];
+        if (file_exists($filePath)) {
+            $isPdf = pathinfo($file['file_name'], PATHINFO_EXTENSION) === 'pdf';
+            $downloadParam = $isPdf ? '' : '&download=1';
+            
+            $filesList .= "<li>
+                <a href='/projetannuaire/client/src/download.php?type=service&service_id=".$service_id."&file=".rawurlencode($file['file_name']).$downloadParam."'>".htmlspecialchars($file['file_name'])."</a>
+                <span class='uploaded-by'> (uploadé par : ".htmlspecialchars($file['prenom'])." ".htmlspecialchars($file['nom']).")</span>";
+            
+            // Ajout de la condition pour le bouton de suppression
+            if (isset($_SESSION['user']['role'])) {
+                $role = strtoupper($_SESSION['user']['role']);
+                if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA') {
+                    $filesList .= "<a href='/projetannuaire/client/src/documents-services.php?id=".$service_id."&delete_file=".rawurlencode($file['file_name'])."' class='delete-file' onclick='return confirm(\"Êtes-vous sûr de vouloir supprimer ce fichier ?\")' title='Supprimer'>
                         <svg class='trash-icon' viewBox='0 0 24 24' width='18' height='18'>
                             <path fill='currentColor' d='M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z' />
                         </svg>
-                    </a>
-                </li>";
+                    </a>";
+                }
             }
+            
+            $filesList .= "</li>";
         }
-        $filesList .= "</ul></div>";
     }
+    $filesList .= "</ul></div>";
+}
+
 } catch (PDOException $e) {
     // Fallback si la table n'existe pas
     if (is_dir($uploadDir)) {
@@ -130,26 +141,35 @@ if (!$hasFiles) {
         Document du service associé : <?= htmlspecialchars($service['nom'] ?? 'Inconnu') ?>
     </h1>
 
-   
-    <div class="admin-actions">
-        <button class="upload-label" id="open-modal">Déposer un document</button>
-    </div>
+    <?php if (isset($_SESSION['user']['role'])): 
+        $role = strtoupper($_SESSION['user']['role']);
+        if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA'): ?>
+            <div class="admin-actions">
+                <button class="upload-label" id="open-modal">Déposer un document</button>
+            </div>
+        <?php endif; 
+    endif; ?>
+    
     <?php echo $filesList; ?>
 
-    
-    <div class="modal" id="upload-modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2 class="modal-title">Importer des documents</h2>
-            <form id="upload-form" method="post" enctype="multipart/form-data" action="upload.php" class="upload-form">
-                <input type="hidden" name="service_id" value="<?= htmlspecialchars($service_id) ?>">
-                <input type="file" name="documents[]" id="documents" multiple class="file-input">
-                <small class="file-instructions">Maintenez <strong>Ctrl</strong> pour sélectionner plusieurs fichiers.</small>
-                <button type="submit" class="btn-upload">Envoyer les fichiers</button>
-                <div id="file-list" class="file-list"></div>
-            </form>
-        </div>
-    </div>
+    <?php if (isset($_SESSION['user']['role'])): 
+        $role = strtoupper($_SESSION['user']['role']);
+        if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA'): ?>
+            <div class="modal" id="upload-modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2 class="modal-title">Importer des documents</h2>
+                    <form id="upload-form" method="post" enctype="multipart/form-data" action="upload.php" class="upload-form">
+                        <input type="hidden" name="service_id" value="<?= htmlspecialchars($service_id) ?>">
+                        <input type="file" name="documents[]" id="documents" multiple class="file-input">
+                        <small class="file-instructions">Maintenez <strong>Ctrl</strong> pour sélectionner plusieurs fichiers.</small>
+                        <button type="submit" class="btn-upload">Envoyer les fichiers</button>
+                        <div id="file-list" class="file-list"></div>
+                    </form>
+                </div>
+            </div>
+        <?php endif; 
+    endif; ?>
 </div>
 </body>
 </html>

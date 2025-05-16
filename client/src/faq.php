@@ -7,8 +7,7 @@ $questions = $pdo->query("
     SELECT f.*, u.nom, u.prenom 
     FROM faq f
     LEFT JOIN users u ON f.user_id = u.id
-    ORDER BY f.date_creation DESC
-")->fetchAll();
+    ORDER BY f.date_creation DESC")->fetchAll();
 ?>
 
 <!DOCTYPE html>
@@ -54,13 +53,19 @@ $questions = $pdo->query("
                     
                     <div class="reponse-container">
                         <div class="reponse"><?= htmlspecialchars($q['reponse'] ?? 'En attente de réponse...') ?></div>
-                        
-                        <?php if (isset($_SESSION['user'])): ?>
-                            <?php if (!empty($q['reponse'])): ?>
-                                <button class="btn-repondre btn-repondu" disabled>Répondu</button>
-                            <?php else: ?>
-                                <button class="btn-repondre">Répondre</button>
-                                <div class="reponse-form" style="display:none;">
+                                             
+    <?php if (isset($_SESSION['user']['role'])): 
+    $role = strtoupper($_SESSION['user']['role']);
+    if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA'): ?>
+        <?php if (isset($_SESSION['user'])): ?>
+            <?php if (!empty($q['reponse'])): ?>
+                <button class="btn-repondre btn-repondu" disabled>Répondu</button>
+            <?php else: ?>
+                <button class="btn-repondre">Répondre</button>
+            <?php endif; ?>
+        <?php endif; ?>
+ 
+                    <div class="reponse-form" style="display:none;">
                                     <textarea class="reponse-input" placeholder="Votre réponse..."></textarea>
                                     <button class="btn-envoyer-reponse">Envoyer</button>
                                 </div>

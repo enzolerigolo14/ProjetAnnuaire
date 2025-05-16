@@ -100,10 +100,19 @@ $derniere_actualite = array_shift($actualites);
         <a href="/projetannuaire/client/src/services-global-actualite.php" class="back-button">← Retour aux services</a>
         <h2>Actualités du service : <?= htmlspecialchars($service['nom']) ?></h2>
     </div>
-
+ 
+<?php
+    if (isset($_SESSION['user']['role'])) {
+        $role = strtoupper($_SESSION['user']['role']);
+        if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA') {
+?>
     <div class="actualite">
         <button id="modifier-actualite" class="modifier-actualite">Ajouter une actualité</button>
-
+    </div>
+<?php
+        }
+    }
+?>
         <div class="main-container">
             <!-- Actualité principale -->
             <div class="featured-news">
@@ -122,10 +131,18 @@ $derniere_actualite = array_shift($actualites);
                             </object>
                         </div>
                     <?php endif; ?>
-
+                    <?php
+    if (isset($_SESSION['user']['role'])) {
+        $role = strtoupper($_SESSION['user']['role']);
+        if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA') {
+?>
                     <div class="actualite-actions">
                         <a href="?id=<?= $service_id ?>&delete_actualite=<?= $derniere_actualite['id'] ?>" class="delete-actualite" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette actualité ?')">Supprimer</a>
                     </div>
+                    <?php
+        }
+    }
+?>
                 <?php else: ?>
                     <p>Aucune actualité disponible pour ce service.</p>
                 <?php endif; ?>
@@ -152,6 +169,11 @@ $derniere_actualite = array_shift($actualites);
                             </div>
                         <?php endif; ?>
 
+                        <?php
+    if (isset($_SESSION['user']['role'])) {
+        $role = strtoupper($_SESSION['user']['role']);
+        if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA') {
+?>
                         <div class="actualite-actions">
                             <a href="?id=<?= $service_id ?>&delete_actualite=<?= $actualite['id'] ?>" 
                                class="delete-actualite" 
@@ -159,6 +181,10 @@ $derniere_actualite = array_shift($actualites);
                                Supprimer
                             </a>
                         </div>
+                        <?php
+        }
+    }
+?>
                     </div>
                 <?php endforeach; ?>
             </div>
