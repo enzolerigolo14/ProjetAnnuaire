@@ -1,5 +1,5 @@
 <?php 
-session_start(); // Démarrer la session
+session_start(); 
 require_once __DIR__ . '/config/database.php';
 
 function genererMotDePasse($longueur = 10) {
@@ -7,11 +7,9 @@ function genererMotDePasse($longueur = 10) {
     return substr(str_shuffle($caracteres), 0, $longueur);
 }
 
-// Récupération des services
+
 $services = $pdo->query("SELECT id, nom FROM services ORDER BY nom")->fetchAll(PDO::FETCH_ASSOC);
 $servicesIds = array_column($services, 'id');
-
-// Traitement du formulaire
 $error = '';
 $motDePasse = genererMotDePasse();
 
@@ -23,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $service_id = isset($_POST['service']) ? (int)$_POST['service'] : 0;
     $motDePasse = $_POST['password'] ?? genererMotDePasse();
 
-    // Validation
     if (empty($firstname) || empty($lastname) || empty($loginname)) {
         $error = "Tous les champs sont obligatoires";
     } elseif (!in_array($service_id, $servicesIds)) {
@@ -31,11 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
        
         try {
-            // Génération du mot de passe temporaire
             $motDePasse = genererMotDePasse();
             $motDePasseHash = password_hash($motDePasse, PASSWORD_BCRYPT);
-    
-            // Insertion dans la table inscription
             $stmt = $pdo->prepare("INSERT INTO inscription 
                                  (nom, prenom, email_professionnel, service_id, mot_de_passe) 
                                  VALUES (:nom, :prenom, :email, :service_id, :mot_de_passe)");
@@ -47,14 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':service_id' => $service_id,
                 ':mot_de_passe' => $motDePasseHash
             ]);
-    
-            // Stockage des données en session
             $_SESSION['nouvelle_inscription'] = [
                 'id' => $pdo->lastInsertId(),
                 'password_temp' => $motDePasse
             ];
-    
-            // Redirection immédiate vers change_password.php
             header('Location: change_password.php');
             exit;
     

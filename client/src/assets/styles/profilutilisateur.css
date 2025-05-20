@@ -106,17 +106,17 @@ body {
     cursor: pointer;
     font-size: 14px;
     transition: color 0.3s;
-    pointer-events: auto; /* S'assurer que les événements de souris sont activés */
-    z-index: 10; /* Placer au-dessus des autres éléments */
-    position: relative; /* Nécessaire pour z-index */
+    pointer-events: auto; 
+    z-index: 10; 
+    position: relative; 
 }
 
 .edit-icon:hover {
     color: #007bff;
-    transform: scale(1.1); /* Petit effet au survol */
+    transform: scale(1.1); 
 }
 
-/* Style pour le mode édition */
+
 .edit-input {
     padding: 5px;
     border: 1px solid #ddd;
@@ -142,3 +142,16 @@ body {
 .hidden {
     display: none;
 }
+
+.profile-avatar-img {
+    width: 32px; 
+    height: 32px;
+    object-fit: contain;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.profile-avatar-img:hover {
+    transform: scale(1.1); 
+}
+

@@ -19,7 +19,6 @@ $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/services-global.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/header.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
-    <script src="/projetannuaire/client/script/services-global.js" defer></script>
 </head>
 <body>
 

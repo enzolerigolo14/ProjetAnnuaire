@@ -10,7 +10,6 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-// Complète l'email en session si nécessaire
 if (!isset($_SESSION['user']['email']) && isset($_SESSION['user']['id'])) {
     $stmt = $pdo->prepare("SELECT email_professionnel FROM users WHERE id = ?");
     $stmt->execute([$_SESSION['user']['id']]);
@@ -19,7 +18,6 @@ if (!isset($_SESSION['user']['email']) && isset($_SESSION['user']['id'])) {
     }
 }
 
-// Vérifie que l'email est passé
 if (!isset($_GET['email'])) {
     header('Location: /projetannuaire/client/src/pageaccueil.php');
     exit;
@@ -29,7 +27,6 @@ $email = urldecode($_GET['email']);
 $source = $_GET['source'] ?? 'ad';
 $user = null;
 
-// Recherche dans AD ou BDD
 if ($source === 'db') {
     $stmt = $pdo->prepare("
         SELECT users.*, services.nom as service_name 
@@ -41,8 +38,6 @@ if ($source === 'db') {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 } else {
     $user = recupererUtilisateurParEmail($email);
-    
-    // Vérifie si l'utilisateur existe en BDD
     $stmt = $pdo->prepare("SELECT id FROM users WHERE email_professionnel = ?");
     $stmt->execute([$email]);
     if ($stmt->fetch()) {
@@ -55,17 +50,12 @@ if (!$user) {
     die("Utilisateur non trouvé.");
 }
 
-// Services pour le select
 $services = $pdo->query("SELECT id, nom FROM services")->fetchAll(PDO::FETCH_ASSOC);
-
-// Détermine la page de retour
 $return_url = match($_GET['from'] ?? 'global') {
     'services' => $_GET['service_id'] ? "membresservices.php?id=".$_GET['service_id'] : "pageaccueil.php",
     'global' => "membreglobal.php",
     default => "pageaccueil.php"
 };
-
-// Données de l'utilisateur
 $nomComplet = $source === 'db' 
     ? htmlspecialchars($user['prenom'].' '.$user['nom'])
     : htmlspecialchars($user['givenname'][0].' '.$user['sn'][0]);
@@ -81,8 +71,6 @@ $telephone = $source === 'db'
 $service = $source === 'db'
     ? htmlspecialchars($user['service_name'] ?? 'Non spécifié')
     : htmlspecialchars($user['description'][0] ?? 'Non spécifié');
-
-// Droits d'édition
 $isEditable = in_array($_SESSION['user']['role'], ['SVC-INFORMATIQUE', 'ADMIN-INTRA']) && $source === 'db';
 ?>
 

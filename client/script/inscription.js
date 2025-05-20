@@ -1,51 +1,46 @@
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Concaténation Nom/Prénom
+document.addEventListener('DOMContentLoaded', function() {
             const firstname = document.getElementById('firstname');
             const lastname = document.getElementById('lastname');
             const fullname = document.getElementById('fullname');
-            
-            function updateFullName() {
-                fullname.value = `${firstname.value.trim()} ${lastname.value.trim()}`.trim();
+            const loginprefix = document.getElementById('loginprefix');
+            const loginname = document.getElementById('loginname');
+            const regenerateBtn = document.getElementById('regenerate-password');
+            const passwordField = document.getElementById('password');
+
+            function updateFullname() {
+                fullname.value = `${firstname.value} ${lastname.value}`.trim();
             }
-            
-            firstname.addEventListener('input', updateFullName);
-            lastname.addEventListener('input', updateFullName);
-            
-            // Génération du login
-            const loginPrefix = document.getElementById('loginprefix');
-            const loginDomain = document.getElementById('logindomain');
-            const loginName = document.getElementById('loginname');
-            
-            function updateLogin() {
-                const prefix = loginPrefix.value.trim().toLowerCase();
-                loginName.value = prefix + loginDomain.value;
+
+            function generateLogin() {
+                if (firstname.value && lastname.value) {
+                    const login = `${firstname.value.charAt(0)}${lastname.value}`.toLowerCase();
+                    loginprefix.value = login;
+                    loginname.value = `${login}@ville-lisieux.fr`;
+                }
             }
-            
-            loginPrefix.addEventListener('input', updateLogin);
-            
-            // Génération automatique du préfixe login si vide
-            firstname.addEventListener('blur', function() {
-                if (!loginPrefix.value && firstname.value && lastname.value) {
-                    loginPrefix.value = 
-                        firstname.value.charAt(0).toLowerCase() + 
-                        lastname.value.toLowerCase().replace(/\s+/g, '');
-                    updateLogin();
-                }
-            });
-            
-            lastname.addEventListener('blur', function() {
-                if (!loginPrefix.value && firstname.value && lastname.value) {
-                    loginPrefix.value = 
-                        firstname.value.charAt(0).toLowerCase() + 
-                        lastname.value.toLowerCase().replace(/\s+/g, '');
-                    updateLogin();
-                }
+
+            firstname.addEventListener('input', function() {
+                updateFullname();
+                generateLogin();
             });
 
-            document.getElementById('loginprefix').addEventListener('input', function() {
-                const prefix = this.value;
-                const domain = '@ville-lisieux.fr';
-                document.getElementById('loginname').value = prefix.toLowerCase() + domain;
+            lastname.addEventListener('input', function() {
+                updateFullname();
+                generateLogin();
+            });
+
+            regenerateBtn.addEventListener('click', function() {
+                fetch('generate_password.php')
+                    .then(response => response.text())
+                    .then(password => {
+                        passwordField.value = password;
+                    });
+            });
+            document.getElementById('telephone').addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                if (this.value.length > 4) {
+                    this.value = this.value.slice(0, 4);
+                }
             });
         });
+ 

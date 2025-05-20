@@ -24,7 +24,6 @@ ini_set('display_errors', 1);
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
     
 
-    <script src="/projetannuaire/client/script/services-global.js" defer></script>
 
 </head>
 <body>

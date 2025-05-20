@@ -7,8 +7,6 @@ if (!isset($_SESSION['nouvelle_inscription'])) {
     header('Location: inscription.php');
     exit;
 }
-
-// Récupération des données
 $inscription_id = $_SESSION['nouvelle_inscription']['id'];
 $password_temp = $_SESSION['nouvelle_inscription']['password_temp'];
 
@@ -22,31 +20,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             $pdo->beginTransaction();
-
-            // Migration vers la table users
             $stmt = $pdo->prepare("SELECT * FROM inscription WHERE id = ?");
             $stmt->execute([$inscription_id]);
             $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
 
             $stmt = $pdo->prepare("INSERT INTO users 
-                                 (nom, prenom, email_professionnel, service_id, mot_de_passe) 
-                                 VALUES (?, ?, ?, ?, ?)");
+                                 (nom, prenom, telephone, email_professionnel, role, ldap_groups, service_id, mot_de_passe) 
+                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             
             $stmt->execute([
                 $user_data['nom'],
                 $user_data['prenom'],
+                $user_data['telephone'],
                 $user_data['email_professionnel'],
+                $user_data['role'],
+                $user_data['ldap_groups'],
                 $user_data['service_id'],
                 password_hash($nouveau_mdp, PASSWORD_BCRYPT)
             ]);
 
-            // Nettoyage de l'inscription
             $stmt = $pdo->prepare("DELETE FROM inscription WHERE id = ?");
             $stmt->execute([$inscription_id]);
 
             $pdo->commit();
-
-            // Nettoyage de session et redirection
             unset($_SESSION['nouvelle_inscription']);
             header('Location: connexion.php?success=1');
             exit;
@@ -64,21 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Finalisation de l'inscription</title>
-    <style>
-        .password-box {
-            max-width: 500px;
-            margin: 2rem auto;
-            padding: 2rem;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-        .temp-password {
-            background: #f3f4f6;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 4px;
-        }
-    </style>
+    <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/change_password.css">
 </head>
 <body>
     <div class="password-box">

@@ -2,9 +2,8 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-$_SESSION['origin'] = 'parametre.php'; // Marquer la provenance
-?>
 
+?>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -19,16 +18,9 @@ $_SESSION['origin'] = 'parametre.php'; // Marquer la provenance
 
 <div class="parametres-options">
     <h2>Options d'administration</h2>
-    
-    <!-- Option pour aller vers l'inscription -->
     <a href="/projetannuaire/client/src/inscription.php" class="option-link">Gérer les inscriptions</a>
-
-    <!-- Autres options de paramètres -->
-   <a href="/projetannuaire/client/src/membreglobal.php?source=db" class="option-link">Gérer les utilisateurs</a>
-
-    
+    <a href="/projetannuaire/client/src/membreglobal.php?source=db" class="option-link">Gérer les utilisateurs</a>
     <a href="/projetannuaire/client/src/ajouterservice.php" class="option-link">Ajouter un service</a>
-  
 </div>
 </body>
 </html>

@@ -3,8 +3,7 @@ session_start();
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/ldaptest.php';
 
-// Debug - À enlever en production
-error_log("Session data: " . print_r($_SESSION, true));
+
 
 if (!isset($_SESSION['user'])) {
     header('Location: connexion.php');
@@ -15,13 +14,10 @@ if (!isset($_SESSION['user'])) {
 $showWelcomeMessage = isset($_SESSION['new_user_registered']) && $_SESSION['new_user_registered'] === true;
 if ($showWelcomeMessage) {
     unset($_SESSION['new_user_registered']);
-    
-    // Debug - À enlever en production
-    error_log("Nouvel utilisateur: " . print_r($_SESSION['user'], true));
 }
 
-$username = explode('@', $_SESSION['user']['email'])[0]; // ou bien $_SESSION['user']['email'] si c’est l'identifiant LDAP
-//$_SESSION['user']['username'] = $username;
+$username = explode('@', $_SESSION['user']['email'])[0]; 
+
 
 
 //return; // Commenter cette ligne pour activer la récupération des groupes depuis LDAP
@@ -49,21 +45,6 @@ $actualites = $stmt->fetchAll();
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/pageaccueil.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/header.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
-    <style>
-        .welcome-banner {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            margin: 0 0 20px 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            animation: fadeIn 1.5s;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-    </style>
 </head>
 
 <body>
@@ -127,7 +108,6 @@ $actualites = $stmt->fetchAll();
         <?php endforeach; ?>
     </div>
   </div>
-
   <footer>
     <?php require_once __DIR__ . '/includes/footer.php'; ?>
   </footer>
