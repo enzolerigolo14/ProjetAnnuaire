@@ -20,10 +20,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validation
     if (empty($old_password) || empty($new_password) || empty($confirm_password)) {
         $error = 'Tous les champs sont obligatoires';
+    } elseif ($new_password === $old_password) {
+        $error = 'Le nouveau mot de passe doit être différent de l\'ancien';
     } elseif ($new_password !== $confirm_password) {
         $error = 'Les nouveaux mots de passe ne correspondent pas';
-    } elseif (strlen($new_password) < 8) {
-        $error = 'Le mot de passe doit contenir au moins 8 caractères';
+    } elseif (strlen($new_password) < 12) {
+        $error = 'Le mot de passe doit contenir au moins 12 caractères';
+    } elseif (!preg_match('/[A-Z]/', $new_password)) {
+        $error = 'Le mot de passe doit contenir au moins une majuscule';
+    } elseif (!preg_match('/[a-z]/', $new_password)) {
+        $error = 'Le mot de passe doit contenir au moins une minuscule';
+    } elseif (!preg_match('/[0-9]/', $new_password)) {
+        $error = 'Le mot de passe doit contenir au moins un chiffre';
+    } elseif (!preg_match('/[\W_]/', $new_password)) {
+        $error = 'Le mot de passe doit contenir au moins un caractère spécial';
     } else {
         // Vérifier l'ancien mot de passe
         $stmt = $pdo->prepare("SELECT mot_de_passe FROM users WHERE id = ?");
@@ -59,54 +69,96 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/changemdpprofil.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/header.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
+    <style>
+        .password-rules {
+            background-color: #f8f9fa;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        .password-rules ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        .password-rules li.valid {
+            color: #28a745;
+        }
+        .password-rules li.invalid {
+            color: #dc3545;
+        }
+    </style>
     <script>
-        // Validation côté client
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('passwordForm').addEventListener('submit', function(e) {
-                const oldPassword = document.getElementById('old_password').value;
-                const newPassword = document.getElementById('new_password').value;
-                const confirmPassword = document.getElementById('confirm_password').value;
-                
-                if (!oldPassword || !newPassword || !confirmPassword) {
-                    e.preventDefault();
-                    alert('Tous les champs sont obligatoires');
-                    return;
-                }
-                
-                if (newPassword !== confirmPassword) {
-                    e.preventDefault();
-                    alert('Les nouveaux mots de passe ne correspondent pas');
-                    return;
-                }
-                
-                if (newPassword.length < 8) {
-                    e.preventDefault();
-                    alert('Le mot de passe doit contenir au moins 8 caractères');
-                    return;
-                }
-                
-                console.log("Formulaire validé, envoi au serveur...");
-            });
-        });
+        function checkPasswordStrength() {
+            const oldPassword = document.getElementById('old_password').value;
+            const newPassword = document.getElementById('new_password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            
+            // Règles de validation
+            const isDifferent = newPassword !== oldPassword && oldPassword !== '';
+            const hasMinLength = newPassword.length >= 12;
+            const hasUpperCase = /[A-Z]/.test(newPassword);
+            const hasLowerCase = /[a-z]/.test(newPassword);
+            const hasNumber = /[0-9]/.test(newPassword);
+            const hasSpecialChar = /[\W_]/.test(newPassword);
+            const passwordsMatch = newPassword === confirmPassword && newPassword !== '';
+            
+            // Mise à jour de l'affichage des règles
+            document.getElementById('diff-rule').className = isDifferent ? 'valid' : 'invalid';
+            document.getElementById('length-rule').className = hasMinLength ? 'valid' : 'invalid';
+            document.getElementById('upper-rule').className = hasUpperCase ? 'valid' : 'invalid';
+            document.getElementById('lower-rule').className = hasLowerCase ? 'valid' : 'invalid';
+            document.getElementById('number-rule').className = hasNumber ? 'valid' : 'invalid';
+            document.getElementById('special-rule').className = hasSpecialChar ? 'valid' : 'invalid';
+            document.getElementById('match-rule').className = passwordsMatch ? 'valid' : 'invalid';
+        }
     </script>
 </head>
 <body>
     <div>
         <h1>Changer Mot de Passe</h1>
-        <form id="passwordForm" method="POST" action="">
+        
+        <div class="password-rules">
+            <strong>Votre nouveau mot de passe doit :</strong>
+            <ul>
+                <li id="diff-rule" class="invalid">Être différent de l'ancien mot de passe</li>
+                <li id="length-rule" class="invalid">Contenir au moins 12 caractères</li>
+                <li id="upper-rule" class="invalid">Contenir au moins une majuscule (A-Z)</li>
+                <li id="lower-rule" class="invalid">Contenir au moins une minuscule (a-z)</li>
+                <li id="number-rule" class="invalid">Contenir au moins un chiffre (0-9)</li>
+                <li id="special-rule" class="invalid">Contenir au moins un caractère spécial (!@#$%^&*, etc.)</li>
+                <li id="match-rule" class="invalid">Correspondre à la confirmation</li>
+            </ul>
+        </div>
+
+        <form id="passwordForm" method="POST" action="" oninput="checkPasswordStrength()">
             <div class="form-group">
                 <label for="old_password">Ancien Mot de Passe</label>
-                <input type="password" id="old_password" name="old_password" required>
+                <input type="password" 
+                       id="old_password" 
+                       name="old_password" 
+                       required
+                       onkeyup="checkPasswordStrength()">
             </div>
 
             <div class="form-group">
                 <label for="new_password">Nouveau Mot de Passe</label>
-                <input type="password" id="new_password" name="new_password" required minlength="8">
+                <input type="password" 
+                       id="new_password" 
+                       name="new_password" 
+                       required
+                       minlength="12"
+                       onkeyup="checkPasswordStrength()">
             </div>
 
             <div class="form-group">
                 <label for="confirm_password">Confirmer le Nouveau Mot de Passe</label>
-                <input type="password" id="confirm_password" name="confirm_password" required minlength="8">
+                <input type="password" 
+                       id="confirm_password" 
+                       name="confirm_password" 
+                       required
+                       minlength="12"
+                       onkeyup="checkPasswordStrength()">
             </div>
 
             <button type="submit" class="submit-btn">Changer le Mot de Passe</button>

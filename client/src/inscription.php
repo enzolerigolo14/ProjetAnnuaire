@@ -1,12 +1,12 @@
 <?php 
 session_start(); 
 require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/config/ldap_auth.php';
 
 function genererMotDePasse($longueur = 10) {
     $caracteres = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     return substr(str_shuffle($caracteres), 0, $longueur);
 }
-
 
 $services = $pdo->query("SELECT id, nom FROM services ORDER BY nom")->fetchAll(PDO::FETCH_ASSOC);
 $servicesIds = array_column($services, 'id');
@@ -19,28 +19,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fullname = htmlspecialchars($_POST['fullname'] ?? '');
     $loginname = strtolower(htmlspecialchars($_POST['loginname'] ?? ''));
     $service_id = isset($_POST['service']) ? (int)$_POST['service'] : 0;
+    $numero = isset($_POST['telephone']) ? (int)$_POST['telephone'] : null;
     $motDePasse = $_POST['password'] ?? genererMotDePasse();
 
-    if (empty($firstname) || empty($lastname) || empty($loginname)) {
+    // Validation
+    if ($numero === null || strlen((string)$numero) !== 4) {
+        $error = "Le numéro doit être composé de 4 chiffres";
+    } elseif (empty($firstname) || empty($lastname) || empty($loginname)) {
         $error = "Tous les champs sont obligatoires";
     } elseif (!in_array($service_id, $servicesIds)) {
         $error = "Service invalide";
     } else {
-       
         try {
             $motDePasse = genererMotDePasse();
             $motDePasseHash = password_hash($motDePasse, PASSWORD_BCRYPT);
+            $login = str_replace('@ville-lisieux.fr', '', $loginname);
+            $groupesLDAP = recupererGroupesUtilisateur($login);
+            $ldap_groups = !empty($groupesLDAP) ? $groupesLDAP[0] : 'Utilisateurs du domaine';
             $stmt = $pdo->prepare("INSERT INTO inscription 
-                                 (nom, prenom, email_professionnel, service_id, mot_de_passe) 
-                                 VALUES (:nom, :prenom, :email, :service_id, :mot_de_passe)");
+                                 (nom, prenom, email_professionnel, service_id, mot_de_passe, telephone, role, ldap_groups) 
+                                 VALUES (:nom, :prenom, :email, :service_id, :mot_de_passe, :telephone, :role, :ldap_groups)");
             
             $stmt->execute([
                 ':nom' => $lastname,
                 ':prenom' => $firstname,
                 ':email' => $loginname,
                 ':service_id' => $service_id,
-                ':mot_de_passe' => $motDePasseHash
+                ':mot_de_passe' => $motDePasseHash,
+                ':telephone' => $numero,
+                ':role' => 'membre',
+                ':ldap_groups' => $ldap_groups
             ]);
+            
             $_SESSION['nouvelle_inscription'] = [
                 'id' => $pdo->lastInsertId(),
                 'password_temp' => $motDePasse
@@ -88,6 +98,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="text" id="lastname" name="lastname" required
                         placeholder="ex: Dupont"
                         value="<?= htmlspecialchars($_POST['lastname'] ?? '') ?>">
+                </div>
+                <!-- Ajoutez ce groupe de formulaire juste avant le champ service -->
+                <div class="form-group">
+                    <label for="numero">Numéro (4 chiffres)</label>
+                    <input type="number" id="telephone" name="telephone" required
+                            min="1000" max="9999" 
+                            placeholder="ex: 1234"
+                            value="<?= htmlspecialchars($_POST['telephone'] ?? '') ?>">
                 </div>
 
                 <div class="form-group">

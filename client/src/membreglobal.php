@@ -88,9 +88,6 @@ foreach ($usersDB as $user) {
         </div>
     <?php endforeach; ?>
 </div>
-
-
-
 <footer>
     <?php require_once __DIR__ . '/includes/footer.php'; ?>
 </footer>

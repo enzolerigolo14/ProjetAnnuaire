@@ -6,7 +6,7 @@ header('Content-Type: application/json');
 header("Cache-Control: no-cache, must-revalidate");
 
 // Vérification des permissions
-$allowedRoles = ['SVC-INFORMATIQUE', 'ADMIN-INTRA'];
+$allowedRoles = ['SVC-INFORMATIQUE', 'ADMIN-INTRA', 'ADMIN-RH'];
 if (!isset($_SESSION['user']['role']) || !in_array($_SESSION['user']['role'], $allowedRoles)) {
     echo json_encode(['success' => false, 'message' => 'Action non autorisée']);
     exit;

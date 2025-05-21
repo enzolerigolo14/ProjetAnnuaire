@@ -46,9 +46,9 @@ $filesList = '';
 
 try {
     $stmt = $pdo->prepare("SELECT sf.*, u.prenom, u.nom 
-                          FROM service_files sf 
-                          JOIN users u ON sf.uploaded_by = u.id 
-                          WHERE sf.service_id = ?");
+                      FROM service_files sf 
+                      JOIN users u ON sf.uploaded_by = u.id 
+                      WHERE sf.service_id = ?");
     $stmt->execute([$service_id]);
     $filesFromDb = $stmt->fetchAll();
 
@@ -64,14 +64,17 @@ if (!empty($filesFromDb)) {
             $isPdf = pathinfo($file['file_name'], PATHINFO_EXTENSION) === 'pdf';
             $downloadParam = $isPdf ? '' : '&download=1';
             
+            $documentTitle = !empty($file['document_title']) ? htmlspecialchars($file['document_title']) : htmlspecialchars($file['file_name']);
             $filesList .= "<li>
+            <div class='file-title'>{$documentTitle}</div>
+            <div class='file-details'>
                 <a href='/projetannuaire/client/src/download.php?type=service&service_id=".$service_id."&file=".rawurlencode($file['file_name']).$downloadParam."'>".htmlspecialchars($file['file_name'])."</a>
                 <span class='uploaded-by'> (uploadé par : ".htmlspecialchars($file['prenom'])." ".htmlspecialchars($file['nom']).")</span>";
             
             // Ajout de la condition pour le bouton de suppression
             if (isset($_SESSION['user']['role'])) {
                 $role = strtoupper($_SESSION['user']['role']);
-                if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA') {
+                if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA' || $role === 'ADMIN-RH') {
                     $filesList .= "<a href='/projetannuaire/client/src/documents-services.php?id=".$service_id."&delete_file=".rawurlencode($file['file_name'])."' class='delete-file' onclick='return confirm(\"Êtes-vous sûr de vouloir supprimer ce fichier ?\")' title='Supprimer'>
                         <svg class='trash-icon' viewBox='0 0 24 24' width='18' height='18'>
                             <path fill='currentColor' d='M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z' />
@@ -143,7 +146,7 @@ if (!$hasFiles) {
 
     <?php if (isset($_SESSION['user']['role'])): 
         $role = strtoupper($_SESSION['user']['role']);
-        if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA'): ?>
+        if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA' || $role === 'ADMIN-RH'): ?>
             <div class="admin-actions">
                 <button class="upload-label" id="open-modal">Déposer un document</button>
             </div>
@@ -154,7 +157,7 @@ if (!$hasFiles) {
 
     <?php if (isset($_SESSION['user']['role'])): 
         $role = strtoupper($_SESSION['user']['role']);
-        if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA'): ?>
+        if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA' || $role === 'ADMIN-RH'): ?>
             <div class="modal" id="upload-modal">
                 <div class="modal-content">
                     <span class="close">&times;</span>
@@ -162,9 +165,17 @@ if (!$hasFiles) {
                     <form id="upload-form" method="post" enctype="multipart/form-data" action="upload.php" class="upload-form">
                         <input type="hidden" name="service_id" value="<?= htmlspecialchars($service_id) ?>">
                         <input type="file" name="documents[]" id="documents" multiple class="file-input">
+
+                        <!--Champs pour mettre un titre au document-->
+                        <label for="document_title">Titre du document :</label>
+                        <input type="text" name="document_title" id="document_title" class="document-title-input" placeholder="Titre du document" required>
+
+
                         <small class="file-instructions">Maintenez <strong>Ctrl</strong> pour sélectionner plusieurs fichiers.</small>
                         <button type="submit" class="btn-upload">Envoyer les fichiers</button>
                         <div id="file-list" class="file-list"></div>
+
+
                     </form>
                 </div>
             </div>

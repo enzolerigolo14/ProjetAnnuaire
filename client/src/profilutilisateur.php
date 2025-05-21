@@ -71,7 +71,8 @@ $telephone = $source === 'db'
 $service = $source === 'db'
     ? htmlspecialchars($user['service_name'] ?? 'Non spécifié')
     : htmlspecialchars($user['description'][0] ?? 'Non spécifié');
-$isEditable = in_array($_SESSION['user']['role'], ['SVC-INFORMATIQUE', 'ADMIN-INTRA']) && $source === 'db';
+    
+$isEditable = in_array($_SESSION['user']['role'], ['SVC-INFORMATIQUE', 'ADMIN-INTRA','ADMIN-RH']) && $source === 'db';
 ?>
 
 <!DOCTYPE html>

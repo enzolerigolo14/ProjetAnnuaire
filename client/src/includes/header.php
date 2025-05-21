@@ -32,7 +32,7 @@ require_once __DIR__ . '/../config/database.php';
       <?php
 if (isset($_SESSION['user']['role'])) {
     $role = strtoupper($_SESSION['user']['role']);
-    if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA') {
+    if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA' || $role === 'ADMIN-RH') {
         echo '<a href="/projetannuaire/client/src/parametre.php" class="header-button inscription-link" title="Paramètres">
                 <img src="/projetannuaire/client/src/assets/images/settings.png" alt="Icône paramètres" class="settings-icon"> 
               </a>';

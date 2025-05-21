@@ -1,4 +1,4 @@
-/* Container principal */
+/* ---------- Container principal ---------- */
 .document-container {
     font-family: Arial, sans-serif;
     max-width: 900px;
@@ -9,7 +9,7 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Titre principal */
+/* ---------- Titre principal ---------- */
 .document-title {
     font-size: 2rem;
     color: #333;
@@ -17,13 +17,7 @@
     margin-bottom: 20px;
 }
 
-/* Actions administrateur */
-.admin-actions {
-    text-align: center;
-    margin-top: 20px;
-}
-
-/* Bouton "Déposer un document" */
+/* ---------- Bouton "Déposer un document" ---------- */
 .upload-label {
     padding: 10px 20px;
     font-size: 1.2rem;
@@ -39,14 +33,18 @@
     background-color: #0056b3;
 }
 
-/* Modale */
+/* ---------- Actions administrateur ---------- */
+.admin-actions {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* ---------- Modale ---------- */
 .modal {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1000;
     justify-content: center;
@@ -60,6 +58,7 @@
     max-width: 500px;
     width: 100%;
     text-align: center;
+    position: relative;
 }
 
 .modal-title {
@@ -80,50 +79,27 @@
     color: red;
 }
 
-.file-list {
-    margin-top: 20px;
-    list-style: none;
-    padding: 0;
-    width: 100%;
-}
-
-.file-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px;
-    background: #f0f0f0;
-    border-radius: 4px;
-}
-
-.delete-icon {
-    cursor: pointer;
-    color: #ff4444;
-}
-
-/* Pour le fichier input (pour le rendre plus flexible) */
-.file-input {
-    padding: 10px;
-    margin-top: 10px; /* Éviter d'avoir tout collé */
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    display: block;
-    width: 100%;
-}
-
-/* Centrer et espacer le formulaire si nécessaire */
+/* ---------- Formulaire d'upload ---------- */
 .upload-form {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px; /* Espacement entre les éléments */
+    gap: 20px;
 }
 
+.file-input {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 100%;
+    display: block;
+    margin-top: 10px;
+}
 
 .file-instructions {
     font-size: 0.9rem;
     color: #666;
 }
-
 
 .btn-upload {
     padding: 10px 20px;
@@ -140,26 +116,15 @@
     background-color: #218838;
 }
 
-
-.uploaded-files a {
-    color: #0066cc;
-    text-decoration: none;
-    transition: color 0.2s;
-}
-.uploaded-files a:hover {
-    color: #004499;
-    text-decoration: underline;
-}
-
+/* ---------- Bouton en haut à droite ---------- */
 .top-button-container {
     position: absolute;
     top: 20px;
     right: 30px;
-    z-index: 1000; /* au cas où il serait caché par autre chose */
-  }
-  
-  
-  .top-button {
+    z-index: 1000;
+}
+
+.top-button {
     background-color: white;
     color: #2a4d69;
     font-weight: 600;
@@ -170,32 +135,74 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  
-  .top-button:hover {
+}
+
+.top-button:hover {
     transform: scale(1.03);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     border-color: rgba(0, 0, 0, 0.1);
-  }
-  
-  .top-button:active {
-    transform: scale(0.98);
-  }
-  
-  .delete-file {
-    margin-left: 15px;
-    color: #ff0000;
-    text-decoration: none;
-    font-size: 0.8em;
 }
 
-.delete-file:hover {
+.top-button:active {
+    transform: scale(0.98);
+}
+
+/* ---------- Liste des fichiers uploadés ---------- */
+.uploaded-files ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.uploaded-files li {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    background-color: #ffffff;
+    border: 1px solid #eee;
+    border-radius: 6px;
+}
+
+/* Titre du fichier */
+.uploaded-files li .file-title {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #2c3e50;
+}
+
+/* Détails du fichier : lien, uploader, suppression */
+.uploaded-files li .file-details {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 0.95rem;
+    color: #666;
+}
+
+/* Lien de téléchargement */
+.uploaded-files li .file-details a {
+    color: #0066cc;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.uploaded-files li .file-details a:hover {
+    color: #004499;
     text-decoration: underline;
 }
 
-/* Style pour l'icône de poubelle */
+/* Nom de l'uploader */
+.uploaded-files li .uploaded-by {
+    font-style: italic;
+    color: #888;
+}
+
+/* Icône de suppression */
 .delete-file {
-    margin-left: 15px;
+    margin-left: auto;
     color: #ff4444;
     text-decoration: none;
     display: inline-flex;
@@ -203,6 +210,7 @@
     padding: 5px;
     border-radius: 4px;
     transition: all 0.3s ease;
+    font-size: 0.9rem;
 }
 
 .delete-file:hover {
@@ -212,27 +220,5 @@
 
 .trash-icon {
     vertical-align: middle;
-}
-
-/* Style pour la liste des fichiers */
-.uploaded-files ul {
-    list-style: none;
-    padding: 0;
-}
-
-.uploaded-files li {
-    display: flex;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
-}
-
-.uploaded-files li a:first-child {
-    flex-grow: 1;
-    color: #333;
-    text-decoration: none;
-}
-
-.uploaded-files li a:first-child:hover {
-    text-decoration: underline;
+    fill: currentColor;
 }

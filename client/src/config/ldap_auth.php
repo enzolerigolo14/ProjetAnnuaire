@@ -128,7 +128,47 @@ function recupererUtilisateurParEmail($email) {
 }
 
 
+function verifierExistenceAD($email) {
+    if (empty($email)) return false;
 
+    // Normalisation de l'email
+    $email = trim(strtolower($email));
+    if (!str_contains($email, '@')) {
+        $email .= '@ville-lisieux.fr';
+    }
+
+    $ldap = ldap_connect("ldap://SVR-HDV-AD.ville-lisieux.fr", 389);
+    if (!$ldap) return false;
+
+    ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+    ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
+    ldap_set_option($ldap, LDAP_OPT_NETWORK_TIMEOUT, 10);
+
+    if (!@ldap_bind($ldap, "svcintra@ville-lisieux.fr", "Lisieux14100")) {
+        error_log("Erreur LDAP: Connexion admin impossible");
+        return false;
+    }
+
+    // Recherche plus large
+    $filter = "(|(mail=$email)(userprincipalname=$email)(samaccountname=".explode('@', $email)[0]."))";
+    $search = @ldap_search($ldap, "DC=ville-lisieux,DC=fr", $filter, ["mail"]);
+    
+    if (!$search) {
+        error_log("Erreur recherche LDAP: ".ldap_error($ldap));
+        return false;
+    }
+
+    $entries = ldap_get_entries($ldap, $search);
+    ldap_unbind($ldap);
+
+    if ($entries["count"] > 0) {
+        error_log("Trouvé dans AD: ".print_r($entries[0], true));
+        return true;
+    }
+    
+    error_log("Aucune entrée trouvée pour: $email");
+    return false;
+}
 
 
 

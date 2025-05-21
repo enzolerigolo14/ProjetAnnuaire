@@ -4,6 +4,7 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/ldap_auth.php';
 
 $error = '';
+$error_type = ''; 
 
 function normaliserIdentifiant($input) {
     $input = strtolower(trim($input));
@@ -14,7 +15,7 @@ function detecterRoleDepuisGroupes($groupes) {
     $patterns = [
         '/SVC[-_]?INFORMATIQUE/i' => 'SVC-INFORMATIQUE',
         '/ADMIN[-_]?INTRA/i' => 'ADMIN-INTRA',
-        '/RH[-_]?DIRECTION/i' => 'RH-DIRECTION'
+        '/ADMIN[-_]?RH/i' => 'ADMIN-RH',
     ];
     
     foreach ($groupes as $groupe) {
@@ -33,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($username) || empty($password)) {
         $error = "Veuillez remplir tous les champs";
+        $error_type = 'generic';
     } else {
         $login_sans_domaine = str_replace('@ville-lisieux.fr', '', $username);
         
@@ -43,33 +45,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $pdo->beginTransaction();
                 
-                // Récupération des groupes AD
                 $groupes = recupererGroupesUtilisateur($login_sans_domaine);
                 $role = detecterRoleDepuisGroupes($groupes);
-                
-                // Gestion du service (double stockage)
                 $description_service = $ldap_data['description'] ?? 'Service non défini';
                 
-              // Par ceci :
-// 1. Vérifier d'abord si le service existe
-$stmt = $pdo->prepare("SELECT id FROM services WHERE nom = ?");
-$stmt->execute([$description_service]);
-$service_id = $stmt->fetchColumn();
+                // Gestion du service
+                $stmt = $pdo->prepare("SELECT id FROM services WHERE nom = ?");
+                $stmt->execute([$description_service]);
+                $service_id = $stmt->fetchColumn();
 
-// 2. Si non existant, l'ajouter
-if (!$service_id) {
-    $stmt = $pdo->prepare("INSERT INTO services (nom) VALUES (?)");
-    $stmt->execute([$description_service]);
-    $service_id = $pdo->lastInsertId();
-}
+                if (!$service_id) {
+                    $stmt = $pdo->prepare("INSERT INTO services (nom) VALUES (?)");
+                    $stmt->execute([$description_service]);
+                    $service_id = $pdo->lastInsertId();
+                }
                 
-                // Vérification si l'utilisateur existe déjà
+                // Vérification utilisateur existant
                 $stmt = $pdo->prepare("SELECT id, role FROM users WHERE email_professionnel = ?");
                 $stmt->execute([$ldap_data['mail']]);
                 $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 if ($user_data) {
-                    // Mise à jour utilisateur existant
                     $user_id = $user_data['id'];
                     $stmt = $pdo->prepare("UPDATE users SET 
                         nom = ?, 
@@ -91,7 +87,6 @@ if (!$service_id) {
                         $user_id
                     ]);
                 } else {
-                    // Création nouvel utilisateur
                     $stmt = $pdo->prepare("INSERT INTO users 
                         (email_professionnel, nom, prenom, telephone, description, service_id, role, ldap_groups, mot_de_passe) 
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -111,7 +106,6 @@ if (!$service_id) {
                 
                 $pdo->commit();
                 
-                // Création de la session
                 $_SESSION['user'] = [
                     'id' => $user_id,
                     'email' => $ldap_data['mail'],
@@ -129,32 +123,48 @@ if (!$service_id) {
             } catch (PDOException $e) {
                 $pdo->rollBack();
                 $error = "Erreur lors de la synchronisation : " . $e->getMessage();
+                $error_type = 'generic';
             }
         } else {
-            // 2. Fallback : Authentification locale
+            // 2. Authentification locale
             try {
-                $stmt = $pdo->prepare("SELECT * FROM users WHERE email_professionnel = ?");
-                $stmt->execute([$username]);
+                $exists_in_ad = verifierExistenceAD($username);
                 
-                if ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    if (password_verify($password, $user['mot_de_passe'])) {
-                        $_SESSION['user'] = [
-                            'id' => $user['id'],
-                            'email' => $user['email_professionnel'],
-                            'nom' => $user['nom'],
-                            'prenom' => $user['prenom'],
-                            'role' => $user['role'],
-                            'service_id' => $user['service_id'],
-                            'service' => $user['description'],
-                            'ldap_user' => false
-                        ];
-                        header('Location: pageaccueil.php');
-                        exit;
+                if ($exists_in_ad) {
+                    $error = "Votre compte AD existe mais le mot de passe est incorrect. Contactez le service informatique.";
+                    $error_type = 'ad_user';
+                } else {
+                    $stmt = $pdo->prepare("SELECT * FROM users WHERE email_professionnel = ?");
+                    $stmt->execute([$username]);
+                    
+                    if ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        if (password_verify($password, $user['mot_de_passe'])) {
+                            // CONNEXION RÉUSSIE POUR UTILISATEUR LOCAL
+                            $_SESSION['user'] = [
+                                'id' => $user['id'],
+                                'email' => $user['email_professionnel'],
+                                'nom' => $user['nom'],
+                                'prenom' => $user['prenom'],
+                                'role' => $user['role'],
+                                'service_id' => $user['service_id'],
+                                'service' => $user['description'],
+                                'ldap_user' => false
+                            ];
+                            
+                            header('Location: pageaccueil.php');
+                            exit;
+                        } else {
+                            $error = "Mot de passe incorrect pour cet utilisateur local.";
+                            $error_type = 'local_user';
+                        }
+                    } else {
+                        $error = "Identifiants incorrects - Compte introuvable";
+                        $error_type = 'generic';
                     }
                 }
-                $error = "Identifiants incorrects";
-            } catch (PDOException $e) {
-                $error = "Erreur base de données : " . $e->getMessage();
+            } catch (Exception $e) {
+                $error = "Erreur lors de la vérification : " . $e->getMessage();
+                $error_type = 'generic';
             }
         }
     }
@@ -168,16 +178,93 @@ if (!$service_id) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion | Portail Mairie</title>
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/connexion.css">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close-modal:hover {
+            color: black;
+        }
+        
+        .modal-title {
+            margin-top: 0;
+            color: #d9534f;
+        }
+        
+        .modal-actions {
+            margin-top: 20px;
+            text-align: right;
+        }
+        
+        .modal-actions button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .modal-actions .btn-confirm {
+            background-color: #d9534f;
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-header">
-            <img src="/projetannuaire/client/src/assets/images/logo_mairie.png" alt="Logo Mairie">
-            <h1>Portail de connexion</h1>
-        </div>
-
         <?php if ($error): ?>
             <div class="alert error"><?= htmlspecialchars($error) ?></div>
+            
+            <div id="errorModal" class="modal" style="display: block;">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="document.getElementById('errorModal').style.display='none'">&times;</span>
+                    <h3 class="modal-title">Erreur de connexion</h3>
+                    <p>
+                        <?php 
+                        if ($error_type === 'ad_user') {
+                            echo "Vous êtes authentifié via l'Active Directory. Veuillez :<br><br>
+                            - Vérifier votre mot de passe<br>
+                            - Contacter le service informatique si besoin";
+                        } elseif ($error_type === 'local_user') {
+                            echo "Vous avez un compte local. Veuillez :<br><br>
+                            - Vérifier votre mot de passe<br>
+                            - Utiliser 'Mot de passe oublié' si besoin";
+                        } else {
+                            echo htmlspecialchars($error);
+                        }
+                        ?>
+                    </p>
+                    <div class="modal-actions">
+                        <button class="btn-confirm" onclick="document.getElementById('errorModal').style.display='none'">OK</button>
+                    </div>
+                </div>
+            </div>
         <?php endif; ?>
 
         <form method="POST" class="login-form">
@@ -201,12 +288,16 @@ if (!$service_id) {
             </div>
 
             <button type="submit" class="btn-login">Se connecter</button>
-            
-            <div class="links">
-                <a href="/mot-de-passe-oublie">Mot de passe oublié ?</a>
-                <a href="/nouvel-utilisateur">Créer un compte</a>
-            </div>
         </form>
     </div>
+
+    <script>
+        window.onclick = function(event) {
+            var modal = document.getElementById('errorModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
 </body>
 </html>
