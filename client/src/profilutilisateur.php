@@ -29,11 +29,19 @@ $user = null;
 
 if ($source === 'db') {
     $stmt = $pdo->prepare("
-        SELECT users.*, services.nom as service_name 
+        SELECT users.*, services.nom as service_name, users.avatar_path
         FROM users 
         LEFT JOIN services ON users.service_id = services.id 
         WHERE email_professionnel = ?
     ");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // Priorité à l'avatar de profile.php s'il existe
+    if (!empty($user['profile_avatar'])) {
+        $user['avatar_path'] = $user['profile_avatar'];
+    }
+
     $stmt->execute([$email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 } else {
@@ -101,10 +109,28 @@ $isEditable = in_array($_SESSION['user']['role'], ['SVC-INFORMATIQUE', 'ADMIN-IN
         <div class="profile-content">
             <div class="profile-info">
                 <div class="profile-avatar">
-                    <img src="assets/images/search-icon.png" class="profile-avatar-img" 
-                         data-user-id="<?= htmlspecialchars($user['id'] ?? '') ?>">
-                </div>
-                <div class="profile-details">
+    <img src="<?= 
+        !empty($user['avatar_path']) ? 
+        htmlspecialchars($user['avatar_path']) : 
+        '/projetannuaire/client/src/assets/images/search-icon.png' 
+    ?>" 
+    class="profile-avatar-img" 
+    data-user-id="<?= htmlspecialchars($user['id'] ?? '') ?>"
+    onerror="this.src='/projetannuaire/client/src/assets/images/search-icon.png'">
+    
+    <?php if (isset($_SESSION['user']['role'])) {
+        $role = strtoupper($_SESSION['user']['role']);
+        if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA' || $role === 'ADMIN-RH') { ?>
+    <form id="avatar-upload-form" enctype="multipart/form-data">
+        <input type="file" id="avatar-upload" name="avatar" accept="image/*" style="display: none;">
+        <button type="button" class="upload-button" onclick="document.getElementById('avatar-upload').click()">
+            Changer la photo
+        </button>
+        <div class="upload-status" id="upload-status"></div>
+    </form>
+    <?php }} ?>
+</div>
+                 <div class="profile-details">
                     <h2>Informations personnelles</h2>
                     
                     <p data-field="nom_complet">

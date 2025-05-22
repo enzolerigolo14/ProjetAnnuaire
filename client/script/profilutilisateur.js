@@ -169,3 +169,72 @@ saveBtn.addEventListener('click', async function () {
         icon.addEventListener('click', handleEditClick);
     });
 });
+
+document.getElementById('avatar-upload')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validation du fichier
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    
+    if (!validTypes.includes(file.type)) {
+        updateStatus('Seuls les JPG, PNG et GIF sont autorisés', 'red');
+        return;
+    }
+    
+    if (file.size > maxSize) {
+        updateStatus('Fichier trop volumineux (max 2MB)', 'red');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+    formData.append('user_id', document.body.dataset.userId);
+
+    updateStatus('Téléchargement en cours...', '#666');
+
+    fetch('/projetannuaire/client/src/upload_avatar.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Erreur réseau');
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            updateStatus('Photo mise à jour!', 'green');
+            const imgElement = document.querySelector('.profile-avatar-img');
+            imgElement.src = data.filePath + '?t=' + Date.now();
+            imgElement.onerror = () => {
+                imgElement.src = '/projetannuaire/client/src/assets/images/search-icon.png';
+            };
+        } else {
+            throw new Error(data.message || 'Erreur inconnue');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        updateStatus(`Erreur: ${error.message}`, 'red');
+    });
+
+    function updateStatus(message, color) {
+        const statusElement = document.getElementById('upload-status');
+        if (statusElement) {
+            statusElement.textContent = message;
+            statusElement.style.color = color;
+            if (color === 'green') {
+                setTimeout(() => statusElement.textContent = '', 5000);
+            }
+        }
+    }
+});
+
+// Vérification au chargement de la page
+window.addEventListener('DOMContentLoaded', () => {
+    const img = document.querySelector('.profile-avatar-img');
+    if (img) img.onerror = () => {
+        img.src = '/projetannuaire/client/src/assets/images/search-icon.png';
+    };
+});
