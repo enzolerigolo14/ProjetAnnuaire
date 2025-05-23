@@ -2,7 +2,8 @@
 session_start();
 require_once __DIR__ . '/config/database.php';
 
-$stmt = $pdo->prepare("SELECT id, nom FROM services"); // Récupérer à la fois l'id et le nom
+// Récupération de tous les services
+$stmt = $pdo->prepare("SELECT id, nom FROM services");
 $stmt->execute();
 $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -15,6 +16,7 @@ $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>Trombinoscope ville de Lisieux</title>
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/services-global.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/projetannuaire/client/script/services-global.js" defer></script>
 </head>
 <body>
@@ -23,6 +25,12 @@ $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="top-button-container">
     <button class="top-button" onclick="window.location.href='pageaccueil.php'">← Retour</button>
+</div>
+
+<!-- Barre de recherche avec autocomplétion -->
+<div class="search-container">
+    <input type="text" id="document-search" placeholder="Rechercher un document..." autocomplete="off">
+    <div id="search-results" class="search-results"></div>
 </div>
 
 <div class="services-container">

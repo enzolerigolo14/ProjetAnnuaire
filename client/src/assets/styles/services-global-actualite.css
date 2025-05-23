@@ -1,0 +1,79 @@
+/* Styles pour la recherche */
+.search-container {
+    position: relative;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+#actualite-search {
+    width: 100%;
+    padding: 12px 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.search-results {
+    position: absolute;
+    width: calc(100% - 40px);
+    max-height: 400px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: none;
+}
+
+.search-result-item {
+    padding: 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+.search-result-item:hover, 
+.search-result-item:focus {
+    background-color: #f5f5f5;
+    outline: none;
+}
+
+.result-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #2c3e50;
+}
+
+.result-excerpt {
+    color: #666;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+.result-service {
+    font-size: 0.8em;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+.no-results {
+    padding: 15px;
+    color: #666;
+    font-style: italic;
+}
+
+.pdf-icon {
+    margin-right: 10px;
+    color: #e74c3c;
+    font-size: 1.2em;
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+}

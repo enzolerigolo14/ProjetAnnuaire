@@ -75,4 +75,76 @@
 }
   
 
+.search-container {
+    position: relative;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
 
+#document-search {
+    width: 100%;
+    padding: 12px 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.search-results {
+    position: absolute;
+    width: calc(100% - 40px);
+    max-height: 300px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: none;
+}
+
+.search-result-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+.search-result-item:hover, 
+.search-result-item:focus {
+    background-color: #f5f5f5;
+    outline: none;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.result-name {
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
+.result-service {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.no-results {
+    padding: 15px;
+    color: #666;
+    font-style: italic;
+}
+.file-icon {
+    margin-right: 5px;
+}
+
+.pdf-icon {
+    color: #e74c3c;
+}
+
+.image-icon {
+    color: #3498db;
+}

@@ -134,7 +134,7 @@ $derniere_actualite = array_shift($actualites);
                     <?php
     if (isset($_SESSION['user']['role'])) {
         $role = strtoupper($_SESSION['user']['role']);
-        if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA') {
+        if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA' || $role === 'ADMIN-RH') {
 ?>
                     <div class="actualite-actions">
                         <a href="?id=<?= $service_id ?>&delete_actualite=<?= $derniere_actualite['id'] ?>" class="delete-actualite" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette actualité ?')">Supprimer</a>
@@ -172,7 +172,7 @@ $derniere_actualite = array_shift($actualites);
                         <?php
     if (isset($_SESSION['user']['role'])) {
         $role = strtoupper($_SESSION['user']['role']);
-        if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA') {
+        if ($role === 'SVC-INFORMATIQUE' || $role === 'ADMIN-INTRA' || $role === 'ADMIN-RH') {
 ?>
                         <div class="actualite-actions">
                             <a href="?id=<?= $service_id ?>&delete_actualite=<?= $actualite['id'] ?>" 
