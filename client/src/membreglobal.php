@@ -2,6 +2,7 @@
 require_once __DIR__ . '/config/ldap_auth.php';
 require_once __DIR__ . '/config/database.php';
 
+
 // Récupération des utilisateurs LDAP
 $usersAD = recupererTousLesUtilisateursAD();
 
@@ -12,6 +13,16 @@ $usersDB = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Tableau final indexé par email (clé unique)
 $finalUsers = [];
+// Au début du fichier
+$searchTerm = $_GET['search'] ?? '';
+if ($searchTerm) {
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE CONCAT(prenom, ' ', nom) LIKE ? ORDER BY nom, prenom");
+    $stmt->execute(["%$searchTerm%"]);
+    $membres = $stmt->fetchAll();
+    // Afficher ces résultats spécifiques
+} else {
+    // Afficher la liste normale des membres
+
 
 // 1. D'abord les utilisateurs AD (prioritaires)
 for ($i = 0; $i < $usersAD["count"]; $i++) {
@@ -39,7 +50,7 @@ foreach ($usersDB as $user) {
             "role" => $user["role"] ?? 'Rôle non disponible'
         ];
     }
-}
+}}
 ?>
 
 <!DOCTYPE html>
@@ -50,19 +61,55 @@ foreach ($usersDB as $user) {
     <title>Membres Global</title>
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/membreglobal.css">
     <link rel="stylesheet" href="/projetannuaire/client/src/assets/styles/footer.css">
-    <script src="/projetannuaire/client/script/rechercher.js" defer></script>
+    <!--<script src="/projetannuaire/client/script/rechercher.js" defer></script>-->
 </head>
 <body>
 
 <header>
-    <div class="header-container">
-        <div class="search-container">
-            <img src="/projetannuaire/client/src/assets/images/search-icon.png" alt="Search Icon" class="search-icon">
-            <input type="text" id="site-search" list="suggestions" placeholder="Nom, prénom, téléphone ou service" maxlength="32" />
-            <datalist id="suggestions"></datalist>
-            <button class="bouton-search" type="button" onclick="rechercher()">Rechercher</button>
-        </div>
-    </div>
+    <!-- Ajoutez ceci dans membreglobal.php -->
+<div class="membre-search-container">
+    <input type="text" id="membre-search" placeholder="Rechercher un membre..." autocomplete="off" />
+    <div id="membre-results" class="search-results"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('membre-search');
+    const resultsContainer = document.getElementById('membre-results');
+    
+    input.addEventListener('input', async function() {
+        const term = input.value.trim();
+        if (term.length >= 2) {
+            try {
+                const response = await fetch(`/projetannuaire/client/src/autocomplete.php?q=${encodeURIComponent(term)}&context=membres`);
+                const results = await response.json();
+                
+                resultsContainer.innerHTML = '';
+                
+                if (results.length > 0) {
+                    results.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'search-result-item';
+                        div.textContent = item.name;
+                        div.addEventListener('click', () => {
+                            window.location.href = `/projetannuaire/client/src/${item.url}`;
+                        });
+                        resultsContainer.appendChild(div);
+                    });
+                    resultsContainer.style.display = 'block';
+                } else {
+                    resultsContainer.style.display = 'none';
+                }
+            } catch (error) {
+                console.error("Erreur recherche:", error);
+                resultsContainer.style.display = 'none';
+            }
+        } else {
+            resultsContainer.style.display = 'none';
+        }
+    });
+});
+</script>
 </header>
 
 <div class="top-button-container"> 

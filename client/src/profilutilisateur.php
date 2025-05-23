@@ -58,9 +58,8 @@ if (!$user) {
     die("Utilisateur non trouvé.");
 }
 
-$services = $pdo->query("SELECT id, nom FROM services")->fetchAll(PDO::FETCH_ASSOC);
 $return_url = match($_GET['from'] ?? 'global') {
-    'services' => $_GET['service_id'] ? "membresservices.php?id=".$_GET['service_id'] : "pageaccueil.php",
+    'services' => isset($_GET['service_id']) ? "membresservices.php?id=".$_GET['service_id'] : "membresservices.php",
     'global' => "membreglobal.php",
     default => "pageaccueil.php"
 };

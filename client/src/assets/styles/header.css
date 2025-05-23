@@ -68,3 +68,116 @@ header {
   .settings-icon {
     height: 30px;
   }
+
+
+  /* Ajoutez ces règles à votre fichier CSS existant */
+
+/* Style de base pour la datalist */
+datalist {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 0 0 4px 4px;
+    border-top: none;
+    width: calc(220px - 2px); /* Même largeur que l'input - les bordures */
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: -4px; /* Ajustement pour coller à l'input */
+}
+
+/* Style des options de la datalist */
+datalist option {
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* Survol des options */
+datalist option:hover {
+    background-color: #f5f5f5;
+}
+
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-results {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 24px; /* Pour aligner sous l'input en comptant l'icône */
+    width: 220px; /* Largeur identique à l'input */
+    max-height: 300px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 1001; /* Au-dessus de tout */
+    margin-top: 4px;
+}
+
+.search-result-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.search-result-item:hover {
+    background-color: #f5f5f5;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+/* Ajoutez ces styles à votre CSS existant */
+.search-result-item[data-type="actualite"] {
+    color: #2b5876;
+    font-weight: bold;
+}
+
+
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.result-icon {
+    font-size: 1.2em;
+}
+
+.search-result-item:hover {
+    background-color: #f5f5f5;
+}
+
+/* Style pour les informations de service */
+.service-info {
+    font-size: 0.8em;
+    color: #666;
+    font-style: italic;
+    margin-left: 5px;
+}
+
+/* Style pour les différents types de résultats */
+[data-type="actualite"] {
+    color: #d35400;
+}
+[data-type="service"] {
+    color: #27ae60;
+}
+[data-type="membre"] {
+    color: #2980b9;
+}
+
+/* Icônes */
+.result-icon {
+    margin-right: 8px;
+}
