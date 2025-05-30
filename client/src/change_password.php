@@ -2,32 +2,48 @@
 session_start();
 require_once __DIR__ . '/config/database.php';
 
-// Vérification de la session
+function genererMotDePasseSecurise() {
+    $longueur = 12; 
+    
+    $minuscules = 'abcdefghijklmnopqrstuvwxyz';
+    $majuscules = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $chiffres = '0123456789';
+    $speciaux = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    
+    $motDePasse = [
+        $minuscules[random_int(0, strlen($minuscules) - 1)],
+        $majuscules[random_int(0, strlen($majuscules) - 1)],
+        $chiffres[random_int(0, strlen($chiffres) - 1)],
+        $speciaux[random_int(0, strlen($speciaux) - 1)]
+    ];
+    
+    $tousCaracteres = $minuscules . $majuscules . $chiffres . $speciaux;
+    for ($i = count($motDePasse); $i < $longueur; $i++) {
+        $motDePasse[] = $tousCaracteres[random_int(0, strlen($tousCaracteres) - 1)];
+    }
+
+    shuffle($motDePasse);
+    
+    return implode('', $motDePasse);
+}
+
 if (!isset($_SESSION['nouvelle_inscription'])) {
     header('Location: inscription.php');
     exit;
 }
 $inscription_id = $_SESSION['nouvelle_inscription']['id'];
-$password_temp = $_SESSION['nouvelle_inscription']['password_temp'];
+$password_temp = genererMotDePasseSecurise();
 
-// Fonction de validation du mot de passe
 function validerMotDePasse($mdp) {
-    // Au moins 12 caractères
     if (strlen($mdp) < 12) {
         return "Le mot de passe doit contenir au moins 12 caractères";
     }
-    
-    // Au moins une majuscule
     if (!preg_match('/[A-Z]/', $mdp)) {
         return "Le mot de passe doit contenir au moins une majuscule";
     }
-    
-    // Au moins une minuscule
     if (!preg_match('/[a-z]/', $mdp)) {
         return "Le mot de passe doit contenir au moins une minuscule";
     }
-    
-    // Au moins un caractère spécial
     if (!preg_match('/[\W_]/', $mdp)) {
         return "Le mot de passe doit contenir au moins un caractère spécial";
     }
@@ -58,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                      (nom, prenom, telephone, email_professionnel, role, ldap_groups, service_id, mot_de_passe) 
                                      VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
                 
+                // Stockage en clair pour les comptes locaux (ldap_user = 0)
                 $stmt->execute([
                     $user_data['nom'],
                     $user_data['prenom'],
@@ -66,7 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $user_data['role'],
                     $user_data['ldap_groups'],
                     $user_data['service_id'],
-                    password_hash($nouveau_mdp, PASSWORD_BCRYPT)
+                    $nouveau_mdp, // Stockage en clair
+                    
                 ]);
 
                 $stmt = $pdo->prepare("DELETE FROM inscription WHERE id = ?");
@@ -85,6 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -141,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h2>Finalisation de l'inscription</h2>
         
         <div class="temp-password">
-            <p>Mot de passe temporaire généré :</p>
+            <p>Mot de passe généré :</p>
             <strong><?= htmlspecialchars($password_temp) ?></strong>
         </div>
 
@@ -166,13 +185,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <form method="POST" id="passwordForm">
             <div class="form-group">
-                <label>Nouveau mot de passe :</label>
+                <label>Copier coller le mot de passe généré :</label>
                 <input type="password" name="new_password" id="new_password" required 
                        autocomplete="new-password" class="form-control">
             </div>
 
             <div class="form-group">
-                <label>Confirmer le mot de passe :</label>
+                <label>Confirmer le mot de passe généré :</label>
                 <input type="password" name="confirm_password" id="confirm_password" required 
                        autocomplete="new-password" class="form-control">
             </div>

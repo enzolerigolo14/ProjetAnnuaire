@@ -21,6 +21,13 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.removeItem("username");
     window.location.reload();
   });
+  
+   document.querySelectorAll('.actualite-pdf-preview object').forEach(pdf => {
+    pdf.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.open(this.getAttribute('data'), '_blank');
+    });
+  });
 
 });
 

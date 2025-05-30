@@ -57,19 +57,27 @@ try {
 // Dans la partie où vous générez la liste des fichiers, modifiez comme suit :
 if (!empty($filesFromDb)) {
     $hasFiles = true;
-    $filesList .= "<div class='uploaded-files'><h3>Fichiers uploadés :</h3><ul>";
+    $filesList .= "<div class='uploaded-files'><h3>Fichiers déposés :</h3><ul>";
     foreach ($filesFromDb as $file) {
         $filePath = $uploadDir . $file['file_name'];
         if (file_exists($filePath)) {
-            $isPdf = pathinfo($file['file_name'], PATHINFO_EXTENSION) === 'pdf';
-            $downloadParam = $isPdf ? '' : '&download=1';
-            
-            $documentTitle = !empty($file['document_title']) ? htmlspecialchars($file['document_title']) : htmlspecialchars($file['file_name']);
-            $filesList .= "<li>
-            <div class='file-title'>{$documentTitle}</div>
-            <div class='file-details'>
-                <a href='/projetannuaire/client/src/download.php?type=service&service_id=".$service_id."&file=".rawurlencode($file['file_name']).$downloadParam."'>".htmlspecialchars($file['file_name'])."</a>
-                <span class='uploaded-by'> (uploadé par : ".htmlspecialchars($file['prenom'])." ".htmlspecialchars($file['nom']).")</span>";
+            $fileExtension = strtolower(pathinfo($file['file_name'], PATHINFO_EXTENSION));
+$isPdf = $fileExtension === 'pdf';
+$documentTitle = !empty($file['document_title']) ? htmlspecialchars($file['document_title']) : htmlspecialchars($file['file_name']);
+
+$filesList .= "<li>
+<div class='file-title'>{$documentTitle}</div>
+<div class='file-details'>";
+
+if ($isPdf) {
+    // Pour les PDF : ouvrir dans un nouvel onglet
+    $filesList .= "<a href='/projetannuaire/client/src/download.php?type=service&service_id=".$service_id."&file=".rawurlencode($file['file_name'])."' target='_blank'>".htmlspecialchars($file['file_name'])."</a>";
+} else {
+    // Pour les autres fichiers : comportement normal
+    $filesList .= "<a href='/projetannuaire/client/src/download.php?type=service&service_id=".$service_id."&file=".rawurlencode($file['file_name'])."&download=1'>".htmlspecialchars($file['file_name'])."</a>";
+}
+
+$filesList .= "<span class='uploaded-by'> (déposé par : ".htmlspecialchars($file['prenom'])." ".htmlspecialchars($file['nom']).")</span>";
             
             // Ajout de la condition pour le bouton de suppression
             if (isset($_SESSION['user']['role'])) {
@@ -99,7 +107,7 @@ if (!empty($filesFromDb)) {
         
         if (!empty($files)) {
             $hasFiles = true;
-            $filesList .= "<div class='uploaded-files'><h3>Fichiers uploadés :</h3><ul>";
+            $filesList .= "<div class='uploaded-files'><h3>Fichiers déposés :</h3><ul>";
             foreach ($files as $file) {
                 $isPdf = pathinfo($file, PATHINFO_EXTENSION) === 'pdf';
                 $downloadParam = $isPdf ? '' : '&download=1';

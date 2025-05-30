@@ -41,9 +41,5 @@ $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     <?php endforeach; ?>
 </div>
-
-<footer>
-    <?php require_once __DIR__ . '/includes/footer.php'; ?>
-</footer>
 </body>
 </html>

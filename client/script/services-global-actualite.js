@@ -20,8 +20,8 @@ $(document).ready(function() {
                     
                     resultItem.append(pdfIcon).append(title).append(service);
                     resultItem.click(function() {
-                        // Ouvrir directement le PDF
-                        window.location.href = actualite.pdf_url;
+                       
+                        window.open(actualite.pdf_url, '_blank');
                     });
                     
                     searchResults.append(resultItem);

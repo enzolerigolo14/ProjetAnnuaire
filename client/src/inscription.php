@@ -32,10 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             $motDePasse = genererMotDePasse();
-            $motDePasseHash = password_hash($motDePasse, PASSWORD_BCRYPT);
             $login = str_replace('@ville-lisieux.fr', '', $loginname);
             $groupesLDAP = recupererGroupesUtilisateur($login);
             $ldap_groups = !empty($groupesLDAP) ? $groupesLDAP[0] : 'Utilisateurs du domaine';
+            
             $stmt = $pdo->prepare("INSERT INTO inscription 
                                  (nom, prenom, email_professionnel, service_id, mot_de_passe, telephone, role, ldap_groups) 
                                  VALUES (:nom, :prenom, :email, :service_id, :mot_de_passe, :telephone, :role, :ldap_groups)");
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':prenom' => $firstname,
                 ':email' => $loginname,
                 ':service_id' => $service_id,
-                ':mot_de_passe' => $motDePasseHash,
+                ':mot_de_passe' => $motDePasse, // Stockage en clair
                 ':telephone' => $numero,
                 ':role' => 'membre',
                 ':ldap_groups' => $ldap_groups

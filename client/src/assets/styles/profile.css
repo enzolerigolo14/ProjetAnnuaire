@@ -61,6 +61,30 @@ body {
 .profile-details p {
     margin: 5px 0;
 }
+.profile-avatar {
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+
+.avatar-wrapper {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.avatar-wrapper img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #337ab7;
+    display: block;
+}
+
+
 
 /* Colonne de droite : actions */
 .profile-actions {
@@ -125,47 +149,7 @@ body {
     transform: scale(0.98);
 }
 
-/* Icône ✎ pour modifier les champs */
-.edit-icon {
-    margin-left: 8px;
-    color: #666;
-    cursor: pointer;
-    font-size: 14px;
-    transition: color 0.3s, transform 0.2s;
-    pointer-events: auto; 
-    z-index: 10; 
-    position: relative; 
-}
 
-.edit-icon:hover {
-    color: #007bff;
-    transform: scale(1.1);
-}
-
-/* Champs d’édition */
-.edit-input {
-    padding: 5px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-right: 5px;
-    font-size: 14px;
-}
-
-/* Boutons de sauvegarde/annulation */
-.save-btn, .cancel-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0 5px;
-    font-size: 14px;
-}
-
-.save-btn { color: #28a745; }
-.cancel-btn { color: #dc3545; }
-
-.save-btn:hover, .cancel-btn:hover {
-    opacity: 0.8;
-}
 
 /* Responsive */
 @media screen and (max-width: 768px) {

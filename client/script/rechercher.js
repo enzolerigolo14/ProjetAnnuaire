@@ -23,12 +23,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (results.length > 0) {
                     results.forEach(item => {
-                        const div = document.createElement('div');
-                        div.className = 'search-result-item';
-                        div.innerHTML = `
-                            <span class="result-icon">${item.type === 'actualite' ? '📰' : item.type === 'service' ? '🏢' : '👤'}</span>
-                            <span class="result-text">${item.name}</span>
-                        `;
+    const div = document.createElement('div');
+    div.className = 'search-result-item';
+    
+    // Ajoutez plus d'informations pour différencier les résultats
+    let displayText = item.name;
+    if (item.type === 'user') {
+        displayText = `${item.prenom} ${item.nom}`;
+        if (item.service) {
+            displayText += ` (${item.service})`;
+        }
+    }
+    
+    div.innerHTML = `
+        <span class="result-icon">${ item.type === 'service' ? '🏢' : '👤'}</span>
+        <span class="result-text">${displayText}</span>
+    `;
                         
                         div.addEventListener('click', () => {
                             if (item.type === 'actualite') {

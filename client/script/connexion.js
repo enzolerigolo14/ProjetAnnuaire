@@ -1,14 +1,18 @@
-const modal = document.getElementById("connexion-modal");
-const closeButton = document.querySelector(".close-button");
-const loginForm = document.getElementById("login-form");
-
-// Gestion de la fermeture de la modale
-closeButton.addEventListener("click", function () {
-  modal.style.display = "none";
-});
-
-// Fonction pour valider le champ "Nom d'utilisateur"
-function validerNomUtilisateur(input) {
-  let cleaned = input.value.replace(/[^a-zA-ZÀ-ÿ\s\-']/g, ''); // Supprime les caractères non autorisés
-  input.value = cleaned;
+function validerNomUtilisateurAvance(input) {
+  const value = input.value;
+  
+  // Formats acceptés avec regex
+  const formats = [
+    /^[a-zà-ÿ]{1}[a-zà-ÿ\-']+\s?[a-zà-ÿ\-']+$/i, // Initiale prénom + nom
+    /^[a-zà-ÿ\-']+\s[a-zà-ÿ]{1}$/i,               // Nom + initiale prénom
+  ];
+  
+  const isValid = formats.some(regex => regex.test(value));
+  
+  if (!isValid) {
+    // Afficher un message d'erreur ou nettoyer la valeur
+    input.setCustomValidity("Format invalide. Exemples acceptés : dupontj, jdupont");
+  } else {
+    input.setCustomValidity("");
+  }
 }

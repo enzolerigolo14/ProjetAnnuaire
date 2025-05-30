@@ -218,9 +218,5 @@ $derniere_actualite = array_shift($actualites);
         </div>
     </div>
 
-    <footer>
-        <?php require_once __DIR__ . '/includes/footer.php'; ?>
-    </footer>
-
 </body>
 </html>

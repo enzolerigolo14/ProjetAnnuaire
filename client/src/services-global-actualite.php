@@ -62,10 +62,6 @@ $actualites = $stmt->fetchAll();
     <?php endforeach; ?>
 </div>
 
-<footer>
-    <?php require_once __DIR__ . '/includes/footer.php'; ?>
-</footer>
-
 <script src="/projetannuaire/client/script/services-global-actualite.js"></script>
 </body>
 </html>

@@ -160,3 +160,55 @@ body {
   text-decoration: none;
   color: inherit;
 }
+.form-ajout-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 260px;
+    padding: 8px 10px; /* moins de padding vertical */
+    background-color: #f1f1f1;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    font-size: 0.85rem;
+}
+
+
+
+/* Titre du formulaire */
+.form-ajout-container h2 {
+    font-size: 1rem;
+    margin-bottom: 6px;
+    color: #333;
+    text-align: center;
+}
+
+/* Select stylisé */
+.select-membre {
+    width: 100%;
+    padding: 4px;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    border: 1px solid #bbb;
+    background-color: #fff;
+    margin-bottom: 8px;
+}
+
+/* Bouton d'ajout */
+.btn-ajouter {
+    width: 100%;
+    padding: 5px 8px;
+    font-size: 0.85rem;
+    border: none;
+    background-color: #007BFF;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-ajouter:hover {
+    background-color: #0056b3;
+}
+

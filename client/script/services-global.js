@@ -11,7 +11,7 @@ $(document).ready(function() {
                 
                 if (data.length > 0) {
                     data.forEach(item => {
-                        const resultItem = $('<div class="search-result-item"></div>');
+                        const resultItem = $('<div class="search-result-item" tabindex="0"></div>');
                         const name = $('<div class="result-name"></div>').text(item.name);
                         const service = $('<div class="result-service"></div>').text('Service: ' + item.service);
                         
@@ -27,21 +27,53 @@ $(document).ready(function() {
                         name.prepend(`<span class="file-icon">${icon}</span> `);
                         
                         resultItem.append(name).append(service);
-                        resultItem.click(function(e) {
-                            if (item.file_type === 'pdf') {
-                                // PDF: ouverture dans la même fenêtre
-                                window.location.href = item.url;
-                            } else if (item.file_type === 'image') {
-                                // Image: création d'un lien de téléchargement forcé
-                                const downloadLink = document.createElement('a');
-                                downloadLink.href = item.url + '&download=1';
-                                downloadLink.download = item.name + '.' + item.extension;
-                                document.body.appendChild(downloadLink);
-                                downloadLink.click();
-                                document.body.removeChild(downloadLink);
-                            } else {
-                                // Autres fichiers: comportement normal
-                                window.location.href = item.url;
+                        
+                        // Gestion du clic pour tous les types de fichiers
+                        resultItem.on('click keyup', function(e) {
+                            if (e.type === 'click' || (e.type === 'keyup' && e.key === 'Enter')) {
+                                if (item.file_type === 'image') {
+                                    // Pour les images: ouverture dans nouvel onglet + option de téléchargement
+                                    const newWindow = window.open();
+                                    if (newWindow) {
+                                        newWindow.opener = null;
+                                        newWindow.document.write(`
+                                            <!DOCTYPE html>
+                                            <html>
+                                            <head>
+                                                <title>${item.name}</title>
+                                                <style>
+                                                    body { margin: 0; padding: 20px; text-align: center; }
+                                                    img { max-width: 100%; max-height: 90vh; }
+                                                    .download-btn {
+                                                        display: inline-block;
+                                                        margin-top: 10px;
+                                                        padding: 8px 15px;
+                                                        background: #2196F3;
+                                                        color: white;
+                                                        text-decoration: none;
+                                                        border-radius: 4px;
+                                                    }
+                                                </style>
+                                            </head>
+                                            <body>
+                                                <img src="${item.url}" alt="${item.name}">
+                                                <div>
+                                                    <a href="${item.url}" class="download-btn" download="${item.name}.${item.extension}">
+                                                        Télécharger l'image
+                                                    </a>
+                                                </div>
+                                            </body>
+                                            </html>
+                                        `);
+                                    }
+                                } else {
+                                    // Pour PDF et autres fichiers: ouverture directe dans nouvel onglet
+                                    const newWindow = window.open(item.url, '_blank');
+                                    if (!newWindow || newWindow.closed) {
+                                        // Fallback si le navigateur bloque la popup
+                                        window.location.href = item.url;
+                                    }
+                                }
                             }
                         });
                         
@@ -56,8 +88,6 @@ $(document).ready(function() {
             searchResults.hide();
         }
     });
-    
-    // Cacher les résultats quand on clique ailleurs
     $(document).click(function(e) {
         if (!$(e.target).closest('.search-container').length) {
             searchResults.hide();

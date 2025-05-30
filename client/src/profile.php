@@ -5,7 +5,7 @@ require_once __DIR__ . '/config/database.php';
 $basePath = '/projetannuaire/client'; // TOUT EN MINUSCULES
 $uploadDirAbsolute = $_SERVER['DOCUMENT_ROOT'] . $basePath . '/src/uploads/avatars/';
 $uploadDirRelative = $basePath . '/src/uploads/avatars/';
-$defaultAvatar = $basePath . '/src/assets/images/default-avatar.png';
+$defaultAvatar = $basePath . '/src/assets/images/profile-icon.png';
 
 
 // Vérification de session
@@ -14,7 +14,6 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-// Traitement de l'upload de photo
 // Traitement de l'upload de photo
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['avatar'])) {
     $allowedTypes = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif'];
@@ -111,14 +110,15 @@ $avatarPath = !empty($user['avatar_path']) ?
             <form method="POST" enctype="multipart/form-data" class="profile-info">
                 <!-- Section Avatar simplifiée -->
                 <div class="profile-avatar">
-                    <div class="avatar-preview">
-                        <img src="<?= $avatarPath ?>" alt="Photo de profil" id="avatar-preview">
-                        <label for="avatar-upload" class="avatar-overlay">
-                            <i class="fas fa-camera"></i>
-                        </label>
-                    </div>
-                    <input type="file" id="avatar-upload" name="avatar" accept="image/*" style="display: none;">
-                </div>
+    <label for="avatar-upload" class="avatar-wrapper">
+        <img src="<?= $avatarPath ?>" alt="" id="avatar-preview">
+        <div class="avatar-overlay">
+            <i class="fas fa-camera"></i>
+        </div>
+    </label>
+    <input type="file" id="avatar-upload" name="avatar" accept="image/*" style="display: none;">
+</div>
+
 
                 <!-- Détails du profil -->
                 <div class="profile-details">

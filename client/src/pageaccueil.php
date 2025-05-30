@@ -74,7 +74,7 @@ $actualites = $stmt->fetchAll();
 
   <nav class="navbar">
     <ul class="nav-list">
-      <li><a href="membreglobal.php">Agents</a></li>
+      <li><a href="membreglobal.php?from=accueil">Agents</a></li>
       <li><a href="services-global-membre.php">Services</a></li>
       <li><a href="services-global.php">Documents</a></li>
       <li><a href="services-global-actualite.php">Informations</a></li>
@@ -95,21 +95,18 @@ $actualites = $stmt->fetchAll();
             <p class="actualite-text"><?= htmlspecialchars($actualite['description']) ?></p>
             
             <?php if (!empty($actualite['pdf_path'])): ?>
-                <div class="actualite-pdf-preview">
-                    <object data="download.php?type=actualite&id=<?= $actualite['id'] ?>&file=<?= basename($actualite['pdf_path']) ?>" 
-                            type="application/pdf" 
-                            class="pdf-preview">
-                    </object>
-                </div>
-            <?php endif; ?>
+    <div class="actualite-pdf-preview">
+        <object data="download.php?type=actualite&id=<?= $actualite['id'] ?>&file=<?= basename($actualite['pdf_path']) ?>" 
+                type="application/pdf" 
+                class="pdf-preview"
+                target="_blank">
+        </object>
+    </div>
+<?php endif; ?>
             
-            <a href="actualite-detail.php?id=<?= $actualite['id'] ?>&service_id=<?= $actualite['service_id'] ?>" class="actualite-link"></a>
-        </div>
+<a href="actualite-detail.php?id=<?= $actualite['id'] ?>&service_id=<?= $actualite['service_id'] ?>" class="actualite-link" target="_blank"></a>        </div>
         <?php endforeach; ?>
     </div>
   </div>
-  <footer>
-    <?php require_once __DIR__ . '/includes/footer.php'; ?>
-  </footer>
 </body>
 </html>

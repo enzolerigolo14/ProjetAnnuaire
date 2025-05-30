@@ -250,3 +250,10 @@ header {
 .search-result-item:hover {
     background-color: #f0f8ff;
 }
+
+.no-results {
+    text-align: center;
+    color: #888;
+    margin-top: 20px;
+    font-style: italic;
+}

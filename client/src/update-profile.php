@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
 require_once __DIR__ . '/config/database.php';
 
@@ -12,13 +15,25 @@ if (!isset($_SESSION['user']['role']) || !in_array($_SESSION['user']['role'], $a
     exit;
 }
 
-// Récupération des données
+// Récupération et validation des données
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
 
-if (!$data || empty($data['user_id']) || !is_numeric($data['user_id'])) {
+if (!$data || empty($data['field'])) {
     http_response_code(400);
-    die(json_encode(['success' => false, 'message' => 'Données invalides']));
+    die(json_encode(['success' => false, 'message' => 'Données invalides: champ ou valeur manquant']));
+}
+
+// Pour le champ service, l'user_id peut être vide (nouvel utilisateur)
+if ($data['field'] !== 'service' && (empty($data['user_id']) || !is_numeric($data['user_id']))) {
+    http_response_code(400);
+    die(json_encode(['success' => false, 'message' => 'ID utilisateur invalide']));
+}
+
+// L'email est obligatoire pour le champ service si user_id n'est pas numérique
+if ($data['field'] === 'service' && !is_numeric($data['user_id']) && empty($data['email'])) {
+    http_response_code(400);
+    die(json_encode(['success' => false, 'message' => 'Email requis pour créer un nouvel utilisateur']));
 }
 
 // Configuration des champs avec validation améliorée
@@ -38,14 +53,28 @@ $fieldConfigs = [
         'validate' => fn($v) => count(explode(' ', $v, 2)) === 2
     ],
     'service' => [
-        'column' => 'service_id',
-        'validate' => function($v) use ($pdo) {
-            if (!is_numeric($v)) return false;
-            $stmt = $pdo->prepare("SELECT 1 FROM services WHERE id = ?");
-            $stmt->execute([$v]);
-            return (bool)$stmt->fetch();
-        }
-    ]
+    'column' => 'service_id',
+    'validate' => function($v) use ($pdo) {
+        if (empty($v)) return true; // Permettre la valeur vide
+        if (!is_numeric($v)) return false;
+        $stmt = $pdo->prepare("SELECT 1 FROM services WHERE id = ?");
+        $stmt->execute([$v]);
+        return (bool)$stmt->fetch();
+    }
+],
+    'role' => [
+        'column' => 'role',
+        'validate' => function($v) {
+            $allowedRoles = ['membre', 'SVC-INFORMATIQUE', 'ADMIN-INTRA', 'ADMIN-RH'];
+            return in_array(strtoupper($v), array_map('strtoupper', $allowedRoles));
+        },
+        'sanitize' => fn($v) => strtoupper($v) // Standardiser en majuscules
+    ],
+'description' => [
+    'column' => 'description',
+    'validate' => fn($v) => is_string($v) && strlen($v) <= 255,
+    'sanitize' => fn($v) => htmlspecialchars(trim($v), ENT_QUOTES, 'UTF-8')
+],
 ];
 
 // Validation du champ
@@ -68,6 +97,8 @@ if (isset($config['sanitize'])) {
     $value = $config['sanitize']($value);
 }
 
+
+
 try {
     $pdo->beginTransaction();
 
@@ -89,18 +120,28 @@ try {
             break;
             
         case 'service':
-            // Validation supplémentaire pour le service
-            $stmt = $pdo->prepare("SELECT nom FROM services WHERE id = ?");
-            $stmt->execute([$value]);
-            $service = $stmt->fetch();
-            
-            if (!$service) {
-                throw new PDOException("Service invalide");
-            }
-            
-            $stmt = $pdo->prepare("UPDATE users SET service_id = ? WHERE id = ?");
-            $stmt->execute([$value, $data['user_id']]);
-            break;
+    // Validation du service
+    if (!empty($value)) {
+        $stmt = $pdo->prepare("SELECT nom FROM services WHERE id = ?");
+        $stmt->execute([$value]);
+        $service = $stmt->fetch();
+        
+        if (!$service) {
+            throw new PDOException("Service invalide");
+        }
+    }
+    
+    // Mise à jour directe du service
+    $stmt = $pdo->prepare("UPDATE users SET service_id = ? WHERE id = ?");
+    $stmt->execute([$value ?: null, $data['user_id']]);
+    break;
+        
+         case 'role':
+        // Conversion en majuscules pour uniformité
+        $roleValue = strtoupper($value);
+        $stmt = $pdo->prepare("UPDATE users SET role = ? WHERE id = ?");
+        $stmt->execute([$roleValue, $data['user_id']]);
+        break;
             
         default:
             $stmt = $pdo->prepare("UPDATE users SET {$config['column']} = ? WHERE id = ?");
@@ -126,23 +167,24 @@ try {
 
     // Préparation de la réponse
     $response = [
-        'success' => true,
-        'newValue' => match($data['field']) {
-            'nom_complet' => $updatedUser['prenom'] . ' ' . $updatedUser['nom'],
-            'service' => $updatedUser['service_name'] ?? 'Non spécifié',
-            'email' => $updatedUser['email_professionnel'],
-            'telephone' => $updatedUser['telephone'],
-            default => $value
-        },
-        'field' => $data['field']
-    ];
+    'success' => true,
+    'newValue' => match($data['field']) {
+        'nom_complet' => $updatedUser['prenom'] . ' ' . $updatedUser['nom'],
+        'service' => $updatedUser['service_name'] ?? 'Non attribué',
+        'email' => $updatedUser['email_professionnel'],
+        'telephone' => $updatedUser['telephone'],
+'role' => strtoupper($updatedUser['role']),        'description' => $updatedUser['description'],
+        default => $value
+    },
+    'field' => $data['field'],
+    'userId' => $updatedUser['id'],
+    'userCreated' => !is_numeric($data['user_id']) // Indique si un nouvel utilisateur a été créé
+];
 
-    // Ajout des infos service si nécessaire
-    if ($data['field'] === 'service') {
-        $response['serviceId'] = $updatedUser['service_id'];
-        $response['serviceName'] = $updatedUser['service_name'];
-    }
-
+if ($data['field'] === 'service') {
+    $response['serviceId'] = $updatedUser['service_id'];
+    $response['serviceName'] = $updatedUser['service_name'] ?? 'Non attribué';
+}
     echo json_encode($response);
 
 } catch (PDOException $e) {

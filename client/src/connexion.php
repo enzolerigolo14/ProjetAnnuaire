@@ -3,6 +3,8 @@ session_start();
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/ldap_auth.php';
 
+
+
 $error = '';
 $error_type = ''; 
 
@@ -25,7 +27,7 @@ function detecterRoleDepuisGroupes($groupes) {
             }
         }
     }
-    return 'user';
+    return 'membre';
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -66,43 +68,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 if ($user_data) {
-                    $user_id = $user_data['id'];
-                    $stmt = $pdo->prepare("UPDATE users SET 
-                        nom = ?, 
-                        prenom = ?, 
-                        telephone = ?, 
-                        description = ?,
-                        service_id = ?,
-                        ldap_groups = ?,
-                        mot_de_passe = ?
-                        WHERE id = ?");
-                    $stmt->execute([
-                        $ldap_data['sn'],
-                        $ldap_data['givenname'],
-                        $ldap_data['telephonenumber'],
-                        $description_service,
-                        $service_id,
-                        json_encode($groupes),
-                        password_hash($password, PASSWORD_DEFAULT),
-                        $user_id
-                    ]);
-                } else {
-                    $stmt = $pdo->prepare("INSERT INTO users 
-                        (email_professionnel, nom, prenom, telephone, description, service_id, role, ldap_groups, mot_de_passe) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                    $stmt->execute([
-                        $ldap_data['mail'],
-                        $ldap_data['sn'],
-                        $ldap_data['givenname'],
-                        $ldap_data['telephonenumber'],
-                        $description_service,
-                        $service_id,
-                        $role,
-                        json_encode($groupes),
-                        password_hash($password, PASSWORD_DEFAULT)
-                    ]);
-                    $user_id = $pdo->lastInsertId();
-                }
+    $user_id = $user_data['id'];
+    // TOUJOURS utiliser le rôle de la base de données plutôt que celui détecté depuis l'AD
+    $role = $user_data['role']; 
+    
+    $stmt = $pdo->prepare("UPDATE users SET 
+        nom = ?, 
+        prenom = ?, 
+        telephone = ?, 
+        description = ?,
+        service_id = ?,
+        ldap_groups = ?,
+        mot_de_passe = ?
+        WHERE id = ?");
+    $stmt->execute([
+        $ldap_data['sn'],
+        $ldap_data['givenname'],
+        $ldap_data['telephonenumber'],
+        $description_service,
+        $service_id,
+        json_encode($groupes),
+        password_hash($password, PASSWORD_DEFAULT),
+        $user_id
+    ]);
+    
+    // Création de la session avec le rôle de la base
+    $_SESSION['user'] = [
+        'id' => $user_id,
+        'email' => $ldap_data['mail'],
+        'nom' => $ldap_data['sn'],
+        'prenom' => $ldap_data['givenname'],
+        'role' => $role, // <-- Ici on utilise le rôle de la base
+        'service_id' => $service_id,
+        'service' => $description_service,
+        'ldap_user' => true
+    ];
+} else {
+    // Pour les nouveaux utilisateurs AD - CORRECTION: une seule insertion
+    $stmt = $pdo->prepare("INSERT INTO users 
+        (email_professionnel, nom, prenom, telephone, description, service_id, role, ldap_groups, mot_de_passe, ldap_user) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
+    $stmt->execute([
+        $ldap_data['mail'],
+        $ldap_data['sn'],
+        $ldap_data['givenname'],
+        $ldap_data['telephonenumber'],
+        $description_service,
+        $service_id,
+        $role,
+        json_encode($groupes),
+        password_hash($password, PASSWORD_DEFAULT)
+    ]);
+    
+    $user_id = $pdo->lastInsertId();
+}
                 
                 $pdo->commit();
                 
@@ -138,26 +157,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute([$username]);
                     
                     if ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                        if (password_verify($password, $user['mot_de_passe'])) {
-                            // CONNEXION RÉUSSIE POUR UTILISATEUR LOCAL
-                            $_SESSION['user'] = [
-                                'id' => $user['id'],
-                                'email' => $user['email_professionnel'],
-                                'nom' => $user['nom'],
-                                'prenom' => $user['prenom'],
-                                'role' => $user['role'],
-                                'service_id' => $user['service_id'],
-                                'service' => $user['description'],
-                                'ldap_user' => false
-                            ];
-                            
-                            header('Location: pageaccueil.php');
-                            exit;
-                        } else {
-                            $error = "Mot de passe incorrect pour cet utilisateur local.";
-                            $error_type = 'local_user';
-                        }
-                    } else {
+    // Vérification si c'est un compte local (non AD)
+    if (empty($user['ldap_user'])) {
+        // Compte local - vérification directe sans hash
+        if ($password === $user['mot_de_passe']) {  // Comparaison en clair
+            $_SESSION['user'] = [
+                'id' => $user['id'],
+                'email' => $user['email_professionnel'],
+                'nom' => $user['nom'],
+                'prenom' => $user['prenom'],
+                'role' => $user['role'],
+                'service_id' => $user['service_id'],
+                'service' => $user['description'],
+                'ldap_user' => false,
+                'password_plain' => $user['mot_de_passe'] // Stockage temporaire
+            ];
+            
+            header('Location: pageaccueil.php');
+            exit;
+        } else {
+            $error = "Mot de passe incorrect pour cet utilisateur local.";
+            $error_type = 'local_user';
+        }
+    } else {
+        // Compte AD - vérification avec password_verify
+        if (password_verify($password, $user['mot_de_passe'])) {
+            $_SESSION['user'] = [
+                'id' => $user['id'],
+                'email' => $user['email_professionnel'],
+                'nom' => $user['nom'],
+                'prenom' => $user['prenom'],
+                'role' => $user['role'],
+                'service_id' => $user['service_id'],
+                'service' => $user['description'],
+                'ldap_user' => true
+            ];
+            
+            header('Location: pageaccueil.php');
+            exit;
+        } else {
+            $error = "Mot de passe AD incorrect.";
+            $error_type = 'ad_user';
+        }
+    }
+} else {
                         $error = "Identifiants incorrects - Compte introuvable";
                         $error_type = 'generic';
                     }
@@ -274,7 +317,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        id="username" 
                        name="username" 
                        required
-                       placeholder="prenom.nom@ville-lisieux.fr"
+                       placeholder="identifiant windows"
                        autocapitalize="off">
             </div>
 

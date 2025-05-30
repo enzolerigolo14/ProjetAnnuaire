@@ -1,11 +1,9 @@
 <?php
 session_start();
-
 require_once __DIR__ . '/config/database.php';
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
-$stmt = $pdo->prepare("SELECT id, nom FROM services"); // Modification ici
+// Récupération uniquement des services actifs
+$stmt = $pdo->prepare("SELECT id, nom FROM services WHERE actif = 1 ORDER BY nom ASC");
 $stmt->execute();
 $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -31,15 +29,10 @@ $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="services-container">
     <?php foreach ($services as $service): ?>
         <div class="service-item">
-            <span class="service-name"><?= htmlspecialchars($service['nom']) ?></span>
+            <h3><?= htmlspecialchars($service['nom']) ?></h3>
             <a href="membresservices.php?id=<?= $service['id'] ?>" class="service-button">Accéder au service</a>
         </div>
     <?php endforeach; ?>
 </div>
-
-<footer>
-    <?php require_once __DIR__ . '/includes/footer.php'; ?>
-</footer>
-
 </body>
 </html>

@@ -38,7 +38,12 @@ if (!$service_id && isset($actualite['service_id'])) {
 <body>
 
     <div class="featured-news">
+        <div class="button-wrapper">
+  <a href="pageaccueil.php?id=<?= $service_id ?>" class="top-button">← Retour à l'accueil</a>
+</div>
+
     <span class="service-badge">Document du service : <?= htmlspecialchars($actualite['service_nom']) ?></span>
+    
     <div class="actualite-item">
         <?php if (!empty($actualite['image'])): ?>
             <img src="<?= htmlspecialchars($actualite['image']) ?>" alt="<?= htmlspecialchars($actualite['titre']) ?>" class="featured-image">
@@ -54,12 +59,8 @@ if (!$service_id && isset($actualite['service_id'])) {
                 </object>
             </div>
         <?php endif; ?>
-        <a href="pageaccueil.php?id=<?= $service_id ?>" class="back-button">Retour a l'accueil</a>
+        
     </div>
 </div> <!-- Fermeture de featured-news -->
-
-    <footer>
-        <?php require_once __DIR__ . '/includes/footer.php'; ?>
-    </footer>
 </body>
 </html>

@@ -11,14 +11,13 @@ require_once __DIR__ . '/../config/database.php';
 <div class="header-container">
   <div class="header-logo">
     <a href="https://www.ville-lisieux.fr/fr/" target="_blank">
-      <img src="/projetannuaire/client/src/assets/images/logo-lisieux.png" alt="Logo de la ville de Lisieux" class="logo">
+      <img src="/projetannuaire/client/src/assets/images/logo-ville-lisieux.jpg" alt="Logo de la ville de Lisieux" class="logo">
     </a>
   </div>
 
   <div class="search-container">
     <img src="/projetannuaire/client/src/assets/images/search-icon.png" alt="Search Icon" class="search-icon">
-    <input type="text" id="site-search" placeholder="Nom, prénom, téléphone ou service" maxlength="32" autocomplete="off" />
-    <!-- On supprime complètement la balise datalist native -->
+    <input type="text" id="site-search" placeholder="Nom, prénom ou service" maxlength="32" autocomplete="off" />
     <button class="bouton-search" type="button">Rechercher</button>
     <!-- On ajoute notre liste personnalisée -->
     <div id="custom-results" class="search-results"></div>
