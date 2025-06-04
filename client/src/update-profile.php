@@ -36,7 +36,6 @@ if ($data['field'] === 'service' && !is_numeric($data['user_id']) && empty($data
     die(json_encode(['success' => false, 'message' => 'Email requis pour créer un nouvel utilisateur']));
 }
 
-// Configuration des champs avec validation améliorée
 $fieldConfigs = [
     'telephone' => [
         'column' => 'telephone',
@@ -52,16 +51,16 @@ $fieldConfigs = [
         'process' => fn($v) => array_map('trim', explode(' ', $v, 2)),
         'validate' => fn($v) => count(explode(' ', $v, 2)) === 2
     ],
-    'service' => [
-    'column' => 'service_id',
-    'validate' => function($v) use ($pdo) {
-        if (empty($v)) return true; // Permettre la valeur vide
-        if (!is_numeric($v)) return false;
-        $stmt = $pdo->prepare("SELECT 1 FROM services WHERE id = ?");
-        $stmt->execute([$v]);
-        return (bool)$stmt->fetch();
-    }
-],
+    'service_id' => [  // Changé de 'service' à 'service_id'
+        'column' => 'service_id',
+        'validate' => function($v) use ($pdo) {
+            if (empty($v)) return true; // Permettre la valeur vide
+            if (!is_numeric($v)) return false;
+            $stmt = $pdo->prepare("SELECT 1 FROM services WHERE id = ?");
+            $stmt->execute([$v]);
+            return (bool)$stmt->fetch();
+        }
+    ],
     'role' => [
         'column' => 'role',
         'validate' => function($v) {
@@ -70,6 +69,12 @@ $fieldConfigs = [
         },
         'sanitize' => fn($v) => strtoupper($v) // Standardiser en majuscules
     ],
+    'telephone_perso' => [
+    'column' => 'telephone_perso',
+    'validate' => fn($v) => preg_match('/^\d{10}$/', $v),
+    'sanitize' => fn($v) => preg_replace('/[^\d]/', '', $v)
+],
+
 'description' => [
     'column' => 'description',
     'validate' => fn($v) => is_string($v) && strlen($v) <= 255,
@@ -119,10 +124,10 @@ try {
             $stmt->execute([$prenom, $nom, $data['user_id']]);
             break;
             
-        case 'service':
+         case 'service_id':
     // Validation du service
     if (!empty($value)) {
-        $stmt = $pdo->prepare("SELECT nom FROM services WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT id, nom FROM services WHERE id = ?");
         $stmt->execute([$value]);
         $service = $stmt->fetch();
         
@@ -131,17 +136,25 @@ try {
         }
     }
     
-    // Mise à jour directe du service
+    // Mise à jour explicite
     $stmt = $pdo->prepare("UPDATE users SET service_id = ? WHERE id = ?");
-    $stmt->execute([$value ?: null, $data['user_id']]);
+    $success = $stmt->execute([$value ?: null, $data['user_id']]);
+    
+    if (!$success) {
+        throw new PDOException("Échec de la mise à jour SQL");
+    }
+    
+    // Forcer le rafraîchissement
+    $stmt = $pdo->prepare("SELECT nom FROM services WHERE id = ?");
+    $stmt->execute([$value]);
+    $updatedService = $stmt->fetch();
+    
+    $response = [
+        'success' => true,
+        'newValue' => $updatedService['nom'] ?? 'Non attribué',
+        'serviceId' => $value
+    ];
     break;
-        
-         case 'role':
-        // Conversion en majuscules pour uniformité
-        $roleValue = strtoupper($value);
-        $stmt = $pdo->prepare("UPDATE users SET role = ? WHERE id = ?");
-        $stmt->execute([$roleValue, $data['user_id']]);
-        break;
             
         default:
             $stmt = $pdo->prepare("UPDATE users SET {$config['column']} = ? WHERE id = ?");
@@ -173,11 +186,13 @@ try {
         'service' => $updatedUser['service_name'] ?? 'Non attribué',
         'email' => $updatedUser['email_professionnel'],
         'telephone' => $updatedUser['telephone'],
-'role' => strtoupper($updatedUser['role']),        'description' => $updatedUser['description'],
+        'role' => strtoupper($updatedUser['role']),        
+        'description' => $updatedUser['description'],
         default => $value
     },
     'field' => $data['field'],
     'userId' => $updatedUser['id'],
+    'serviceId' => $value, // Renvoyez aussi l'ID si nécessaire
     'userCreated' => !is_numeric($data['user_id']) // Indique si un nouvel utilisateur a été créé
 ];
 

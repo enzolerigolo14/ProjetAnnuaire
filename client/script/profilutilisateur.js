@@ -70,37 +70,47 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 async function handleEditClick() {
-    const parentP = this.parentElement;
+    const parentP = this.closest('p, .editable-container'); // Plus robuste que parentElement
+    if (!parentP) {
+        console.error("Élément parent non trouvé");
+        return;
+    }
+
     const field = parentP.getAttribute('data-field');
     const userId = document.body.getAttribute('data-user-id');
     const valueSpan = parentP.querySelector('.editable-value');
+    
+    if (!valueSpan) {
+        console.error("Élément .editable-value non trouvé");
+        return;
+    }
     let currentValue = valueSpan.textContent.trim();
 
     if (currentValue === 'Non renseigné' || currentValue === 'Non spécifié' || currentValue === 'Non disponible (AD)') {
         currentValue = '';
     }
 
-    let input;
+     let input;
     if (field === "service_id") {  
-    input = document.createElement('select');
-    input.className = 'edit-select';
-    
-    // Option par défaut
-    input.innerHTML = `
-        <option value="">-- Sélectionnez un service --</option>
-        ${window.servicesHTML}
-    `;
-    
-    // Sélectionne la valeur actuelle
-    if (currentValue) {
-        const options = input.options;
-        for (let i = 0; i < options.length; i++) {
-            if (options[i].text === currentValue) {
-                options[i].selected = true;
-                break;
+        input = document.createElement('select');
+        input.className = 'edit-select';
+        
+        // Option par défaut
+        input.innerHTML = `
+            <option value="">-- Sélectionnez un service --</option>
+            ${window.servicesHTML}
+        `;
+        
+        // Sélectionne la valeur actuelle
+        if (currentValue) {
+            const options = input.options;
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].text === currentValue) {
+                    options[i].selected = true;
+                    break;
+                }
             }
         }
-    }
 } else if (field === "role") {
         input = document.createElement('select');
         input.className = 'edit-select';
@@ -145,39 +155,47 @@ async function handleEditClick() {
 
     saveBtn.addEventListener('click', async function () {
     const newValue = input.tagName === 'SELECT' ? input.options[input.selectedIndex].value : input.value.trim();
-    
+
     try {
-        // Correction: Utilisez le bon nom de champ (field au lieu de 'service')
         const response = await fetch('update-profile.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 user_id: document.body.dataset.userId,
-                field: field, // Utilisez la variable field au lieu de 'service'
+                field: field, // variable dynamique (ex: "service_id", "role", etc.)
                 value: newValue,
-                email: window.currentEmail
+                email: window.currentEmail,
+                _force: Date.now() // pour éviter le cache
             })
         });
 
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || 'Échec de la mise à jour');
-        
-        // Mise à jour de l'affichage
-        let displayValue = newValue;
-        
-        if (field === 'role') {
-            // Pour le rôle, affichez la version lisible
-            displayValue = getRoleDisplayName(newValue);
+
+        if (result.success) {
+            // Rechargement forcé si le champ est "service_id"
+            if (field === 'service_id') {
+                window.location.reload(true);
+                return;
+            }
+
+            // Mise à jour visuelle côté client (pour les autres champs)
+            let displayValue = newValue;
+
+            if (field === 'role') {
+                displayValue = getRoleDisplayName(newValue);
+            } else if (input.tagName === 'SELECT') {
+                displayValue = input.options[input.selectedIndex].text; // Pour afficher le label du SELECT
+            }
+
+            const newSpan = document.createElement('span');
+            newSpan.className = 'editable-value';
+            newSpan.textContent = displayValue;
+
+            input.replaceWith(newSpan);
+            saveBtn.replaceWith(createEditIcon());
+            cancelBtn.remove();
         }
-        
-        const newSpan = document.createElement('span');
-        newSpan.className = 'editable-value';
-        newSpan.textContent = displayValue;
-        
-        input.replaceWith(newSpan);
-        saveBtn.replaceWith(createEditIcon());
-        cancelBtn.remove();
-        
     } catch (error) {
         console.error('Erreur:', error);
         alert('Erreur lors de la mise à jour: ' + error.message);
@@ -187,15 +205,19 @@ async function handleEditClick() {
     }
 });
 
+
     cancelBtn.addEventListener('click', function () {
         input.replaceWith(createValueSpan(currentValue));
         saveBtn.replaceWith(createEditIcon());
         cancelBtn.remove();
     });
 }
-    document.querySelectorAll('.edit-icon').forEach(icon => {
+    const editIcons = document.querySelectorAll('.edit-icon');
+if (editIcons.length > 0) {
+    editIcons.forEach(icon => {
         icon.addEventListener('click', handleEditClick);
     });
+}
 });
 
 function getRoleDisplayName(roleKey) {
@@ -278,80 +300,99 @@ window.addEventListener('DOMContentLoaded', () => {
 function setupPhoneEdit() {
     document.querySelectorAll('.phone-section .edit-icon').forEach(icon => {
         icon.addEventListener('click', function() {
-            const fieldType = this.getAttribute('data-field');
-            const isInternal = fieldType === 'phone_internal';
             const container = this.closest('.phone-number');
+            if (!container) {
+                console.error("Container .phone-number non trouvé");
+                return;
+            }
+
+            const fieldType = this.dataset.field;
+            const isInternal = fieldType === 'phone_internal';
             const valueSpan = container.querySelector('.editable-value');
-            const currentValue = valueSpan.textContent.replace(/[^0-9]/g, '');
             
-            const maxLength = isInternal ? 4 : 10;
-            const inputType = isInternal ? 'number' : 'tel';
+            if (!valueSpan) {
+                console.error("Élément .editable-value non trouvé");
+                return;
+            }
+
+            let currentValue = valueSpan.textContent.replace(/\D/g, '');
             
-            const inputHtml = `
-                <div class="edit-phone-input">
-                    <input type="${inputType}" 
-                           value="${currentValue}" 
-                           maxlength="${maxLength}"
-                           pattern="${isInternal ? '\\d{4}' : '\\d{10}'}"
-                           class="${isInternal ? 'short' : ''}"
-                           oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                    <button class="save-btn">✓</button>
-                    <button class="cancel-btn">✗</button>
-                </div>
-            `;
-            
-            valueSpan.innerHTML = inputHtml;
-            valueSpan.querySelector('input').focus();
-            
-            const saveBtn = valueSpan.querySelector('.save-btn');
-            const cancelBtn = valueSpan.querySelector('.cancel-btn');
-            const input = valueSpan.querySelector('input');
-            
-            saveBtn.addEventListener('click', async function() {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentValue;
+            input.maxLength = isInternal ? 4 : 10;
+            input.pattern = isInternal ? '\\d{4}' : '\\d{10}';
+            input.placeholder = isInternal ? '4 chiffres' : '10 chiffres (ex: 0612345678)';
+            input.className = 'edit-input';
+            input.oninput = () => input.value = input.value.replace(/\D/g, '');
+
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'save-btn';
+            saveBtn.innerHTML = '<i class="fas fa-check"></i>';
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'cancel-btn';
+            cancelBtn.innerHTML = '<i class="fas fa-times"></i>';
+
+            valueSpan.textContent = '';
+            valueSpan.appendChild(input);
+            valueSpan.appendChild(saveBtn);
+            valueSpan.appendChild(cancelBtn);
+            input.focus();
+
+            saveBtn.addEventListener('click', async () => {
                 const newValue = input.value.trim();
-                
-                // Validation
-                if (isInternal && !/^\d{4}$/.test(newValue)) {
-                    alert('Le poste interne doit contenir exactement 4 chiffres');
-                    return;
+
+                // Validation améliorée
+                if (isInternal) {
+                    if (!/^\d{4}$/.test(newValue)) {
+                        alert('Le poste interne doit contenir exactement 4 chiffres');
+                        input.focus();
+                        return;
+                    }
+                } else {
+                    if (!/^0\d{9}$/.test(newValue)) {
+                        alert('Le numéro public doit contenir exactement 10 chiffres et commencer par 0');
+                        input.focus();
+                        return;
+                    }
                 }
-                
-                if (!isInternal && !/^\d{10}$/.test(newValue)) {
-                    alert('Le numéro public doit contenir exactement 10 chiffres');
-                    return;
-                }
-                
-                // Formatage pour l'affichage
-                const displayValue = isInternal ? newValue : formatPhoneDisplay(newValue);
-                valueSpan.textContent = displayValue;
-                
-                // Enregistrement en base de données
+
                 try {
-                    const response = await fetch('/api/update-phone.php', {
+                    const response = await fetch('/projetannuaire/api/update-phone.php', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
                         body: JSON.stringify({
-                            userId: document.body.getAttribute('data-user-id'),
+                            userId: document.body.dataset.userId,
                             field: fieldType,
                             value: newValue
                         })
                     });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => null);
+                        throw new Error(errorData?.message || 'Erreur de serveur');
+                    }
+
+                    const result = await response.json();
                     
-                    if (!response.ok) throw new Error('Erreur de sauvegarde');
-                } catch (error) {
-                    console.error(error);
-                    alert('Erreur lors de la sauvegarde');
-                    valueSpan.textContent = currentValue;
+                    if (result.success) {
+                        valueSpan.textContent = isInternal ? newValue : formatPhoneDisplay(newValue);
+                    } else {
+                        throw new Error(result.message || 'Échec de la mise à jour');
+                    }
+                } catch (err) {
+                    console.error("Erreur détaillée:", err);
+                    alert(`Erreur: ${err.message || 'Une erreur est survenue'}`);
+                    valueSpan.textContent = isInternal ? currentValue : formatPhoneDisplay(currentValue);
                 }
             });
-            
-            cancelBtn.addEventListener('click', function() {
+
+            cancelBtn.addEventListener('click', () => {
                 valueSpan.textContent = isInternal ? currentValue : formatPhoneDisplay(currentValue);
-            });
-            
-            input.addEventListener('keyup', function(e) {
-                if (e.key === 'Enter') saveBtn.click();
-                if (e.key === 'Escape') cancelBtn.click();
             });
         });
     });

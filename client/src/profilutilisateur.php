@@ -59,19 +59,19 @@ if (!isset($_GET['email'])) {
     exit;
 }
 
-// Après la récupération de l'email
+
 $email = urldecode($_GET['email']);
 $source = $_GET['source'] ?? 'ad';
 
-// Vérifier si l'utilisateur existe dans la BDD, peu importe la source demandée
+
 $stmt = $pdo->prepare("SELECT id FROM users WHERE email_professionnel = ?");
 $stmt->execute([$email]);
 $userExistsInDB = (bool)$stmt->fetch();
 
-// Forcer la source à 'db' si l'utilisateur existe dans la BDD
+
 if ($userExistsInDB) {
     $source = 'db';
-    // Rediriger si nécessaire pour éviter la duplication
+
     if ($_GET['source'] !== 'db') {
         header("Location: profilutilisateur.php?email=".urlencode($email)."&source=db&from=".($_GET['from'] ?? 'global'));
         exit;
@@ -268,21 +268,21 @@ $isEditable = in_array($_SESSION['user']['role'], ['SVC-INFORMATIQUE', 'ADMIN-IN
                         <span class="editable-value"><?= $emailAffiche ?></span>
                     </p>
 
-                    <div class="phone-section">
-                        <strong>Téléphone professionnel:</strong>
-                        <div class="phone-numbers">
-                            <div class="phone-number">
-                                <span>Numéro public:</span>
-                                <span class="editable-value"><?= $telephonePro['public'] ?></span>
-                                <?= $isEditable ? '<i class="fas fa-pencil-alt edit-icon"></i>' : '' ?>
-                            </div>
-                            <div class="phone-number">
-                                <span>Poste interne (4 chiffres):</span>
-                                <span class="editable-value"><?= $telephonePro['interne'] ?></span>
-                                <?= $isEditable ? '<i class="fas fa-pencil-alt edit-icon"></i>' : '' ?>
-                            </div>
-                        </div>
-                    </div>
+                  <div class="phone-section">
+    <strong>Téléphone professionnel:</strong>
+    <div class="phone-numbers">
+        <div class="phone-number" data-field="phone_public">
+            <span>Numéro public:</span>
+            <span class="editable-value"></span>
+            <i class="fas fa-pencil-alt edit-icon" data-field="phone_public"></i>
+        </div>
+        <div class="phone-number" data-field="phone_internal">
+            <span>Poste interne:</span>
+            <span class="editable-value"></span>
+            <i class="fas fa-pencil-alt edit-icon" data-edit-type="phone"></i>
+        </div>
+    </div>
+</div>
 
                     <?php if ($canViewPassword && $isLocalAccount): ?>
                         <div class="password-section">
@@ -300,10 +300,10 @@ $isEditable = in_array($_SESSION['user']['role'], ['SVC-INFORMATIQUE', 'ADMIN-IN
                     <?php endif; ?>
 
                     <p data-field="telephone_perso">
-                        <strong>Téléphone mobile:</strong>
-                        <span class="editable-value"><?= $telephonePerso ?></span>
-                        <?= $isEditable ? '<i class="fas fa-pencil-alt edit-icon"></i>' : '' ?>
-                    </p>
+    <strong>Téléphone mobile:</strong>
+    <span class="editable-value"><?= htmlspecialchars($user['telephone_perso'] ?? '') ?></span>
+    <?= $isEditable ? '<i class="fas fa-pencil-alt edit-icon"></i>' : '' ?>
+</p>
 
                     <p data-field="service_id">
                         <strong>Service:</strong>

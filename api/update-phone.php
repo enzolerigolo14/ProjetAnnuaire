@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../client/src/config/database.php';
 
 header('Content-Type: application/json');
 
@@ -18,7 +18,7 @@ if (!isset($data['userId'], $data['field'], $data['value'])) {
 // Validation des données
 $fieldMap = [
     'phone_public' => 'telephone',
-    'phone_internal' => 'telephone_interne' // Vous devrez ajouter cette colonne
+    'phone_internal' => 'telephone_interne' 
 ];
 
 if (!array_key_exists($data['field'], $fieldMap)) {
