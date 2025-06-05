@@ -195,9 +195,23 @@ $role = $source === 'db'
     ? htmlspecialchars($user['role'] ?? 'Non spécifié') 
     : htmlspecialchars($user['description'][0] ?? 'Non spécifié');
     
-$isEditable = in_array($_SESSION['user']['role'], ['SVC-INFORMATIQUE', 'ADMIN-INTRA','ADMIN-RH']) && $source === 'db';
+$isEditable = in_array($_SESSION['user']['role'], ['SVC-INFORMATIQUE', 'ADMIN-INTRA','ADMIN-RH']) 
+              && $source === 'db' 
+              && $userExistsInDB;
 
-
+function formatPhoneDisplay($number) {
+    if (empty($number)) return 'Non renseigné';
+    
+    if (strlen($number) === 4) {
+        return $number; // Poste interne - pas de formatage
+    }
+    
+    if (strlen($number) === 10) {
+        return preg_replace('/(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/', '$1 $2 $3 $4 $5', $number);
+    }
+    
+    return $number;
+}
 
 ?>
 
@@ -273,13 +287,13 @@ $isEditable = in_array($_SESSION['user']['role'], ['SVC-INFORMATIQUE', 'ADMIN-IN
     <div class="phone-numbers">
         <div class="phone-number" data-field="phone_public">
             <span>Numéro public:</span>
-            <span class="editable-value"></span>
-            <i class="fas fa-pencil-alt edit-icon" data-field="phone_public"></i>
+            <span class="editable-value"><?= formatPhoneDisplay($telephonePro['public']) ?></span>
+           
         </div>
         <div class="phone-number" data-field="phone_internal">
             <span>Poste interne:</span>
-            <span class="editable-value"></span>
-            <i class="fas fa-pencil-alt edit-icon" data-edit-type="phone"></i>
+            <span class="editable-value"><?= $telephonePro['interne'] ? htmlspecialchars($telephonePro['interne']) : 'Non renseigné' ?></span>
+            
         </div>
     </div>
 </div>

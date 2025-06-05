@@ -53,40 +53,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['membre'])) {
     $valeur = $_POST['membre'];
 
     if (str_starts_with($valeur, 'ad_')) {
-        $idAD = substr($valeur, 3);
-        foreach ($tousLesMembresAD as $membre) {
-            if ($membre["id"] == $idAD) {
-                $email = $membre["mail"][0] ?? null;
-                $prenom = $membre["givenname"][0] ?? '';
-                $nom = $membre["sn"][0] ?? '';
+    $idAD = substr($valeur, 3);
+    foreach ($tousLesMembresAD as $membre) {
+        if ($membre["id"] == $idAD) {
+            $email = $membre["mail"][0] ?? null;
+            $prenom = $membre["givenname"][0] ?? '';
+            $nom = $membre["sn"][0] ?? '';
+            $description = $membre["description"][0] ?? ''; // Ajout de la description
 
-                if (!$email) {
-                    $message = "Erreur : L'utilisateur AD n'a pas d'email défini";
-                    break;
-                }
-
-                $stmt = $pdo->prepare("SELECT * FROM users WHERE email_professionnel = ?");
-                $stmt->execute([$email]);
-                $user = $stmt->fetch();
-
-                if ($user) {
-                    $update = $pdo->prepare("UPDATE users SET service_id = ? WHERE id = ?");
-                    if ($update->execute([$service_id, $user['id']])) {
-                        
-                    } else {
-                        
-                    }
-                } else {
-                    $insert = $pdo->prepare("INSERT INTO users (prenom, nom, email_professionnel, service_id) VALUES (?, ?, ?, ?)");
-                    if ($insert->execute([$prenom, $nom, $email, $service_id])) {
-                        
-                    } else {
-                        
-                    }
-                }
+            if (!$email) {
+                $message = "Erreur : L'utilisateur AD n'a pas d'email défini";
                 break;
             }
+
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE email_professionnel = ?");
+            $stmt->execute([$email]);
+            $user = $stmt->fetch();
+
+            if ($user) {
+                $update = $pdo->prepare("UPDATE users SET service_id = ?, description = ? WHERE id = ?");
+                if ($update->execute([$service_id, $description, $user['id']])) {
+                    // Succès
+                } else {
+                    // Erreur
+                }
+            } else {
+                $insert = $pdo->prepare("INSERT INTO users (prenom, nom, email_professionnel, service_id, description, ldap_user) VALUES (?, ?, ?, ?, ?, 1)");
+                if ($insert->execute([$prenom, $nom, $email, $service_id, $description])) {
+                    // Succès
+                } else {
+                    // Erreur
+                }
+            }
+            break;
         }
+    }
     } elseif (str_starts_with($valeur, 'bdd_')) {
         $idBDD = substr($valeur, 4);
         $update = $pdo->prepare("UPDATE users SET service_id = ? WHERE id = ?");
@@ -209,17 +210,18 @@ $isAdminForm = isset($_SESSION['user']['role']) && in_array($_SESSION['user']['r
                 $isAD = isset($membre['mail']);
                 $email = $isAD ? ($membre['mail'][0] ?? '') : ($membre['email_professionnel'] ?? '');
             ?>
-<a href="profilutilisateur.php?email=<?= urlencode($email) ?>&source=<?= $isAD ? 'ad' : 'bdd' ?>&from=services&service_id=<?= $service_id ?>" class="membre-link">                <div class="membre-card">
-                    <div class="membre-nom">
-                        <?= htmlspecialchars($isAD ? ($membre['givenname'][0] ?? '') : $membre['prenom']) ?>
-                        <?= htmlspecialchars($isAD ? ($membre['sn'][0] ?? '') : $membre['nom']) ?>
-                    </div>
-                    <div class="membre-role">
-                        <?= htmlspecialchars($isAD ? ($membre['description'][0] ?? '') : '') ?><br>
-                        <?= htmlspecialchars($email) ?>
-                    </div>
-                </div>
-            </a>
+            <a href="profilutilisateur.php?email=<?= urlencode($email) ?>&source=<?= $isAD ? 'ad' : 'bdd' ?>&from=services&service_id=<?= $service_id ?>" class="membre-link">
+    <div class="membre-card">
+        <div class="membre-nom">
+            <?= htmlspecialchars($isAD ? ($membre['givenname'][0] ?? '') : $membre['prenom']) ?>
+            <?= htmlspecialchars($isAD ? ($membre['sn'][0] ?? '') : $membre['nom']) ?>
+        </div>
+        <div class="membre-role">
+            <?= htmlspecialchars($isAD ? ($membre['description'][0] ?? '') : ($membre['description'] ?? '')) ?><br>
+            <?= htmlspecialchars($email) ?>
+        </div>
+    </div>
+</a>
         <?php endforeach; ?>
     </div>
 <?php endif; ?>

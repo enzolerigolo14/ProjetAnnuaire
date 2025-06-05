@@ -77,8 +77,5 @@ $questions = $pdo->query("
         </div>
     </div>
 
-    <footer>
-        <?php include __DIR__ . '/includes/footer.php'; ?>
-    </footer>
 </body>
 </html>

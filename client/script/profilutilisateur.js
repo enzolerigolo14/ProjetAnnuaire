@@ -341,55 +341,55 @@ function setupPhoneEdit() {
             input.focus();
 
             saveBtn.addEventListener('click', async () => {
-                const newValue = input.value.trim();
+    const newValue = input.value.trim();
 
-                // Validation améliorée
-                if (isInternal) {
-                    if (!/^\d{4}$/.test(newValue)) {
-                        alert('Le poste interne doit contenir exactement 4 chiffres');
-                        input.focus();
-                        return;
-                    }
-                } else {
-                    if (!/^0\d{9}$/.test(newValue)) {
-                        alert('Le numéro public doit contenir exactement 10 chiffres et commencer par 0');
-                        input.focus();
-                        return;
-                    }
-                }
+    // Validation
+    if (isInternal) {
+        if (!/^\d{4}$/.test(newValue)) {
+            alert('Le poste interne doit contenir exactement 4 chiffres');
+            input.focus();
+            return;
+        }
+    } else {
+        if (!/^0\d{9}$/.test(newValue)) {
+            alert('Le numéro public doit contenir exactement 10 chiffres et commencer par 0');
+            input.focus();
+            return;
+        }
+    }
 
-                try {
-                    const response = await fetch('/projetannuaire/api/update-phone.php', {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: JSON.stringify({
-                            userId: document.body.dataset.userId,
-                            field: fieldType,
-                            value: newValue
-                        })
-                    });
+    try {
+        const response = await fetch('update-profile.php', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                user_id: document.body.dataset.userId,
+                field: isInternal ? 'telephone_internal' : 'telephone',
+                value: newValue
+            })
+        });
 
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => null);
-                        throw new Error(errorData?.message || 'Erreur de serveur');
-                    }
+        const result = await response.json();
+        
+        if (!response.ok) throw new Error(result.message || 'Échec de la mise à jour');
 
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        valueSpan.textContent = isInternal ? newValue : formatPhoneDisplay(newValue);
-                    } else {
-                        throw new Error(result.message || 'Échec de la mise à jour');
-                    }
-                } catch (err) {
-                    console.error("Erreur détaillée:", err);
-                    alert(`Erreur: ${err.message || 'Une erreur est survenue'}`);
-                    valueSpan.textContent = isInternal ? currentValue : formatPhoneDisplay(currentValue);
-                }
-            });
+        if (result.success) {
+            // Utilisez isInternal pour déterminer le formatage
+            valueSpan.textContent = formatPhoneDisplay(newValue, isInternal);
+            valueSpan.appendChild(createEditIcon());
+        } else {
+            throw new Error(result.message || 'Échec de la mise à jour');
+        }
+    } catch (err) {
+        console.error("Erreur:", err);
+        alert(`Erreur: ${err.message || 'Une erreur est survenue'}`);
+        valueSpan.textContent = formatPhoneDisplay(currentValue, isInternal);
+        valueSpan.appendChild(createEditIcon());
+    }
+});
 
             cancelBtn.addEventListener('click', () => {
                 valueSpan.textContent = isInternal ? currentValue : formatPhoneDisplay(currentValue);
@@ -398,8 +398,20 @@ function setupPhoneEdit() {
     });
 }
 
-function formatPhoneDisplay(number) {
-    return number.replace(/(\d{2})(?=\d)/g, '$1 ');
+function formatPhoneDisplay(number, isInternal = false) {
+    if (!number) return 'Non renseigné';
+    
+    // Pour les postes internes (4 chiffres) - pas de formatage
+    if (isInternal) {
+        return number;
+    }
+    
+    // Pour les numéros publics (10 chiffres) - formatage avec espaces
+    if (number.length === 10) {
+        return number.replace(/(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, '$1 $2 $3 $4 $5');
+    }
+    
+    return number;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
