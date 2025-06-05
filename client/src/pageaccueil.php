@@ -78,7 +78,7 @@ $actualites = $stmt->fetchAll();
       <li><a href="services-global-membre.php">Services</a></li>
       <li><a href="services-global.php">Documents</a></li>
       <li><a href="services-global-actualite.php">Informations</a></li>
-      <li><a href="faq.php">FAQ</a></li>
+      <li><a href="membresservicesfaq.php">FAQ</a></li>
     </ul>
   </nav>
 

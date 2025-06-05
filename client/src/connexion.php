@@ -49,18 +49,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 $groupes = recupererGroupesUtilisateur($login_sans_domaine);
                 $role = detecterRoleDepuisGroupes($groupes);
-                $description_service = $ldap_data['description'] ?? 'Service non défini';
-                
-                // Gestion du service
-                $stmt = $pdo->prepare("SELECT id FROM services WHERE nom = ?");
-                $stmt->execute([$description_service]);
-                $service_id = $stmt->fetchColumn();
+                // Par cette version simplifiée :
+$description_service = $ldap_data['description'] ?? 'Service non défini';
+$service_id = null; // On ne lie à aucun service spécifique
 
-                if (!$service_id) {
-                    $stmt = $pdo->prepare("INSERT INTO services (nom) VALUES (?)");
-                    $stmt->execute([$description_service]);
-                    $service_id = $pdo->lastInsertId();
-                }
+// Seulement si le service est explicitement défini dans l'AD, on le cherche/crée
+if (!empty($ldap_data['description'])) {
+    $stmt = $pdo->prepare("SELECT id FROM services WHERE nom = ?");
+    $stmt->execute([$ldap_data['description']]);
+    $service_id = $stmt->fetchColumn();
+
+    if (!$service_id) {
+        $stmt = $pdo->prepare("INSERT INTO services (nom) VALUES (?)");
+        $stmt->execute([$ldap_data['description']]);
+        $service_id = $pdo->lastInsertId();
+    }
+}
                 
                 // Vérification utilisateur existant
                 $stmt = $pdo->prepare("SELECT id, role FROM users WHERE email_professionnel = ?");
